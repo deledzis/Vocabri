@@ -3,8 +3,6 @@
 Vocabri is a modern and intuitive Android app designed to help you create, manage, and learn from your personalized vocabulary lists.
 Other platforms are planned in the future too!
 
----
-
 ## Features
 
 ### Core Functionality
@@ -23,8 +21,6 @@ Other platforms are planned in the future too!
 - **Training Mode:** Practice words with quizzes, flashcards, and spaced repetition.
 - **Search & Filter:** Quickly find words or categories.
 - **Cloud Sync:** Backup and sync your data across devices.
-
----
 
 ## Technologies Used
 
