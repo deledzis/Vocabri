@@ -1,0 +1,21 @@
+CREATE TABLE WordEntity (
+    id TEXT NOT NULL PRIMARY KEY,
+    text TEXT NOT NULL,
+    translations TEXT NOT NULL,
+    examples TEXT,
+    partOfSpeech TEXT NOT NULL,
+    notes TEXT
+);
+
+selectAll:
+SELECT * FROM WordEntity;
+
+selectById:
+SELECT * FROM WordEntity WHERE id = ?;
+
+insertWord:
+INSERT INTO WordEntity (id, text, translations, examples, partOfSpeech, notes)
+VALUES (?, ?, ?, ?, ?, ?);
+
+deleteWord:
+DELETE FROM WordEntity WHERE id = ?;

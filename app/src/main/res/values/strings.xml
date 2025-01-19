@@ -1,3 +1,23 @@
 <resources>
-    <string name="app_name">Vocabri</string>
+    <string name="app_name" translatable="false">Vocabri</string>
+
+    <!-- Dictionary screen -->
+    <string name="dictionary_title">Dictionary</string>
+    <string name="dictionary_empty_message">The dictionary is empty.\nAdd your first word!</string>
+    <string name="dictionary_delete_word">Delete word</string>
+
+    <!-- Add word screen -->
+    <string name="add_word">Add Word</string>
+    <string name="word_text">Word</string>
+    <string name="enter_translation">Enter translation</string>
+    <string name="add_translation">Add Translation</string>
+    <string name="remove_translation">Remove translation</string>
+    <string name="part_of_speech">Part of Speech</string>
+    <string name="select_part_of_speech">Select part of speech</string>
+    <string name="add_word_empty_field">Please fill all the fields</string>
+
+    <!-- General -->
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+    <string name="error_message">An error occurred: %1$s</string>
 </resources>

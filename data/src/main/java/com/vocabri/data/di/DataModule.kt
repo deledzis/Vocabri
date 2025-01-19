@@ -1,0 +1,29 @@
+package com.vocabri.data.di
+
+import app.cash.sqldelight.async.coroutines.synchronous
+import app.cash.sqldelight.driver.android.AndroidSqliteDriver
+import com.vocabri.data.VocabriDatabase
+import com.vocabri.data.datasource.word.WordLocalDataSource
+import com.vocabri.data.mapper.WordMapper
+import com.vocabri.data.repository.word.WordRepositoryImpl
+import com.vocabri.domain.repository.WordRepository
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.singleOf
+import org.koin.dsl.module
+
+val dataModule = module {
+    single {
+        VocabriDatabase(
+            driver = AndroidSqliteDriver(
+                schema = VocabriDatabase.Schema.synchronous(),
+                context = androidContext(),
+                name = "vocabri.db"
+            )
+        )
+    }
+
+    singleOf(::WordLocalDataSource)
+    singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
+    singleOf(::WordMapper)
+}

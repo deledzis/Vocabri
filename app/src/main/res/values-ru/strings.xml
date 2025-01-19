@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Dictionary screen -->
+    <string name="dictionary_title">Словарь</string>
+    <string name="dictionary_empty_message">Словарь пуст.\nДобавьте первое слово!</string>
+    <string name="dictionary_delete_word">Удалить слово</string>
+
+    <!-- Add word screen -->
+    <string name="add_word">Добавить слово</string>
+    <string name="word_text">Слово</string>
+    <string name="enter_translation">Введите перевод</string>
+    <string name="add_translation">Добавить перевод</string>
+    <string name="remove_translation">Удалить перевод</string>
+    <string name="part_of_speech">Часть речи</string>
+    <string name="select_part_of_speech">Укажите часть речи</string>
+    <string name="add_word_empty_field">Пожалуйста, заполните все поля</string>
+
+    <!-- General -->
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="error_message">Произошла ошибка: %1$s</string>
+</resources>
