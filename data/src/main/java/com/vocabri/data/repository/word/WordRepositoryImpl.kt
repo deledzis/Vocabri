@@ -3,7 +3,7 @@ package com.vocabri.data.repository.word
 import com.vocabri.data.ExampleEntity
 import com.vocabri.data.TranslationEntity
 import com.vocabri.data.WordEntity
-import com.vocabri.data.datasource.word.WordLocalDataSource
+import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
@@ -19,7 +19,7 @@ import com.vocabri.domain.util.logger
  * including their translations and examples.
  */
 class WordRepositoryImpl(
-    private val localDataSource: WordLocalDataSource,
+    private val localDataSource: WordDataSource,
     private val idGenerator: IdGenerator,
 ) : WordRepository {
 
