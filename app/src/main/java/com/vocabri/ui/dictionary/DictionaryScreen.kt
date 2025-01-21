@@ -154,7 +154,9 @@ fun EmptyScreen(
                 textId = R.string.add_word,
                 contentDescriptionId = R.string.add_word,
                 icon = Icons.Default.Create,
-                onClick = { onEvent(DictionaryEvent.AddWordClicked) }
+                onClick = {
+                    onEvent(DictionaryEvent.AddWordClicked)
+                }
             )
         }
     }
