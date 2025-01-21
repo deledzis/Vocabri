@@ -43,12 +43,19 @@ jobs:
     
     - name: Grant Execute Permission for Gradlew
       run: chmod +x ./gradlew
-    
-    - name: Build Project
-      run: ./gradlew assembleDebug
-    
+
+    - name: Build App with Gradle
+      run: ./gradlew build
+
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest
-    
-    - name: Run Instrumentation Tests
-      run: ./gradlew connectedDebugAndroidTest
+
+    - name: Build Android Test APK
+      run: ./gradlew assembleAndroidTest
+
+    - name: Run Android tests on Firebase Test Lab
+      uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+      with:
+        arg-spec: 'android-device.yml:android-pixel-4'
+      env:
+        SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
