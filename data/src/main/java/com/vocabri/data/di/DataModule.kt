@@ -3,7 +3,8 @@ package com.vocabri.data.di
 import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.vocabri.data.VocabriDatabase
-import com.vocabri.data.datasource.word.WordLocalDataSource
+import com.vocabri.data.datasource.word.WordDataSource
+import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
 import com.vocabri.data.repository.word.WordRepositoryImpl
 import com.vocabri.data.util.TimeBasedIdGenerator
 import com.vocabri.domain.repository.WordRepository
@@ -24,7 +25,7 @@ val dataModule = module {
         )
     }
 
-    singleOf(::WordLocalDataSource)
+    singleOf(::WordLocalDataSourceImpl) { bind<WordDataSource>() }
     singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
 
     singleOf(::TimeBasedIdGenerator) { bind<IdGenerator>() }

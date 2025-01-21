@@ -14,14 +14,14 @@ import com.vocabri.domain.util.logger
  *
  * Handles word-related CRUD operations and interacts with the [VocabriDatabase].
  */
-class WordLocalDataSource(private val database: VocabriDatabase) {
+class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataSource {
 
     private val log = logger()
 
     /**
      * Inserts a word entity into the database.
      */
-    suspend fun insertWord(word: WordEntity) {
+    override suspend fun insertWord(word: WordEntity) {
         log.i { "Inserting word: ${word.text}" }
         database.wordQueries.insertWord(
             id = word.id,
@@ -35,7 +35,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Inserts a translation entity into the database.
      */
-    suspend fun insertTranslation(translation: TranslationEntity) {
+    override suspend fun insertTranslation(translation: TranslationEntity) {
         log.i { "Inserting translation: ${translation.translation} for word ID: ${translation.wordId}" }
         database.wordQueries.insertTranslation(
             id = translation.id,
@@ -48,7 +48,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Inserts an example entity into the database.
      */
-    suspend fun insertExample(example: ExampleEntity) {
+    override suspend fun insertExample(example: ExampleEntity) {
         log.i { "Inserting example: ${example.example} for word ID: ${example.wordId}" }
         database.wordQueries.insertExample(
             id = example.id,
@@ -61,7 +61,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Retrieves all word entities from the database.
      */
-    suspend fun getAllWords(): List<WordEntity> {
+    override suspend fun getAllWords(): List<WordEntity> {
         log.i { "Fetching all words from the database" }
         val words = database.wordQueries.getAllWords { id, text, partOfSpeech, notes ->
             WordEntity(
@@ -78,7 +78,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Retrieves a word entity by its ID.
      */
-    suspend fun getWordById(wordId: String): WordEntity? {
+    override suspend fun getWordById(wordId: String): WordEntity? {
         log.i { "Fetching word with ID: $wordId" }
         val word = database.wordQueries.getWordById(wordId).awaitAsOneOrNull()
         log.i { if (word != null) "Word found with ID: $wordId" else "No word found with ID: $wordId" }
@@ -88,7 +88,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Retrieves all translations for a given word ID.
      */
-    suspend fun getTranslationsByWordId(wordId: String): List<TranslationEntity> {
+    override suspend fun getTranslationsByWordId(wordId: String): List<TranslationEntity> {
         log.i { "Fetching translations for word ID: $wordId" }
         val translations =
             database.wordQueries.getTranslationsByWordId(wordId) { id, newWordId, translation ->
@@ -105,7 +105,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Retrieves all examples for a given word ID.
      */
-    suspend fun getExamplesByWordId(wordId: String): List<ExampleEntity> {
+    override suspend fun getExamplesByWordId(wordId: String): List<ExampleEntity> {
         log.i { "Fetching examples for word ID: $wordId" }
         val examples = database.wordQueries.getExamplesByWordId(wordId) { id, newWordId, example ->
             ExampleEntity(
@@ -121,7 +121,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Deletes a word entity by its ID.
      */
-    suspend fun deleteWordById(wordId: String) {
+    override suspend fun deleteWordById(wordId: String) {
         log.i { "Deleting word with ID: $wordId" }
         database.wordQueries.deleteWordById(wordId)
         log.i { "Word with ID $wordId deleted" }
@@ -130,7 +130,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Deletes all translations for a given word ID.
      */
-    suspend fun deleteTranslationsByWordId(wordId: String) {
+    override suspend fun deleteTranslationsByWordId(wordId: String) {
         log.i { "Deleting translations for word ID: $wordId" }
         database.wordQueries.deleteTranslationsByWordId(wordId)
         log.i { "Translations for word ID $wordId deleted" }
@@ -139,7 +139,7 @@ class WordLocalDataSource(private val database: VocabriDatabase) {
     /**
      * Deletes all examples for a given word ID.
      */
-    suspend fun deleteExamplesByWordId(wordId: String) {
+    override suspend fun deleteExamplesByWordId(wordId: String) {
         log.i { "Deleting examples for word ID: $wordId" }
         database.wordQueries.deleteExamplesByWordId(wordId)
         log.i { "Examples for word ID $wordId deleted" }
