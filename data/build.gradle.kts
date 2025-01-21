@@ -24,12 +24,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
 
     packaging {
@@ -54,6 +56,7 @@ dependencies {
     implementation(projects.domain)
 
     implementation(libs.kotlinx.coroutines)
+    implementation(libs.kermit.log)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
@@ -63,11 +66,11 @@ dependencies {
 
     implementation(libs.sqldelight.android)
     implementation(libs.sqldelight.coroutines)
+    implementation(libs.sqldelight.jvm)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
-    testImplementation(libs.sqldelight.jvm)
 
     androidTestImplementation(libs.androidx.runner)
     androidTestImplementation(libs.mockk.android)

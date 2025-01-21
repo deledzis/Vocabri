@@ -4,9 +4,10 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.vocabri.data.VocabriDatabase
 import com.vocabri.data.datasource.word.WordLocalDataSource
-import com.vocabri.data.mapper.WordMapper
 import com.vocabri.data.repository.word.WordRepositoryImpl
+import com.vocabri.data.util.TimeBasedIdGenerator
 import com.vocabri.domain.repository.WordRepository
+import com.vocabri.domain.util.IdGenerator
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -25,5 +26,6 @@ val dataModule = module {
 
     singleOf(::WordLocalDataSource)
     singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
-    singleOf(::WordMapper)
+
+    singleOf(::TimeBasedIdGenerator) { bind<IdGenerator>() }
 }

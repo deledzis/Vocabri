@@ -31,12 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.ui.dictionary.components.WordItem
-import com.vocabri.ui.dictionary.model.WordUi
+import com.vocabri.domain.util.logger
+import com.vocabri.ui.components.IconButtonWithCenteredText
+import com.vocabri.ui.dictionary.components.WordListItem
+import com.vocabri.ui.dictionary.model.WordUiModel
 import com.vocabri.ui.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.dictionary.viewmodel.DictionaryViewModel
-import com.vocabri.ui.shared.IconButtonWithCenteredText
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -49,14 +50,18 @@ fun DictionaryScreen(
     viewModel: DictionaryViewModel = koinViewModel(),
     navController: NavController
 ) {
+    val log = logger("DictionaryScreen")
     val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(Unit) {
-        // Trigger loading of words when the screen is first displayed
+    log.i { "DictionaryScreen is displayed" }
+
+    LaunchedEffect(viewModel) {
+        log.i { "Triggering initial load of words" }
         viewModel.handleEvent(DictionaryEvent.LoadWords)
     }
 
     DictionaryScreenRoot(state) { event ->
+        log.i { "Handling event: $event" }
         when (event) {
             is DictionaryEvent.AddWordClicked -> navController.navigate("addWord")
             is DictionaryEvent.LoadWords -> viewModel.handleEvent(event)
@@ -97,7 +102,6 @@ fun DictionaryScreenRoot(
         Box(
             modifier = Modifier
                 .padding(paddingValues)
-                .padding(16.dp)
         ) {
             when (state) {
                 is DictionaryState.Empty -> {
@@ -182,7 +186,7 @@ fun WordListScreen(
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(state.words.size) { index ->
-            WordItem(uiItem = state.words[index], onEvent = onEvent)
+            WordListItem(uiItem = state.words[index], onEvent = onEvent)
         }
     }
 }
@@ -193,7 +197,8 @@ fun WordListScreen(
 @Composable
 fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error) {
     Text(
-        modifier = modifier,
+        modifier = modifier
+            .padding(16.dp),
         text = stringResource(R.string.error_message, state.message),
         style = MaterialTheme.typography.labelLarge
     )
@@ -265,20 +270,20 @@ fun PreviewErrorScreen() {
 @Composable
 fun PreviewWordListScreen() {
     val sampleWords = listOf(
-        WordUi(
+        WordUiModel(
             id = "1",
             text = "lernen",
             translations = "learn",
-            examples = listOf(),
-            partOfSpeech = PartOfSpeech.VERB,
+            examples = "Ich lerne Deutsch.",
+            partOfSpeech = PartOfSpeech.VERB.toString(),
             notes = null
         ),
-        WordUi(
+        WordUiModel(
             id = "2",
             text = "Haus",
             translations = "house, home",
-            examples = listOf(),
-            partOfSpeech = PartOfSpeech.NOUN,
+            examples = "Das ist mein Haus.",
+            partOfSpeech = PartOfSpeech.NOUN.toString(),
             notes = null
         )
     )

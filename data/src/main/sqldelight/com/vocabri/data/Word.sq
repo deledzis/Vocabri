@@ -1,21 +1,55 @@
+-- SQLDelight schema for words and their attributes
+
 CREATE TABLE WordEntity (
-    id TEXT NOT NULL PRIMARY KEY,
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
     text TEXT NOT NULL,
-    translations TEXT NOT NULL,
-    examples TEXT,
     partOfSpeech TEXT NOT NULL,
     notes TEXT
 );
 
-selectAll:
+CREATE TABLE TranslationEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    wordId TEXT NOT NULL,
+    translation TEXT NOT NULL,
+    FOREIGN KEY (wordId) REFERENCES WordEntity(id) ON DELETE CASCADE
+);
+
+CREATE TABLE ExampleEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,
+    wordId TEXT NOT NULL,
+    example TEXT NOT NULL,
+    FOREIGN KEY (wordId) REFERENCES WordEntity(id) ON DELETE CASCADE
+);
+
+-- Queries for WordEntity
+insertWord:
+INSERT INTO WordEntity (id, text, partOfSpeech, notes) VALUES (?, ?, ?, ?);
+
+getAllWords:
 SELECT * FROM WordEntity;
 
-selectById:
+getWordById:
 SELECT * FROM WordEntity WHERE id = ?;
 
-insertWord:
-INSERT INTO WordEntity (id, text, translations, examples, partOfSpeech, notes)
-VALUES (?, ?, ?, ?, ?, ?);
-
-deleteWord:
+deleteWordById:
 DELETE FROM WordEntity WHERE id = ?;
+
+-- Queries for TranslationEntity
+insertTranslation:
+INSERT INTO TranslationEntity (id, wordId, translation) VALUES (?, ?, ?);
+
+getTranslationsByWordId:
+SELECT * FROM TranslationEntity WHERE wordId = ?;
+
+deleteTranslationsByWordId:
+DELETE FROM TranslationEntity WHERE wordId = ?;
+
+-- Queries for ExampleEntity
+insertExample:
+INSERT INTO ExampleEntity (id, wordId, example) VALUES (?, ?, ?);
+
+getExamplesByWordId:
+SELECT * FROM ExampleEntity WHERE wordId = ?;
+
+deleteExamplesByWordId:
+DELETE FROM ExampleEntity WHERE wordId = ?;

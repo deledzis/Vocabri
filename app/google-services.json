@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "224442292380",
+    "project_id": "vocabri",
+    "storage_bucket": "vocabri.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:224442292380:android:8fd3f70463a27158703559",
+        "android_client_info": {
+          "package_name": "com.vocabri"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDJTux3aZE4SQ-QeNkuQVIxGfcNpvF-7Is"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
