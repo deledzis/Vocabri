@@ -24,7 +24,7 @@ androidx-junit = "1.2.1"
 compose-junit = "1.7.6"
 espressoCore = "3.6.1"
 mockk = "1.13.16"
-turbine = "0.12.1"
+turbine = "0.13.0"
 robolectric = "4.14.1"
 
 [libraries]
