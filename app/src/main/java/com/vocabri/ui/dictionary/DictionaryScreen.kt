@@ -5,12 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +34,7 @@ import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.util.logger
 import com.vocabri.ui.components.IconButtonWithCenteredText
+import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.dictionary.components.WordListItem
 import com.vocabri.ui.dictionary.model.WordUiModel
 import com.vocabri.ui.dictionary.viewmodel.DictionaryEvent
@@ -167,13 +169,20 @@ fun EmptyScreen(
  */
 @Composable
 fun LoadingScreen(modifier: Modifier = Modifier) {
-    Box(
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
-        contentAlignment = Alignment.Center
+            .padding(vertical = 16.dp)
     ) {
-        CircularProgressIndicator()
+        repeat(10) {
+            ShimmerEffect(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+                    .height(60.dp),
+                shape = RoundedCornerShape(4.dp)
+            )
+        }
     }
 }
 

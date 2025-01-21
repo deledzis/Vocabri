@@ -9,7 +9,6 @@ import com.vocabri.ui.dictionary.model.toUiModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -47,7 +46,6 @@ open class DictionaryViewModel(
         loadJob?.cancel()
         loadJob = viewModelScope.launch(ioScope.coroutineContext) {
             _state.value = DictionaryState.Loading
-            delay(2000)
             try {
                 val words = getWordsUseCase.execute()
                 log.d { "Fetched ${words.size} words from use case" }
