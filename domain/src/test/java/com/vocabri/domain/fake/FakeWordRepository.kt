@@ -6,15 +6,18 @@ import com.vocabri.domain.repository.WordRepository
 class FakeWordRepository : WordRepository {
     private val words = mutableListOf<Word>()
 
-    override suspend fun saveWord(word: Word) {
+    override suspend fun getAllWords(): List<Word> = words
+
+    override suspend fun getWordById(id: String): Word = words.first { it.id == id }
+
+    override suspend fun insertWord(word: Word) {
+        if (words.any { it.text.equals(word.text, ignoreCase = true) }) {
+            throw IllegalArgumentException("Word with text '${word.text}' already exists")
+        }
         words.add(word)
     }
 
-    override suspend fun getWords(): List<Word> = words
-
-    override suspend fun getWordById(id: String): Word? = words.find { it.id == id }
-
-    override suspend fun deleteWord(id: String) {
+    override suspend fun deleteWordById(id: String) {
         words.removeIf { it.id == id }
     }
 }

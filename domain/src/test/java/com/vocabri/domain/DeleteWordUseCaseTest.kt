@@ -38,14 +38,14 @@ class DeleteWordUseCaseTest {
             partOfSpeech = PartOfSpeech.NOUN,
             notes = null
         )
-        fakeRepository.saveWord(word1)
-        fakeRepository.saveWord(word2)
+        fakeRepository.insertWord(word1)
+        fakeRepository.insertWord(word2)
 
         // Act
         useCase.execute(word1.id)
 
         // Assert
-        val remainingWords = fakeRepository.getWords()
+        val remainingWords = fakeRepository.getAllWords()
         assertEquals(1, remainingWords.size)
         assertEquals(word2, remainingWords.first())
     }
@@ -60,13 +60,13 @@ class DeleteWordUseCaseTest {
             partOfSpeech = PartOfSpeech.VERB,
             notes = null
         )
-        fakeRepository.saveWord(word)
+        fakeRepository.insertWord(word)
 
         // Act
         useCase.execute("non-existent-id")
 
         // Assert
-        val remainingWords = fakeRepository.getWords()
+        val remainingWords = fakeRepository.getAllWords()
         assertEquals(1, remainingWords.size)
         assertEquals(word, remainingWords.first())
     }
@@ -89,15 +89,15 @@ class DeleteWordUseCaseTest {
             partOfSpeech = PartOfSpeech.NOUN,
             notes = null
         )
-        fakeRepository.saveWord(word1)
-        fakeRepository.saveWord(word2)
+        fakeRepository.insertWord(word1)
+        fakeRepository.insertWord(word2)
 
         // Act
         useCase.execute(word1.id)
         useCase.execute(word2.id)
 
         // Assert
-        val remainingWords = fakeRepository.getWords()
+        val remainingWords = fakeRepository.getAllWords()
         assertEquals(0, remainingWords.size)
     }
 }

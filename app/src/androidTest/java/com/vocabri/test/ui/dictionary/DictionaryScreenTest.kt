@@ -1,4 +1,4 @@
-package com.vocabri.ui.dictionary
+package com.vocabri.test.ui.dictionary
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithContentDescription
@@ -6,8 +6,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.vocabri.data.di.dataModule
+import com.vocabri.di.appModule
+import com.vocabri.domain.di.domainModule
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.ui.dictionary.model.WordUi
+import com.vocabri.test.di.testModule
+import com.vocabri.test.rule.KoinTestRule
+import com.vocabri.ui.dictionary.DictionaryScreen
+import com.vocabri.ui.dictionary.model.WordUiModel
 import com.vocabri.ui.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.theme.VocabriTheme
 import io.mockk.mockk
@@ -22,28 +28,44 @@ class DictionaryScreenTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
+    @get:Rule
+    val koinTestRule = KoinTestRule(
+        listOf(
+            domainModule,
+            dataModule,
+            appModule,
+            testModule
+        )
+    )
+
     private val navController = mockk<NavHostController>(relaxed = true)
 
     @Test
     fun testWordsLoadSuccessfully() {
+        val viewModel = TestDictionaryViewModel()
+
         composeTestRule.setContent {
             VocabriTheme {
                 DictionaryScreen(
+                    viewModel = viewModel,
                     navController = navController
                 )
             }
         }
 
-        composeTestRule.onNodeWithText("Dictionary").assertExists() // Toolbar title
-        composeTestRule.onNodeWithText("The dictionary is empty. Add your first word!")
+        composeTestRule.onNodeWithText("Dictionary").assertExists()
+        composeTestRule.onNodeWithText("The dictionary is empty.\nAdd your first word!")
             .assertExists()
     }
 
     @Test
     fun testAddWordButtonInIdleState() {
+        val viewModel = TestDictionaryViewModel()
+
         composeTestRule.setContent {
             VocabriTheme {
                 DictionaryScreen(
+                    viewModel = viewModel,
                     navController = navController
                 )
             }
@@ -62,12 +84,12 @@ class DictionaryScreenTest {
         viewModel.setState(
             DictionaryState.WordsLoaded(
                 listOf(
-                    WordUi(
+                    WordUiModel(
                         id = "1",
                         text = "lernen",
                         translations = "learn",
-                        examples = emptyList(),
-                        partOfSpeech = PartOfSpeech.VERB,
+                        examples = "Ich lerne",
+                        partOfSpeech = PartOfSpeech.VERB.toString(),
                         notes = null
                     )
                 )

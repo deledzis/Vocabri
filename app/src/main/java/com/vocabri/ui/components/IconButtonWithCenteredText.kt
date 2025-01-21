@@ -1,4 +1,4 @@
-package com.vocabri.ui.shared
+package com.vocabri.ui.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.PaddingValues

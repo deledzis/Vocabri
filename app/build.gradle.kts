@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.google.services)
 }
 
 android {
@@ -10,6 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.vocabri"
+        testApplicationId = "com.vocabri.test"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -37,12 +39,14 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_11
-        targetCompatibility = JavaVersion.VERSION_11
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    kotlin {
+        jvmToolchain {
+            languageVersion.set(JavaLanguageVersion.of(21))
+        }
     }
 
     packaging {
@@ -65,6 +69,7 @@ dependencies {
     implementation(projects.data)
 
     implementation(libs.kotlinx.coroutines)
+    implementation(libs.kermit.log)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
@@ -77,8 +82,12 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
+    implementation(libs.compose.foundation)
     implementation(libs.compose.activity)
     implementation(libs.compose.viewmodel)
     implementation(libs.accompanist.flowlayout)
@@ -99,4 +108,5 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.junit.compose)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.sqldelight.jvm)
 }
