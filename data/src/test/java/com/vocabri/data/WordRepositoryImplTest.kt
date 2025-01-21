@@ -1,6 +1,6 @@
 package com.vocabri.data
 
-import com.vocabri.data.datasource.word.WordLocalDataSource
+import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.repository.word.WordRepositoryImpl
 import com.vocabri.data.test.FakeIdGenerator
 import com.vocabri.domain.model.word.Example
@@ -20,7 +20,7 @@ import org.junit.Test
 class WordRepositoryImplTest {
 
     private lateinit var repository: WordRepositoryImpl
-    private val localDataSource: WordLocalDataSource = mockk(relaxed = true)
+    private val localDataSource: WordDataSource = mockk(relaxed = true)
     private val idGenerator = FakeIdGenerator()
 
     @Before

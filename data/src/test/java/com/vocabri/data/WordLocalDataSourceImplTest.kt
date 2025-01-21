@@ -1,6 +1,6 @@
 package com.vocabri.data
 
-import com.vocabri.data.datasource.word.WordLocalDataSource
+import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
 import com.vocabri.data.test.FakeVocabriDatabase.createTestJdbcSqlDriver
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -10,16 +10,16 @@ import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
-class WordLocalDataSourceTest {
+class WordLocalDataSourceImplTest {
 
     private val driver = createTestJdbcSqlDriver()
     private val database = VocabriDatabase(driver)
 
-    private lateinit var dataSource: WordLocalDataSource
+    private lateinit var dataSource: WordLocalDataSourceImpl
 
     @Before
     fun setup() {
-        dataSource = WordLocalDataSource(database = database)
+        dataSource = WordLocalDataSourceImpl(database = database)
     }
 
     @After
