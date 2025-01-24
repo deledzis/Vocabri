@@ -87,12 +87,14 @@ jobs:
               return;
             }
 
-            const requiredChecks = ['check / Build and Test'];
+            const requiredChecks = ['Auto Merge / check / Build and Test', 'Auto Merge / lint / Code Style'];
+
             const statusChecks = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: pr.head.sha
             });
+            console.log(statusChecks.data.check_runs.map(check => check.name));
 
             const allChecksPassed = statusChecks.data.check_runs
               .filter(check => requiredChecks.includes(check.name))
