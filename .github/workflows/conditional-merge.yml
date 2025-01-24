@@ -9,6 +9,12 @@ on:
     branches:
       - master
       - release/*
+    types:
+      - labeled
+      - reopened
+  pull_request_review:
+    types:
+      - submitted
 
 jobs:
   check:
@@ -33,52 +39,48 @@ jobs:
         with:
           script: |
             const pr = context.payload.pull_request;
-            console.log('Pull Request:', pr);
             if (!pr) {
-              core.setFailed('No pull request associated with this workflow.');
-              return;
-            }
-            
-            console.log('PR Author:', pr.user.login);
-            console.log('PR Labels:', pr.labels);
-            console.log('PR Head SHA:', pr.head.sha);
-            
-            const isAuthorOwner = pr.user.login === context.repo.owner;
-            console.log('Is PR Author Owner:', isAuthorOwner);
-            
-            const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
-            console.log('Has Merge Label:', hasMergeLabel);
-            
-            // If PR is from the owner, no approval needed
-            if (isAuthorOwner && hasMergeLabel) {
-              core.setOutput('ready_to_merge', 'true');
+              console.log('No pull request associated with this workflow. Exiting.');
               return;
             }
 
-            // Check for approvals and status checks for external PRs
+            const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
+            if (!hasMergeLabel) {
+              console.log('No "merge" label found. Exiting.');
+              return;
+            }
+
             const { data: reviews } = await github.rest.pulls.listReviews({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: pr.number
             });
 
+            const isAuthorOwner = pr.user.login === context.repo.owner;
             const hasApprovedReview = reviews.some(review => review.state === 'APPROVED');
 
+            if (!hasApprovedReview && !isAuthorOwner) {
+              console.log('Conditions not met for auto-merge. Exiting.');
+              return;
+            }
+
+            const requiredChecks = ['check / Build and Test'];
             const statusChecks = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: pr.head.sha
             });
 
-            const allChecksPassed = statusChecks.data.check_runs.every(
-              check => check.conclusion === 'success'
-            );
+            const allChecksPassed = statusChecks.data.check_runs
+              .filter(check => requiredChecks.includes(check.name))
+              .every(check => check.conclusion === 'success');
 
-            if (!hasApprovedReview || !allChecksPassed || !hasMergeLabel) {
-              core.setFailed('Conditions not met for auto-merge.');
-            } else {
-              core.setOutput('ready_to_merge', 'true');
+            if (!allChecksPassed) {
+              console.log('Not all required status checks passed. Exiting.');
+              return;
             }
+
+            core.setOutput('ready_to_merge', 'true');
 
       - name: Auto Merge PR
         if: steps.check_pr.outputs.ready_to_merge == 'true'
