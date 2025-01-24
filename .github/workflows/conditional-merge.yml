@@ -16,7 +16,7 @@ jobs:
 
   merge:
     name: Auto Merge
-    needs: [ build-and-test ]
+    needs: [ check ]
     runs-on: ubuntu-latest
 
     permissions:
