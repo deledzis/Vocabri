@@ -16,6 +16,9 @@ on:
   pull_request_review:
     types:
       - submitted
+  pull_request_review_comment:
+    types:
+      - created
 
 jobs:
   check:
@@ -44,7 +47,25 @@ jobs:
               console.log('No pull request associated with this workflow. Exiting.');
               return;
             }
+            
+            // Check if special comment has been added
+            if (eventName === 'issue_comment') {
+              const comment = context.payload.comment.body;
+              const pr = context.payload.issue;
 
+              if (!pr.pull_request) {
+                console.log('This is not a pull request. Exiting.');
+                return;
+              }
+
+              if (comment.trim() !== 'recheck') {
+                console.log(`Ignoring comment: "${comment}". Exiting.`);
+                return;
+              }
+              console.log('Triggered by comment: recheck');
+            }
+            
+            // check if special "merge" label has been set
             const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
             if (!hasMergeLabel) {
               console.log('No "merge" label found. Exiting.');
