@@ -1,22 +1,25 @@
-name: Conditional Auto Merge
+name: Auto Merge
 
 on:
   workflow_run:
-    workflows:
-      - Android CI
+    workflows: [ "Check" ]
+    branches: [ master ]
     types:
       - completed
 
 jobs:
-  conditional-merge:
+  merge:
     name: Auto Merge
     runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
 
     permissions:
       pull-requests: write
       contents: write
 
     steps:
+      - run: echo 'The Check workflow passed'
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -26,14 +29,22 @@ jobs:
         with:
           script: |
             const pr = context.payload.workflow_run.pull_requests[0];
+            console.log('Pull Request:', pr);
+            
             if (!pr) {
               core.setFailed('No pull request associated with this workflow.');
               return;
             }
-
-            // Check if the PR author is the repository owner
+            
+            console.log('PR Author:', pr.user.login);
+            console.log('PR Labels:', pr.labels);
+            console.log('PR Head SHA:', pr.head.sha);
+            
             const isAuthorOwner = pr.user.login === context.repo.owner;
+            console.log('Is PR Author Owner:', isAuthorOwner);
+            
             const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
+            console.log('Has Merge Label:', hasMergeLabel);
             
             // If PR is from the owner, no approval needed
             if (isAuthorOwner && hasMergeLabel) {
