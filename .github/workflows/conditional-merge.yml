@@ -10,8 +10,9 @@ on:
       - master
       - release/*
     types:
-      - labeled
+      - opened
       - reopened
+      - labeled
   pull_request_review:
     types:
       - submitted
