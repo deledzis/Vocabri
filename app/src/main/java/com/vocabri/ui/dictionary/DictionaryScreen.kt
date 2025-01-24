@@ -48,10 +48,7 @@ import org.koin.androidx.compose.koinViewModel
  * and provides actions for managing the dictionary.
  */
 @Composable
-fun DictionaryScreen(
-    viewModel: DictionaryViewModel = koinViewModel(),
-    navController: NavController
-) {
+fun DictionaryScreen(viewModel: DictionaryViewModel = koinViewModel(), navController: NavController) {
     val log = logger("DictionaryScreen")
     val state by viewModel.state.collectAsState()
 
@@ -74,17 +71,14 @@ fun DictionaryScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryScreenRoot(
-    state: DictionaryState,
-    onEvent: (DictionaryEvent) -> Unit
-) {
+fun DictionaryScreenRoot(state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.dictionary_title),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 },
                 actions = {
@@ -93,17 +87,17 @@ fun DictionaryScreenRoot(
                             Icon(
                                 tint = MaterialTheme.colorScheme.tertiary,
                                 imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.add_word)
+                                contentDescription = stringResource(R.string.add_word),
                             )
                         }
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         Box(
             modifier = Modifier
-                .padding(paddingValues)
+                .padding(paddingValues),
         ) {
             when (state) {
                 is DictionaryState.Empty -> {
@@ -117,7 +111,7 @@ fun DictionaryScreenRoot(
                 is DictionaryState.WordsLoaded -> {
                     WordListScreen(
                         state = state,
-                        onEvent = onEvent
+                        onEvent = onEvent,
                     )
                 }
 
@@ -133,14 +127,11 @@ fun DictionaryScreenRoot(
  * Displays a message when the dictionary is empty.
  */
 @Composable
-fun EmptyScreen(
-    modifier: Modifier = Modifier,
-    onEvent: (DictionaryEvent) -> Unit
-) {
+fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEvent) -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize(),
-        contentAlignment = Alignment.TopCenter
+        contentAlignment = Alignment.TopCenter,
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -148,7 +139,7 @@ fun EmptyScreen(
                     .padding(32.dp),
                 textAlign = TextAlign.Center,
                 text = stringResource(R.string.dictionary_empty_message),
-                style = MaterialTheme.typography.displaySmall
+                style = MaterialTheme.typography.displaySmall,
             )
             IconButtonWithCenteredText(
                 modifier = Modifier
@@ -158,7 +149,7 @@ fun EmptyScreen(
                 icon = Icons.Default.Create,
                 onClick = {
                     onEvent(DictionaryEvent.AddWordClicked)
-                }
+                },
             )
         }
     }
@@ -172,7 +163,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(vertical = 16.dp)
+            .padding(vertical = 16.dp),
     ) {
         repeat(10) {
             ShimmerEffect(
@@ -180,7 +171,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .fillMaxWidth()
                     .height(60.dp),
-                shape = RoundedCornerShape(4.dp)
+                shape = RoundedCornerShape(4.dp),
             )
         }
     }
@@ -193,7 +184,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 fun WordListScreen(
     modifier: Modifier = Modifier,
     state: DictionaryState.WordsLoaded,
-    onEvent: (DictionaryEvent) -> Unit
+    onEvent: (DictionaryEvent) -> Unit,
 ) {
     LazyColumn(modifier = modifier.fillMaxSize()) {
         items(state.words.size) { index ->
@@ -211,7 +202,7 @@ fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error) {
         modifier = modifier
             .padding(16.dp),
         text = stringResource(R.string.error_message, state.message),
-        style = MaterialTheme.typography.labelLarge
+        style = MaterialTheme.typography.labelLarge,
     )
 }
 
@@ -229,7 +220,7 @@ fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error) {
 fun PreviewEmptyDictionaryScreen() {
     VocabriTheme {
         DictionaryScreenRoot(
-            state = DictionaryState.Empty
+            state = DictionaryState.Empty,
         ) {}
     }
 }
@@ -287,7 +278,7 @@ fun PreviewWordListScreen() {
             translations = "learn",
             examples = "Ich lerne Deutsch.",
             partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null
+            notes = null,
         ),
         WordUiModel(
             id = "2",
@@ -295,8 +286,8 @@ fun PreviewWordListScreen() {
             translations = "house, home",
             examples = "Das ist mein Haus.",
             partOfSpeech = PartOfSpeech.NOUN.toString(),
-            notes = null
-        )
+            notes = null,
+        ),
     )
     VocabriTheme {
         DictionaryScreenRoot(state = DictionaryState.WordsLoaded(words = sampleWords)) {}

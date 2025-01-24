@@ -30,17 +30,17 @@ fun IconButtonWithCenteredText(
     contentDescriptionId: Int,
     icon: ImageVector,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         shape = RoundedCornerShape(8.dp),
-        contentPadding = PaddingValues(horizontal = 16.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Icon(
                 modifier = Modifier
@@ -48,13 +48,13 @@ fun IconButtonWithCenteredText(
                     .size(16.dp),
                 tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f),
                 imageVector = icon,
-                contentDescription = stringResource(contentDescriptionId)
+                contentDescription = stringResource(contentDescriptionId),
             )
             Text(
                 text = stringResource(textId),
                 modifier = Modifier.weight(1f),
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
         }
     }
@@ -78,7 +78,7 @@ fun PreviewIconButtonWithCenteredText() {
             textId = R.string.add_word,
             contentDescriptionId = R.string.add_word,
             icon = Icons.Default.Create,
-            onClick = {}
+            onClick = {},
         )
     }
 }

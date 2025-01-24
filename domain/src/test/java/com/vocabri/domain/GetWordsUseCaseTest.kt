@@ -30,7 +30,7 @@ class GetWordsUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         val word2 = Word(
             id = "2",
@@ -38,7 +38,7 @@ class GetWordsUseCaseTest {
             translations = listOf(Translation("2", "house")),
             examples = listOf(),
             partOfSpeech = PartOfSpeech.NOUN,
-            notes = null
+            notes = null,
         )
 
         fakeRepository.insertWord(word1)

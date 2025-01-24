@@ -34,8 +34,8 @@ class DictionaryScreenTest {
             domainModule,
             dataModule,
             appModule,
-            testModule
-        )
+            testModule,
+        ),
     )
 
     private val navController = mockk<NavHostController>(relaxed = true)
@@ -48,7 +48,7 @@ class DictionaryScreenTest {
             VocabriTheme {
                 DictionaryScreen(
                     viewModel = viewModel,
-                    navController = navController
+                    navController = navController,
                 )
             }
         }
@@ -66,7 +66,7 @@ class DictionaryScreenTest {
             VocabriTheme {
                 DictionaryScreen(
                     viewModel = viewModel,
-                    navController = navController
+                    navController = navController,
                 )
             }
         }
@@ -90,17 +90,17 @@ class DictionaryScreenTest {
                         translations = "learn",
                         examples = "Ich lerne",
                         partOfSpeech = PartOfSpeech.VERB.toString(),
-                        notes = null
-                    )
-                )
-            )
+                        notes = null,
+                    ),
+                ),
+            ),
         )
 
         composeTestRule.setContent {
             VocabriTheme {
                 DictionaryScreen(
                     viewModel = viewModel,
-                    navController = navController
+                    navController = navController,
                 )
             }
         }

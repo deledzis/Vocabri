@@ -66,10 +66,7 @@ import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
 @Composable
-fun AddWordScreen(
-    viewModel: AddWordViewModel = koinViewModel(),
-    navController: NavController
-) {
+fun AddWordScreen(viewModel: AddWordViewModel = koinViewModel(), navController: NavController) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state) {
@@ -85,11 +82,7 @@ fun AddWordScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWordScreenRoot(
-    state: AddWordState,
-    navController: NavController,
-    onEvent: (AddWordEvent) -> Unit
-) {
+fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent: (AddWordEvent) -> Unit) {
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -98,7 +91,7 @@ fun AddWordScreenRoot(
                 title = {
                     Text(
                         text = stringResource(R.string.add_word),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
                     )
                 },
                 navigationIcon = {
@@ -106,16 +99,16 @@ fun AddWordScreenRoot(
                         onClick = {
                             focusManager.clearFocus()
                             navController.popBackStack()
-                        }
+                        },
                     ) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cancel)
+                            contentDescription = stringResource(R.string.cancel),
                         )
                     }
-                }
+                },
             )
-        }
+        },
     ) { paddingValues ->
         when (state) {
             is AddWordState.Editing -> {
@@ -125,11 +118,13 @@ fun AddWordScreenRoot(
                         .padding(paddingValues)
                         .padding(16.dp)
                         .pointerInput(Unit) {
-                            detectTapGestures(onTap = {
-                                focusManager.clearFocus()
-                            })
+                            detectTapGestures(
+                                onTap = {
+                                    focusManager.clearFocus()
+                                },
+                            )
                         },
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
                     SelectPartOfSpeech(state, onEvent)
                     WordField(state, onEvent)
@@ -139,7 +134,7 @@ fun AddWordScreenRoot(
                         Text(
                             text = state.errorMessageId?.let { stringResource(it) } ?: "",
                             color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.labelLarge
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
                 }
@@ -163,7 +158,7 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
         placeholder = {
             Text(
                 text = stringResource(R.string.word_text),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
         },
         textStyle = MaterialTheme.typography.labelLarge,
@@ -173,8 +168,8 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
             unfocusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
+            disabledIndicatorColor = Color.Transparent,
+        ),
     )
 }
 
@@ -183,13 +178,13 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
 fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min),
         ) {
             TextField(
                 modifier = Modifier
@@ -202,24 +197,24 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                 placeholder = {
                     Text(
                         text = stringResource(R.string.enter_translation),
-                        style = MaterialTheme.typography.labelLarge
+                        style = MaterialTheme.typography.labelLarge,
                     )
                 },
                 textStyle = MaterialTheme.typography.labelLarge,
                 shape = RoundedCornerShape(8.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Done,
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onEvent(AddWordEvent.AddTranslation) }
+                    onDone = { onEvent(AddWordEvent.AddTranslation) },
                 ),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     unfocusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent,
-                    disabledIndicatorColor = Color.Transparent
-                )
+                    disabledIndicatorColor = Color.Transparent,
+                ),
             )
 
             AnimatedVisibility(visible = state.showAddTranslationButton) {
@@ -231,13 +226,13 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                         .aspectRatio(1f)
                         .background(
                             MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(8.dp)
-                        )
+                            shape = RoundedCornerShape(8.dp),
+                        ),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Add,
                         contentDescription = stringResource(R.string.add_translation),
-                        tint = MaterialTheme.colorScheme.onPrimary
+                        tint = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
             }
@@ -254,23 +249,23 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                     shape = RoundedCornerShape(8.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
                     ),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
                     ) {
                         Text(
                             text = translation,
-                            style = MaterialTheme.typography.labelSmall
+                            style = MaterialTheme.typography.labelSmall,
                         )
                         Icon(
                             tint = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.5f),
                             modifier = Modifier
                                 .size(16.dp),
                             imageVector = Icons.Filled.Clear,
-                            contentDescription = stringResource(R.string.cancel)
+                            contentDescription = stringResource(R.string.remove_translation),
                         )
                     }
                 }
@@ -296,21 +291,33 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
                 },
                 shape = RoundedCornerShape(8.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                    contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
+                    containerColor = if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.surface
+                    },
+                    contentColor = if (isSelected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurface
+                    },
                 ),
             ) {
                 // TODO: make unified capitalize method
                 Text(
                     text = partOfSpeech.name.lowercase()
                         .replaceFirstChar {
-                            if (it.isLowerCase()) it.titlecase(
-                                Locale.getDefault()
-                            ) else it.toString()
+                            if (it.isLowerCase()) {
+                                it.titlecase(
+                                    Locale.getDefault(),
+                                )
+                            } else {
+                                it.toString()
+                            }
                         },
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight(700)
-                    )
+                        fontWeight = FontWeight(700),
+                    ),
                 )
             }
         }
@@ -318,11 +325,7 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
 }
 
 @Composable
-private fun SaveButton(
-    focusManager: FocusManager,
-    state: AddWordState.Editing,
-    onEvent: (AddWordEvent) -> Unit,
-) {
+private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
     val saveButtonAlpha by animateFloatAsState(if (state.isSaveButtonEnabled) 1f else 0.7f)
 
     Button(
@@ -334,11 +337,11 @@ private fun SaveButton(
         shape = RoundedCornerShape(8.dp),
         modifier = Modifier
             .fillMaxWidth()
-            .alpha(saveButtonAlpha)
+            .alpha(saveButtonAlpha),
     ) {
         Text(
             text = stringResource(R.string.save),
-            style = MaterialTheme.typography.labelLarge
+            style = MaterialTheme.typography.labelLarge,
         )
     }
 }
@@ -361,10 +364,10 @@ fun PreviewAddWordScreenEditing() {
             state = AddWordState.Editing(
                 text = "lernen",
                 translations = listOf("study", "learn"),
-                partOfSpeech = PartOfSpeech.VERB
+                partOfSpeech = PartOfSpeech.VERB,
             ),
             navController = navController,
-            onEvent = {}
+            onEvent = {},
         )
     }
 }
@@ -386,7 +389,7 @@ fun PreviewAddWordScreenEditingEmpty() {
         AddWordScreenRoot(
             state = AddWordState.Editing(),
             navController = navController,
-            onEvent = {}
+            onEvent = {},
         )
     }
 }
@@ -408,8 +411,7 @@ fun PreviewAddWordScreenError() {
         AddWordScreenRoot(
             state = AddWordState.Editing(errorMessageId = R.string.add_word_empty_field),
             navController = navController,
-            onEvent = {}
+            onEvent = {},
         )
     }
 }
-

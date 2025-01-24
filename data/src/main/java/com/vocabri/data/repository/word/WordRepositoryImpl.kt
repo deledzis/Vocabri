@@ -18,10 +18,8 @@ import com.vocabri.domain.util.logger
  * This class handles operations such as retrieving, inserting, and deleting words,
  * including their translations and examples.
  */
-class WordRepositoryImpl(
-    private val localDataSource: WordDataSource,
-    private val idGenerator: IdGenerator,
-) : WordRepository {
+class WordRepositoryImpl(private val localDataSource: WordDataSource, private val idGenerator: IdGenerator) :
+    WordRepository {
 
     private val log = logger()
 
@@ -45,15 +43,15 @@ class WordRepositoryImpl(
                     .map { translationEntity ->
                         Translation(
                             id = translationEntity.id,
-                            text = translationEntity.translation
+                            text = translationEntity.translation,
                         )
                     },
                 examples = localDataSource.getExamplesByWordId(wordEntity.id).map { exampleEntity ->
                     Example(
                         id = exampleEntity.id,
-                        text = exampleEntity.example
+                        text = exampleEntity.example,
                     )
-                }
+                },
             )
         }
     }
@@ -71,13 +69,13 @@ class WordRepositoryImpl(
         val translations = localDataSource.getTranslationsByWordId(id).map { translationEntity ->
             Translation(
                 id = translationEntity.id,
-                text = translationEntity.translation
+                text = translationEntity.translation,
             )
         }
         val examples = localDataSource.getExamplesByWordId(id).map { exampleEntity ->
             Example(
                 id = exampleEntity.id,
-                text = exampleEntity.example
+                text = exampleEntity.example,
             )
         }
 
@@ -88,7 +86,7 @@ class WordRepositoryImpl(
             partOfSpeech = PartOfSpeech.valueOf(wordEntity.partOfSpeech),
             notes = wordEntity.notes,
             translations = translations,
-            examples = examples
+            examples = examples,
         )
     }
 
@@ -111,7 +109,7 @@ class WordRepositoryImpl(
             id = word.id,
             text = word.text,
             partOfSpeech = word.partOfSpeech.name,
-            notes = word.notes
+            notes = word.notes,
         )
         localDataSource.insertWord(wordEntity)
         log.i { "Inserted word entity: ${wordEntity.text}" }
@@ -120,7 +118,7 @@ class WordRepositoryImpl(
             val translationEntity = TranslationEntity(
                 id = idGenerator.generateStringId(),
                 wordId = word.id,
-                translation = translation.text
+                translation = translation.text,
             )
             localDataSource.insertTranslation(translationEntity)
         }
@@ -130,7 +128,7 @@ class WordRepositoryImpl(
             val exampleEntity = ExampleEntity(
                 id = idGenerator.generateStringId(),
                 wordId = word.id,
-                example = example.text
+                example = example.text,
             )
             localDataSource.insertExample(exampleEntity)
         }

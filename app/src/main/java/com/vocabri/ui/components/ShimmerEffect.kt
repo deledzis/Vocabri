@@ -68,12 +68,12 @@ fun ShimmerEffect(
     )
 
     Box(
-        modifier = modifier.clip(shape)
+        modifier = modifier.clip(shape),
     ) {
         Spacer(
             modifier = Modifier
                 .matchParentSize()
-                .background(brush)
+                .background(brush),
         )
     }
 }
@@ -95,7 +95,7 @@ fun PreviewShimmerEffectRounded() {
             modifier = Modifier
                 .size(60.dp),
             shape = RoundedCornerShape(50),
-            durationMillis = 1000
+            durationMillis = 1000,
         )
     }
 }
@@ -119,14 +119,14 @@ fun PreviewShimmerEffectLayout() {
                     .fillMaxWidth()
                     .height(100.dp)
                     .padding(16.dp),
-                horizontalArrangement = Arrangement.Absolute.SpaceBetween
+                horizontalArrangement = Arrangement.Absolute.SpaceBetween,
             ) {
                 repeat(6) {
                     ShimmerEffect(
                         modifier = Modifier
                             .size(60.dp),
                         shape = RoundedCornerShape(50),
-                        durationMillis = 1000
+                        durationMillis = 1000,
                     )
                 }
             }
@@ -136,7 +136,7 @@ fun PreviewShimmerEffectLayout() {
                     .padding(16.dp)
                     .fillMaxWidth()
                     .height(60.dp),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp),
             )
         }
     }

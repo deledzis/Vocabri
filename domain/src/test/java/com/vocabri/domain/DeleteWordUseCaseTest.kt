@@ -28,7 +28,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         val word2 = Word(
             id = "2",
@@ -36,7 +36,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.NOUN,
-            notes = null
+            notes = null,
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
@@ -58,7 +58,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         fakeRepository.insertWord(word)
 
@@ -79,7 +79,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         val word2 = Word(
             id = "2",
@@ -87,7 +87,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.NOUN,
-            notes = null
+            notes = null,
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)

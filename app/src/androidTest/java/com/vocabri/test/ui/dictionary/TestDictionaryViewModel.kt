@@ -9,11 +9,12 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class TestDictionaryViewModel : DictionaryViewModel(
-    getWordsUseCase = mockk(),
-    deleteWordUseCase = mockk(),
-    ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-) {
+class TestDictionaryViewModel :
+    DictionaryViewModel(
+        getWordsUseCase = mockk(),
+        deleteWordUseCase = mockk(),
+        ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+    ) {
     private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Empty)
     override val state: StateFlow<DictionaryState> = _state
 

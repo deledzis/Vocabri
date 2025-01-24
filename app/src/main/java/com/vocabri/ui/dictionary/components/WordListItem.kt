@@ -22,16 +22,12 @@ import com.vocabri.ui.dictionary.model.WordUiModel
 import com.vocabri.ui.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.theme.VocabriTheme
 
-const val Threshold = 0.5f
+private const val THRESHOLD = 0.5f
 
 @Composable
-fun WordListItem(
-    modifier: Modifier = Modifier,
-    uiItem: WordUiModel,
-    onEvent: (DictionaryEvent) -> Unit,
-) {
+fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryEvent) -> Unit) {
     val dismissState = rememberSwipeToDismissBoxState(
-        positionalThreshold = { it * Threshold },
+        positionalThreshold = { it * THRESHOLD },
         confirmValueChange = {
             when (it) {
                 SwipeToDismissBoxValue.EndToStart -> {
@@ -59,30 +55,27 @@ fun WordListItem(
  * Composable for a single word item in the list.
  */
 @Composable
-fun WordListItemContent(
-    modifier: Modifier = Modifier,
-    uiItem: WordUiModel,
-) {
+fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel) {
     Row(
         modifier = modifier
             .fillMaxWidth()
             .background(MaterialTheme.colorScheme.surface)
             .padding(
                 vertical = 8.dp,
-                horizontal = 16.dp
+                horizontal = 16.dp,
             ),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         // Display word text and its translations
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = uiItem.text,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
             )
             Text(
                 text = uiItem.translations,
-                style = MaterialTheme.typography.labelSmall
+                style = MaterialTheme.typography.labelSmall,
             )
         }
         // Delete button for manual deletion
@@ -108,10 +101,9 @@ fun PreviewWordListItem() {
         translations = "learn, study",
         examples = "Ich lerne Deutsch.",
         partOfSpeech = PartOfSpeech.VERB.toString(),
-        notes = "Irregular verb"
+        notes = "Irregular verb",
     )
     VocabriTheme {
         WordListItem(uiItem = sampleWord) {}
     }
 }
-

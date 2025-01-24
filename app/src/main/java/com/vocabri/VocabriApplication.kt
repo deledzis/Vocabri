@@ -25,7 +25,7 @@ class VocabriApplication : Application() {
             modules(
                 dataModule,
                 domainModule,
-                appModule
+                appModule,
             )
         }
         log.i { "Koin initialization completed" }
