@@ -1,10 +1,6 @@
 name: Auto Merge
 
 on:
-  push:
-    branches:
-      - master
-      - release/*
   pull_request:
     branches:
       - master
@@ -13,6 +9,7 @@ on:
       - opened
       - reopened
       - labeled
+      - synchronize
   pull_request_review:
     types:
       - submitted
@@ -48,6 +45,7 @@ jobs:
               return;
             }
             
+            const eventName = context.eventName;
             // Check if special comment has been added
             if (eventName === 'issue_comment') {
               const comment = context.payload.comment.body;
