@@ -11,7 +11,7 @@ on:
       - release/*
 
 jobs:
-  build-and-test:
+  check:
     uses: ./.github/workflows/check.yml
 
   merge:
