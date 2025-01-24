@@ -35,7 +35,7 @@ jobs:
         key: gradle-${{ runner.os }}-${{ hashFiles('**/*.gradle.kts*', '**/gradle-wrapper.properties') }}
 
     - name: Set up Android SDK
-      uses: android-actions/setup-android@v2
+      uses: android-actions/setup-android@v3
       with:
         api-level: 35
         build-tools: 34.0.0
