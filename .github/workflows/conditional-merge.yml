@@ -1,0 +1,94 @@
+name: Auto Merge
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+  pull_request:
+    branches:
+      - master
+      - release/*
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+
+  merge:
+    name: Auto Merge
+    needs: [ check ]
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check PR Details
+        id: check_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            console.log('Pull Request:', pr);
+            if (!pr) {
+              core.setFailed('No pull request associated with this workflow.');
+              return;
+            }
+            
+            console.log('PR Author:', pr.user.login);
+            console.log('PR Labels:', pr.labels);
+            console.log('PR Head SHA:', pr.head.sha);
+            
+            const isAuthorOwner = pr.user.login === context.repo.owner;
+            console.log('Is PR Author Owner:', isAuthorOwner);
+            
+            const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
+            console.log('Has Merge Label:', hasMergeLabel);
+            
+            // If PR is from the owner, no approval needed
+            if (isAuthorOwner && hasMergeLabel) {
+              core.setOutput('ready_to_merge', 'true');
+              return;
+            }
+
+            // Check for approvals and status checks for external PRs
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+
+            const hasApprovedReview = reviews.some(review => review.state === 'APPROVED');
+
+            const statusChecks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            const allChecksPassed = statusChecks.data.check_runs.every(
+              check => check.conclusion === 'success'
+            );
+
+            if (!hasApprovedReview || !allChecksPassed || !hasMergeLabel) {
+              core.setFailed('Conditions not met for auto-merge.');
+            } else {
+              core.setOutput('ready_to_merge', 'true');
+            }
+
+      - name: Auto Merge PR
+        if: steps.check_pr.outputs.ready_to_merge == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+              merge_method: 'squash'
+            });

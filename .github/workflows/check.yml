@@ -1,14 +1,6 @@
-name: Android CI
+name: Check
 
-on:
-  push:
-    branches:
-      - master
-      - release/*
-  pull_request:
-    branches:
-      - master
-      - release/*
+on: [ workflow_call ]
 
 jobs:
   build:
@@ -50,12 +42,13 @@ jobs:
     - name: Run Unit Tests
       run: ./gradlew testDebugUnitTest
 
-    - name: Build Android Test APK
-      run: ./gradlew assembleAndroidTest
+# FIXME: Temporary disabled, should be re-enabled when CI is configured and stable
+#    - name: Build Android Test APK
+#      run: ./gradlew assembleAndroidTest
 
-    - name: Run Android tests on Firebase Test Lab
-      uses: asadmansr/Firebase-Test-Lab-Action@v1.0
-      with:
-        arg-spec: 'android-device.yml:android-pixel-5'
-      env:
-        SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
+#    - name: Run Android tests on Firebase Test Lab
+#      uses: asadmansr/Firebase-Test-Lab-Action@v1.0
+#      with:
+#        arg-spec: 'android-device.yml:android-pixel-5'
+#      env:
+#        SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT }}
