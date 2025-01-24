@@ -1,0 +1,75 @@
+name: Conditional Auto Merge
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - labeled
+      - unlabeled
+      - review_requested
+      - review_submitted
+      - status
+
+jobs:
+  conditional-merge:
+    name: Auto Merge Based on Author
+    runs-on: ubuntu-latest
+
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check PR Author and Merge Conditions
+        id: check_pr
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+
+            // Check if the PR author is the repository owner
+            const isAuthorOwner = pr.user.login === context.repo.owner;
+            const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
+            
+            // If PR is from the owner, no approval needed
+            if (isAuthorOwner && hasMergeLabel) {
+              core.setOutput('ready_to_merge', 'true');
+              return;
+            }
+
+            // Check for approvals and status checks for external PRs
+            const { data: reviews } = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number
+            });
+
+            const hasApprovedReview = reviews.some(review => review.state === 'APPROVED');
+            const statusChecks = await github.rest.checks.listForRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: pr.head.sha
+            });
+
+            const allChecksPassed = statusChecks.data.check_runs.every(check => check.conclusion === 'success');
+
+            if (!hasApprovedReview || !allChecksPassed || !hasMergeLabel) {
+              core.setFailed(`Conditions not met for PR #${pr.number}.`);
+            } else {
+              core.setOutput('ready_to_merge', 'true');
+            }
+
+      - name: Auto Merge PR
+        if: steps.check_pr.outputs.ready_to_merge == 'true'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            await github.rest.pulls.merge({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              merge_method: 's
