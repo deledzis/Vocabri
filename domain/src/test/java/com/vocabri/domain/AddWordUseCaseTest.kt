@@ -33,7 +33,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb"
+            notes = "Irregular verb",
         )
 
         addWordUseCase.execute(word)
@@ -57,7 +57,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(Example("1", "Ich lerne")),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         val word2 = Word(
             id = "2",
@@ -65,7 +65,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("2", "house")),
             examples = listOf(Example("2", "Das ist mein Haus")),
             partOfSpeech = PartOfSpeech.NOUN,
-            notes = null
+            notes = null,
         )
 
         fakeRepository.insertWord(word1)
@@ -99,14 +99,14 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb"
+            notes = "Irregular verb",
         )
 
         addWordUseCase.execute(word)
 
         assertThrows(
             "Word with text 'lernen' already exists",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             runBlocking { addWordUseCase.execute(word) }
         }

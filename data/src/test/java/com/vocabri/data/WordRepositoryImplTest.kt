@@ -36,7 +36,7 @@ class WordRepositoryImplTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(Example("1", "Ich lerne")),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
 
         coEvery { localDataSource.insertWord(any()) } returns Unit
@@ -51,26 +51,25 @@ class WordRepositoryImplTest {
                     id = "1",
                     text = "lernen",
                     partOfSpeech = "VERB",
-                    notes = null
-                )
+                    notes = null,
+                ),
             )
             localDataSource.insertTranslation(
                 TranslationEntity(
                     id = idGenerator.id,
                     wordId = "1",
-                    translation = "learn"
-                )
+                    translation = "learn",
+                ),
             )
             localDataSource.insertExample(
                 ExampleEntity(
                     id = idGenerator.id,
                     wordId = "1",
-                    example = "Ich lerne"
-                )
+                    example = "Ich lerne",
+                ),
             )
         }
     }
-
 
     @Test
     fun `getWords retrieves words from localDataSource`() = runBlocking {
@@ -79,22 +78,22 @@ class WordRepositoryImplTest {
                 id = "1",
                 text = "lernen",
                 partOfSpeech = "VERB",
-                notes = null
-            )
+                notes = null,
+            ),
         )
         val dbTranslations = listOf(
             TranslationEntity(
                 id = "1",
                 wordId = "1",
-                translation = "learn"
-            )
+                translation = "learn",
+            ),
         )
         val dbExamples = listOf(
             ExampleEntity(
                 id = "1",
                 wordId = "1",
-                example = "Ich lerne"
-            )
+                example = "Ich lerne",
+            ),
         )
 
         coEvery { localDataSource.getAllWords() } returns dbWords
@@ -108,8 +107,8 @@ class WordRepositoryImplTest {
                 translations = listOf(Translation("1", "learn")),
                 examples = listOf(Example("1", "Ich lerne")),
                 partOfSpeech = PartOfSpeech.VERB,
-                notes = null
-            )
+                notes = null,
+            ),
         )
 
         val result = repository.getAllWords()
@@ -141,21 +140,21 @@ class WordRepositoryImplTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(Example("1", "Ich lerne")),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb"
+            notes = "Irregular verb",
         )
 
         val existingWordEntity = WordEntity(
             id = "2",
             text = "lernen",
             partOfSpeech = "VERB",
-            notes = null
+            notes = null,
         )
 
         coEvery { localDataSource.getAllWords() } returns listOf(existingWordEntity)
 
         assertThrows(
             "Word with text 'lernen' already exists",
-            IllegalArgumentException::class.java
+            IllegalArgumentException::class.java,
         ) {
             runBlocking {
                 repository.insertWord(word)

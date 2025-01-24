@@ -9,5 +9,5 @@ fun Word.toUiModel(): WordUiModel = WordUiModel(
     partOfSpeech = this.partOfSpeech.name,
     notes = this.notes,
     translations = this.translations.joinToString(", ") { it.text },
-    examples = this.examples.joinToString(", ") { it.text }
+    examples = this.examples.joinToString(", ") { it.text },
 )

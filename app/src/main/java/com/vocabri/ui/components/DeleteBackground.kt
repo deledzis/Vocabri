@@ -23,13 +23,13 @@ fun DeleteBackground() {
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.error)
             .padding(16.dp),
-        contentAlignment = Alignment.CenterEnd
+        contentAlignment = Alignment.CenterEnd,
     ) {
         Icon(
             tint = MaterialTheme.colorScheme.onError,
             modifier = Modifier.size(16.dp),
             imageVector = Icons.Default.Delete,
-            contentDescription = stringResource(R.string.dictionary_delete_word)
+            contentDescription = stringResource(R.string.dictionary_delete_word),
         )
     }
 }

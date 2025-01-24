@@ -27,7 +27,7 @@ class WordItemTest {
             translations = "learn",
             examples = "Ich lerne",
             partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null
+            notes = null,
         )
 
         composeRule.setContent {
@@ -45,7 +45,7 @@ class WordItemTest {
             translations = "learn, study",
             examples = "Ich lerne",
             partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null
+            notes = null,
         )
 
         composeRule.setContent {

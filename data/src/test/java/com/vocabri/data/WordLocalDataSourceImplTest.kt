@@ -33,17 +33,17 @@ class WordLocalDataSourceImplTest {
             id = "1",
             text = "lernen",
             partOfSpeech = "VERB",
-            notes = "Some notes"
+            notes = "Some notes",
         )
         val translation = TranslationEntity(
             id = "1",
             wordId = "1",
-            translation = "learn"
+            translation = "learn",
         )
         val example = ExampleEntity(
             id = "1",
             wordId = "1",
-            example = "Ich lerne"
+            example = "Ich lerne",
         )
 
         dataSource.insertWord(word)
@@ -65,13 +65,13 @@ class WordLocalDataSourceImplTest {
             id = "1",
             text = "lernen",
             partOfSpeech = "VERB",
-            notes = null
+            notes = null,
         )
         val word2 = WordEntity(
             id = "2",
             text = "Haus",
             partOfSpeech = "NOUN",
-            notes = "Important"
+            notes = "Important",
         )
         val translation1 = TranslationEntity(id = "1", wordId = "1", translation = "learn")
         val translation2 = TranslationEntity(id = "2", wordId = "2", translation = "house")

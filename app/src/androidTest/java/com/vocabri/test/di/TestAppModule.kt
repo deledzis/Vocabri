@@ -7,7 +7,7 @@ import org.koin.dsl.module
 val testModule = module {
     single<VocabriDatabase> {
         VocabriDatabase(
-            driver = createTestJdbcSqlDriver()
+            driver = createTestJdbcSqlDriver(),
         )
     }
 }

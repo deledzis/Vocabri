@@ -46,7 +46,7 @@ class AddWordViewModelTest {
         viewModel = AddWordViewModel(
             addWordsUseCase = addWordUseCase,
             idGenerator = idGenerator,
-            ioScope = TestScope(dispatcherRule.testDispatcher)
+            ioScope = TestScope(dispatcherRule.testDispatcher),
         )
     }
 
@@ -134,7 +134,7 @@ class AddWordViewModelTest {
             translations = listOf(Translation(idGenerator.generateStringId(), "learn")),
             examples = emptyList(),
             partOfSpeech = PartOfSpeech.VERB,
-            notes = null
+            notes = null,
         )
         coVerify { addWordUseCase.execute(expectedWord) }
         assertEquals(AddWordState.Saved, viewModel.state.first())

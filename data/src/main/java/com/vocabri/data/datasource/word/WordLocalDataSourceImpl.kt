@@ -27,7 +27,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
             id = word.id,
             text = word.text,
             partOfSpeech = word.partOfSpeech,
-            notes = word.notes
+            notes = word.notes,
         )
         log.i { "Word inserted with ID: ${word.id}" }
     }
@@ -40,7 +40,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
         database.wordQueries.insertTranslation(
             id = translation.id,
             wordId = translation.wordId,
-            translation = translation.translation
+            translation = translation.translation,
         )
         log.i { "Translation inserted with ID: ${translation.id}" }
     }
@@ -53,7 +53,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
         database.wordQueries.insertExample(
             id = example.id,
             wordId = example.wordId,
-            example = example.example
+            example = example.example,
         )
         log.i { "Example inserted with ID: ${example.id}" }
     }
@@ -68,7 +68,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                 id = id,
                 text = text,
                 partOfSpeech = partOfSpeech,
-                notes = notes
+                notes = notes,
             )
         }.awaitAsList()
         log.i { "Retrieved ${words.size} words from the database: $words" }
@@ -95,7 +95,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                 TranslationEntity(
                     id = id,
                     wordId = newWordId,
-                    translation = translation
+                    translation = translation,
                 )
             }.awaitAsList()
         log.i { "Retrieved ${translations.size} translations for word ID: $wordId" }
@@ -111,7 +111,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
             ExampleEntity(
                 id = id,
                 wordId = newWordId,
-                example = example
+                example = example,
             )
         }.awaitAsList()
         log.i { "Retrieved ${examples.size} examples for word ID: $wordId" }

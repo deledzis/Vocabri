@@ -21,9 +21,12 @@ jobs:
   check:
     uses: ./.github/workflows/check.yml
 
+  lint:
+    uses: ./.github/workflows/lint.yml
+
   merge:
     name: Auto Merge
-    needs: [ check ]
+    needs: [ check, lint ]
     runs-on: ubuntu-latest
 
     permissions:

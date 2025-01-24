@@ -10,9 +10,7 @@ import com.vocabri.domain.util.logger
  *
  * @param wordRepository The repository responsible for word data operations.
  */
-class DeleteWordUseCase(
-    private val wordRepository: WordRepository
-) {
+class DeleteWordUseCase(private val wordRepository: WordRepository) {
 
     private val log = logger()
 

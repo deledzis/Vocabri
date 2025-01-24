@@ -20,8 +20,8 @@ val dataModule = module {
             driver = AndroidSqliteDriver(
                 schema = VocabriDatabase.Schema.synchronous(),
                 context = androidContext(),
-                name = "vocabri.db"
-            )
+                name = "vocabri.db",
+            ),
         )
     }
 

@@ -69,30 +69,27 @@ class AddWordViewModel(
         )
     }
 
-    private fun updateCurrentTranslation(translation: String) =
-        stateAsEditing()?.let { currentState ->
-            log.d { "Current translation updated to: $translation" }
-            _state.value = currentState.copy(
-                currentTranslation = translation,
-                showAddTranslationButton = translation.isNotBlank() && currentState.isTranslationFieldFocused,
-                isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = translation),
-            )
-        }
+    private fun updateCurrentTranslation(translation: String) = stateAsEditing()?.let { currentState ->
+        log.d { "Current translation updated to: $translation" }
+        _state.value = currentState.copy(
+            currentTranslation = translation,
+            showAddTranslationButton = translation.isNotBlank() && currentState.isTranslationFieldFocused,
+            isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = translation),
+        )
+    }
 
-    private fun onTranslationFieldFocusChange(focused: Boolean) =
-        stateAsEditing()?.let { currentState ->
-            log.d { "Translation field focus changed to: $focused" }
-            _state.value = currentState.copy(
-                isTranslationFieldFocused = focused,
-                showAddTranslationButton = focused && currentState.currentTranslation.isNotBlank()
-            )
-        }
+    private fun onTranslationFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
+        log.d { "Translation field focus changed to: $focused" }
+        _state.value = currentState.copy(
+            isTranslationFieldFocused = focused,
+            showAddTranslationButton = focused && currentState.currentTranslation.isNotBlank(),
+        )
+    }
 
-    private fun updatePartOfSpeech(partOfSpeech: PartOfSpeech) =
-        stateAsEditing()?.let { currentState ->
-            log.d { "Part of speech updated to: $partOfSpeech" }
-            _state.value = currentState.copy(partOfSpeech = partOfSpeech)
-        }
+    private fun updatePartOfSpeech(partOfSpeech: PartOfSpeech) = stateAsEditing()?.let { currentState ->
+        log.d { "Part of speech updated to: $partOfSpeech" }
+        _state.value = currentState.copy(partOfSpeech = partOfSpeech)
+    }
 
     private fun saveWord() = stateAsEditing()?.let { currentState ->
         log.i { "Initiating saveWord process" }
@@ -115,12 +112,12 @@ class AddWordViewModel(
             translations = finalTranslations.map {
                 Translation(
                     id = idGenerator.generateStringId(),
-                    text = it
+                    text = it,
                 )
             },
             examples = emptyList(),
             partOfSpeech = currentState.partOfSpeech,
-            notes = null
+            notes = null,
         )
 
         log.d { "Word to save: $word" }

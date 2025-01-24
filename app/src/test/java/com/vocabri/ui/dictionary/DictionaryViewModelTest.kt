@@ -39,7 +39,7 @@ class DictionaryViewModelTest {
         viewModel = DictionaryViewModel(
             getWordsUseCase = getWordsUseCase,
             deleteWordUseCase = deleteWordUseCase,
-            ioScope = TestScope(dispatcherRule.testDispatcher)
+            ioScope = TestScope(dispatcherRule.testDispatcher),
         )
     }
 
@@ -57,15 +57,15 @@ class DictionaryViewModelTest {
                 translations = listOf(
                     Translation(
                         id = "1",
-                        text = "learn"
+                        text = "learn",
                     ),
                     Translation(
                         id = "2",
-                        text = "study"
-                    )
+                        text = "study",
+                    ),
                 ),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.VERB
+                partOfSpeech = PartOfSpeech.VERB,
             ),
             Word(
                 id = "2",
@@ -73,12 +73,12 @@ class DictionaryViewModelTest {
                 translations = listOf(
                     Translation(
                         id = "3",
-                        text = "house"
-                    )
+                        text = "house",
+                    ),
                 ),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.NOUN
-            )
+                partOfSpeech = PartOfSpeech.NOUN,
+            ),
         )
         coEvery { getWordsUseCase.execute() } returns sampleWords
 
@@ -89,7 +89,7 @@ class DictionaryViewModelTest {
             assertEquals(DictionaryState.Loading, awaitItem())
             assertEquals(
                 DictionaryState.WordsLoaded(sampleWords.map { it.toUiModel() }),
-                awaitItem()
+                awaitItem(),
             )
             coVerify(exactly = 1) { getWordsUseCase.execute() }
         }
