@@ -13,7 +13,9 @@ plugins {
 }
 
 dependencies {
-    subprojects.forEach {
-        kover(it)
-    }
+    kover(projects.app)
+    kover(projects.data)
+    kover(projects.domain)
+    kover(projects.core.logger)
+    kover(projects.core.utils)
 }
