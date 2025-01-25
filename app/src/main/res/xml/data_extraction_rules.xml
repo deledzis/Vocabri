@@ -5,15 +5,31 @@
 -->
 <data-extraction-rules>
     <cloud-backup>
-        <!-- TODO: Use <include> and <exclude> to control what is backed up.
-        <include .../>
-        <exclude .../>
-        -->
+        <include
+            domain="sharedpref"
+            path="user_preferences.xml" />
+        <include
+            domain="database"
+            path="vocabri.db" />
+        <include
+            domain="file"
+            path="." />
+        <exclude
+            domain="file"
+            path="cache/" />
     </cloud-backup>
-    <!--
     <device-transfer>
-        <include .../>
-        <exclude .../>
+        <include
+            domain="sharedpref"
+            path="user_preferences.xml" />
+        <include
+            domain="database"
+            path="vocabri.db" />
+        <include
+            domain="file"
+            path="." />
+        <exclude
+            domain="file"
+            path="temp_files/" />
     </device-transfer>
-    -->
 </data-extraction-rules>

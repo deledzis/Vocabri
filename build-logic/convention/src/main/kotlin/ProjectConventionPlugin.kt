@@ -1,3 +1,4 @@
+import com.vocabri.applyDetekt
 import com.vocabri.applyKover
 import com.vocabri.applyKoverExclusions
 import com.vocabri.applySpotless
@@ -8,6 +9,7 @@ class ProjectConventionPlugin : Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             applySpotless()
+            applyDetekt()
             applyKover()
             applyKoverExclusions()
         }
