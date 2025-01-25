@@ -6,14 +6,14 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.spotless) apply false
+    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
     id("com.vocabri.project")
 }
 
 dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
+    subprojects.forEach {
+        kover(it)
+    }
 }

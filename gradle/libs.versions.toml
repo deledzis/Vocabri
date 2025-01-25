@@ -10,6 +10,7 @@ android-gradle-plugin = "8.8.0"
 kover = "0.9.1"
 spotless = "7.0.2"
 detekt = "1.23.7"
+detekt-compose-rules = "0.4.19"
 ktlint = "1.4.1"
 
 koin = "4.0.2"
@@ -77,6 +78,8 @@ kotlin-gradle-plugin = { group = "org.jetbrains.kotlin", name = "kotlin-gradle-p
 detekt-gradle-plugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
 kover-gradle-plugin = { group = "org.jetbrains.kotlinx", name = "kover-gradle-plugin", version.ref = "kover" }
 spotless-gradle-plugin = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless" }
+
+detekt-compose-rules = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "detekt-compose-rules" }
 
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-runner = { group = "androidx.test", name = "runner", version.ref = "androidx-runner" }

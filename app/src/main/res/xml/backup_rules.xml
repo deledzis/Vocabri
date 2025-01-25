@@ -6,8 +6,22 @@
    See https://developer.android.com/about/versions/12/backup-restore
 -->
 <full-backup-content>
-    <!--
-   <include domain="sharedpref" path="."/>
-   <exclude domain="sharedpref" path="device.xml"/>
--->
+    <include
+        domain="sharedpref"
+        path="user_preferences.xml" />
+    <include
+        domain="database"
+        path="vocabri.db" />
+    <include
+        domain="file"
+        path="." />
+    <exclude
+        domain="file"
+        path="cache/" />
+    <exclude
+        domain="file"
+        path="code_cache/" />
+    <exclude
+        domain="file"
+        path="no_backup/" />
 </full-backup-content>
