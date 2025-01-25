@@ -37,23 +37,20 @@ jobs:
         run: chmod +x ./gradlew
 
       - name: Build App with Gradle
-        run: ./gradlew build
-
-      - name: Debug Environment
-        run: |
-          pwd
-          ls
-          echo "DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}, SERVICE_ACCOUNT=${{ secrets.SERVICE_ACCOUNT }}"
+        run: ./gradlew assembleDebug
 
       - name: Run Kover XML Report and Report to DeepSource
         run: |
-          pwd
-          ls
-          # Running Kover XML reporting job
+          echo "Running Kover XML reporting job"
           ./gradlew :koverXmlReport
-          # Tests have finished and a test coverage report is available
-          # Install deepsource CLI
-           curl https://deepsource.io/cli | sh
+          echo "Tests have finished, here are the ls command results"
+          ls
+          ls build
+          ls build/reports
+          ls build/reports/kover
+          ls build/reports/kover/xml
+          echo "Install deepsource CLI"
+          curl https://deepsource.io/cli | sh
           # From the root directory, run the report coverage command
            ./bin/deepsource report --analyzer test-coverage --key kotlin --value-file build/reports/kover/xml/report.xml
         env:
