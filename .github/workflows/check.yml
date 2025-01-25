@@ -6,9 +6,6 @@ jobs:
   build:
     name: Build and Test
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      secrets: write
 
     steps:
       - name: Checkout Repository
