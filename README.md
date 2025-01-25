@@ -1,5 +1,9 @@
 # Vocabri
 
+[![DeepSource](https://app.deepsource.com/gh/deledzis/Vocabri.svg/?label=code+coverage&show_trend=true&token=Q7RU9Z2I1GsSG30Ivnl0ZdF0)](https://app.deepsource.com/gh/deledzis/Vocabri/)
+[![DeepSource](https://app.deepsource.com/gh/deledzis/Vocabri.svg/?label=active+issues&show_trend=true&token=Q7RU9Z2I1GsSG30Ivnl0ZdF0)](https://app.deepsource.com/gh/deledzis/Vocabri/)
+[![DeepSource](https://app.deepsource.com/gh/deledzis/Vocabri.svg/?label=resolved+issues&show_trend=true&token=Q7RU9Z2I1GsSG30Ivnl0ZdF0)](https://app.deepsource.com/gh/deledzis/Vocabri/)
+
 Vocabri is a modern and intuitive Android app designed to help you create, manage, and learn from
 your personalized vocabulary lists.
 Other platforms are planned in the future too!
