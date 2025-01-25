@@ -16,7 +16,7 @@ private fun Project.configureSpotless() {
         format("misc") {
             target("**/*.gradle", "**/*.md", "**/.gitignore")
 
-            indentWithSpaces()
+            leadingTabsToSpaces()
             trimTrailingWhitespace()
             endWithNewline()
         }

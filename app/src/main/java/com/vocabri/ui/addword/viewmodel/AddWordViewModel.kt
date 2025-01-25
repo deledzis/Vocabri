@@ -40,22 +40,26 @@ class AddWordViewModel(
 
     private fun updateText(text: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current text updated to: $text" }
-        _state.value = currentState.copy(
-            text = text,
-            isSaveButtonEnabled = isSaveButtonEnabled(text = text),
-        )
+        _state.update {
+            currentState.copy(
+                text = text,
+                isSaveButtonEnabled = isSaveButtonEnabled(text = text),
+            )
+        }
     }
 
     private fun addTranslation() = stateAsEditing()?.let { currentState ->
         if (currentState.currentTranslation.isNotBlank()) {
             val newTranslation = currentState.currentTranslation.trim()
             log.d { "Adding new translation: $newTranslation" }
-            _state.value = currentState.copy(
-                translations = currentState.translations + newTranslation,
-                currentTranslation = "",
-                showAddTranslationButton = false,
-                isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = newTranslation),
-            )
+            _state.update {
+                currentState.copy(
+                    translations = currentState.translations + newTranslation,
+                    currentTranslation = "",
+                    showAddTranslationButton = false,
+                    isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = newTranslation),
+                )
+            }
         }
     }
 
@@ -63,32 +67,40 @@ class AddWordViewModel(
         log.d { "Removing translation: $translation" }
         val updatedTranslations =
             currentState.translations.toMutableList().apply { remove(translation) }
-        _state.value = currentState.copy(
-            translations = updatedTranslations,
-            isSaveButtonEnabled = isSaveButtonEnabled(translations = updatedTranslations),
-        )
+        _state.update {
+            currentState.copy(
+                translations = updatedTranslations,
+                isSaveButtonEnabled = isSaveButtonEnabled(translations = updatedTranslations),
+            )
+        }
     }
 
     private fun updateCurrentTranslation(translation: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current translation updated to: $translation" }
-        _state.value = currentState.copy(
-            currentTranslation = translation,
-            showAddTranslationButton = translation.isNotBlank() && currentState.isTranslationFieldFocused,
-            isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = translation),
-        )
+        _state.update {
+            currentState.copy(
+                currentTranslation = translation,
+                showAddTranslationButton = translation.isNotBlank() && currentState.isTranslationFieldFocused,
+                isSaveButtonEnabled = isSaveButtonEnabled(currentTranslation = translation),
+            )
+        }
     }
 
     private fun onTranslationFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
         log.d { "Translation field focus changed to: $focused" }
-        _state.value = currentState.copy(
-            isTranslationFieldFocused = focused,
-            showAddTranslationButton = focused && currentState.currentTranslation.isNotBlank(),
-        )
+        _state.update {
+            currentState.copy(
+                isTranslationFieldFocused = focused,
+                showAddTranslationButton = focused && currentState.currentTranslation.isNotBlank(),
+            )
+        }
     }
 
     private fun updatePartOfSpeech(partOfSpeech: PartOfSpeech) = stateAsEditing()?.let { currentState ->
         log.d { "Part of speech updated to: $partOfSpeech" }
-        _state.value = currentState.copy(partOfSpeech = partOfSpeech)
+        _state.update {
+            currentState.copy(partOfSpeech = partOfSpeech)
+        }
     }
 
     private fun saveWord() = stateAsEditing()?.let { currentState ->
@@ -102,7 +114,7 @@ class AddWordViewModel(
 
         if (currentState.text.isBlank() || finalTranslations.isEmpty()) {
             log.w { "Cannot save word: Empty text or translations" }
-            _state.value = currentState.copy(errorMessageId = R.string.add_word_empty_field)
+            _state.update { currentState.copy(errorMessageId = R.string.add_word_empty_field) }
             return@let
         }
 
