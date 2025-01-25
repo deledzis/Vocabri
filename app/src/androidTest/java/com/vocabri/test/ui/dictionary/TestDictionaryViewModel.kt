@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 class TestDictionaryViewModel :
     DictionaryViewModel(
@@ -19,6 +20,6 @@ class TestDictionaryViewModel :
     override val state: StateFlow<DictionaryState> = _state
 
     fun setState(newState: DictionaryState) {
-        _state.value = newState
+        _state.update { newState }
     }
 }

@@ -59,9 +59,11 @@ class AddWordViewModelTest {
     fun `updateText updates the text in state`() = runTest {
         // Act
         viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        advanceUntilIdle()
 
         // Assert
         val state = viewModel.state.first()
+        assertTrue(state is AddWordState.Editing)
         assertEquals("lernen", (state as AddWordState.Editing).text)
     }
 

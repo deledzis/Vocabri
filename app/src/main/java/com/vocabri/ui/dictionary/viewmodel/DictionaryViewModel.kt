@@ -11,6 +11,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 /**
@@ -45,23 +46,25 @@ open class DictionaryViewModel(
         log.i { "Starting to load words, is previous job active: ${loadJob?.isActive}" }
         loadJob?.cancel()
         loadJob = viewModelScope.launch(ioScope.coroutineContext) {
-            _state.value = DictionaryState.Loading
+            _state.update { DictionaryState.Loading }
             try {
                 val words = getWordsUseCase.execute()
                 log.d { "Fetched ${words.size} words from use case" }
                 val uiWords = words.map { it.toUiModel() }
-                _state.value = if (uiWords.isEmpty()) {
-                    log.i { "No words found, setting state to Empty" }
-                    DictionaryState.Empty
-                } else {
-                    log.i { "Loaded ${uiWords.size} words, setting state to WordsLoaded" }
-                    DictionaryState.WordsLoaded(uiWords)
+                _state.update {
+                    if (uiWords.isEmpty()) {
+                        log.i { "No words found, setting state to Empty" }
+                        DictionaryState.Empty
+                    } else {
+                        log.i { "Loaded ${uiWords.size} words, setting state to WordsLoaded" }
+                        DictionaryState.WordsLoaded(uiWords)
+                    }
                 }
             } catch (e: CancellationException) {
                 log.w(e) { "loadWords was cancelled" }
             } catch (e: Exception) {
                 log.e(e) { "Error while loading words" }
-                _state.value = DictionaryState.Error(e.message ?: "Failed to load words")
+                _state.update { DictionaryState.Error(e.message ?: "Failed to load words") }
             }
         }
     }
@@ -76,7 +79,7 @@ open class DictionaryViewModel(
                 loadWords()
             } catch (e: Exception) {
                 log.e(e) { "Failed to delete word with id: $id" }
-                _state.value = DictionaryState.Error(e.message ?: "Failed to delete word")
+                _state.update { DictionaryState.Error(e.message ?: "Failed to delete word") }
             }
         }
     }
