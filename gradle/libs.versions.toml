@@ -10,7 +10,7 @@ android-gradle-plugin = "8.8.0"
 kover = "0.9.1"
 spotless = "7.0.2"
 detekt = "1.23.7"
-detekt-compose-rules = "0.4.19"
+detekt-compose-rules = "0.4.22"
 ktlint = "1.4.1"
 
 koin = "4.0.2"
