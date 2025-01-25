@@ -6,11 +6,11 @@ import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
-import com.vocabri.domain.util.IdGenerator
 import com.vocabri.rules.MainDispatcherRule
 import com.vocabri.ui.addword.viewmodel.AddWordEvent
 import com.vocabri.ui.addword.viewmodel.AddWordState
 import com.vocabri.ui.addword.viewmodel.AddWordViewModel
+import com.vocabri.utils.IdGenerator
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify

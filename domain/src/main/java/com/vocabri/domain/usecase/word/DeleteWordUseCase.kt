@@ -1,7 +1,7 @@
 package com.vocabri.domain.usecase.word
 
 import com.vocabri.domain.repository.WordRepository
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
 
 /**
  * Use case for deleting a word from the repository.

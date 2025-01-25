@@ -8,6 +8,9 @@ import org.gradle.kotlin.dsl.apply
 
 fun Project.applyKover() {
     pluginManager.apply(KoverGradlePlugin::class)
+}
+
+fun Project.applyKoverExclusions() {
     extensions.configure<KoverProjectExtension>("kover") {
         reports {
             filters {
@@ -20,5 +23,26 @@ fun Project.applyKover() {
 private fun KoverReportFiltersConfig.coverageExclusions() {
     excludes {
         androidGeneratedClasses()
+
+        annotatedBy(
+            "*ExcludeFromCoverage",
+            "*Composable",
+            "androidx.compose.ui.tooling.preview.Preview",
+        )
+        packages(
+            "com.vocabri.ui.theme",
+            "com.vocabri.ui.theme.*",
+            "com.vocabri.data.data",
+            "com.vocabri.data.db",
+        )
+        classes(
+            "*.BuildConfig",
+            "*.R",
+            "*.BR",
+            "android.*",
+            "*ComposableSingletons",
+            "*ComposableSingletons*",
+            "*ModuleKt",
+        )
     }
 }

@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
 import com.vocabri.ui.addword.AddWordScreen
 import com.vocabri.ui.dictionary.DictionaryScreen
 import com.vocabri.ui.settings.SettingsScreen

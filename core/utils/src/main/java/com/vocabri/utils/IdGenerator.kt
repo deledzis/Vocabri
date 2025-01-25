@@ -1,4 +1,4 @@
-package com.vocabri.domain.util
+package com.vocabri.utils
 
 interface IdGenerator {
     fun generateStringId(): String

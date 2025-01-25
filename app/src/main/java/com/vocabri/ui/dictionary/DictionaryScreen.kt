@@ -32,7 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
 import com.vocabri.ui.components.IconButtonWithCenteredText
 import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.dictionary.components.WordListItem

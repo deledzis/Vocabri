@@ -1,4 +1,4 @@
-package com.vocabri.domain.util
+package com.vocabri.logger
 
 import co.touchlab.kermit.Logger
 

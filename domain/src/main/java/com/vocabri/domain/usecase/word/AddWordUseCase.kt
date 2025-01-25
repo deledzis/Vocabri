@@ -2,7 +2,7 @@ package com.vocabri.domain.usecase.word
 
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
 
 /**
  * Use case for adding a new word to the repository.

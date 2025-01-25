@@ -1,7 +1,7 @@
 package com.vocabri.data.test
 
 import androidx.annotation.VisibleForTesting
-import com.vocabri.domain.util.IdGenerator
+import com.vocabri.utils.IdGenerator
 
 class FakeIdGenerator : IdGenerator {
     @VisibleForTesting

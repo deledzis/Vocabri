@@ -63,14 +63,18 @@ android {
 sqldelight {
     databases {
         create("VocabriDatabase") {
-            packageName.set("com.vocabri.data")
+            packageName.set("com.vocabri.data.db")
             generateAsync.set(true)
+            schemaOutputDirectory.set(file("src/main/sqldelight/schema"))
+            migrationOutputDirectory.set(file("src/main/sqldelight/migrations"))
         }
     }
 }
 
 dependencies {
     implementation(projects.domain)
+    implementation(projects.core.logger)
+    implementation(projects.core.utils)
 
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kermit.log)
