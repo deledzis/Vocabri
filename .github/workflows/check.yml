@@ -42,6 +42,16 @@ jobs:
       - name: Run Unit Tests
         run: ./gradlew testDebugUnitTest
 
+      - name: Report test coverage to DeepSource
+        run: |
+          # Tests have finished and a test coverage report is available
+          # Install deepsource CLI
+           curl https://deepsource.io/cli | sh
+          # From the root directory, run the report coverage command
+           ./bin/deepsource report --analyzer test-coverage --key kotlin --value-file build/reports/kover/xml/report.xml
+        env:
+          DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
+
 # FIXME: Temporary disabled, should be re-enabled when CI is configured and stable
 #    - name: Build Android Test APK
 #      run: ./gradlew assembleAndroidTest

@@ -34,5 +34,9 @@ gradlePlugin {
             id = "com.vocabri.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
+        register("kover") {
+            id = "com.vocabri.kover"
+            implementationClass = "KoverConventionPlugin"
+        }
     }
 }

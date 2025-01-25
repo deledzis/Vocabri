@@ -1,6 +1,10 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id("com.vocabri.android.library")
     alias(libs.plugins.sqldelight)
+    id("com.vocabri.kover")
 }
 
 android {
@@ -38,6 +42,20 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
             merges += "META-INF/LICENSE.md"
             merges += "META-INF/LICENSE-notice.md"
+        }
+    }
+
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+            all {
+                it.testLogging {
+                    events = setOf(
+                        TestLogEvent.FAILED,
+                    )
+                    exceptionFormat = TestExceptionFormat.FULL
+                }
+            }
         }
     }
 }
