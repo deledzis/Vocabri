@@ -20,9 +20,11 @@ on:
 jobs:
   check:
     uses: ./.github/workflows/check.yml
+    secrets: inherit
 
   lint:
     uses: ./.github/workflows/lint.yml
+    secrets: inherit
 
   merge:
     name: Auto Merge

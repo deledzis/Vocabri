@@ -1,8 +1,12 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
     id("com.vocabri.android.application")
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.google.services)
     alias(libs.plugins.firebase.crashlytics)
+    id("com.vocabri.kover")
 }
 
 android {
@@ -60,6 +64,14 @@ android {
     testOptions {
         unitTests {
             isIncludeAndroidResources = true
+            all {
+                it.testLogging {
+                    events = setOf(
+                        TestLogEvent.FAILED,
+                    )
+                    exceptionFormat = TestExceptionFormat.FULL
+                }
+            }
         }
     }
 }
