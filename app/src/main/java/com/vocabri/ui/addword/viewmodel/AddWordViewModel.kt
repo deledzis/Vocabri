@@ -7,8 +7,8 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.usecase.word.AddWordUseCase
-import com.vocabri.domain.util.IdGenerator
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
+import com.vocabri.utils.IdGenerator
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

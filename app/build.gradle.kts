@@ -79,6 +79,8 @@ android {
 dependencies {
     implementation(projects.domain)
     implementation(projects.data)
+    implementation(projects.core.logger)
+    implementation(projects.core.utils)
 
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kermit.log)

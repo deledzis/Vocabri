@@ -1,6 +1,7 @@
 package com.vocabri.data
 
 import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
+import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.data.test.FakeVocabriDatabase.createTestJdbcSqlDriver
 import kotlinx.coroutines.test.runTest
 import org.junit.After

@@ -9,8 +9,8 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
-import com.vocabri.domain.util.IdGenerator
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
+import com.vocabri.utils.IdGenerator
 
 /**
  * Implementation of [WordRepository] that manages word data using a local data source.

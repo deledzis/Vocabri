@@ -4,7 +4,7 @@ import android.app.Application
 import com.vocabri.data.di.dataModule
 import com.vocabri.di.appModule
 import com.vocabri.domain.di.domainModule
-import com.vocabri.domain.util.logger
+import com.vocabri.logger.logger
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin

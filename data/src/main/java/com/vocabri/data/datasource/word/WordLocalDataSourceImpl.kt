@@ -4,9 +4,9 @@ import app.cash.sqldelight.async.coroutines.awaitAsList
 import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
 import com.vocabri.data.ExampleEntity
 import com.vocabri.data.TranslationEntity
-import com.vocabri.data.VocabriDatabase
 import com.vocabri.data.WordEntity
-import com.vocabri.domain.util.logger
+import com.vocabri.data.db.VocabriDatabase
+import com.vocabri.logger.logger
 
 /**
  * A data source implementation for [WordEntity], [TranslationEntity], [ExampleEntity]

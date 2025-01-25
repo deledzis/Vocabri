@@ -1,6 +1,6 @@
 package com.vocabri.data.util
 
-import com.vocabri.domain.util.IdGenerator
+import com.vocabri.utils.IdGenerator
 
 /**
  * ID generator that creates unique string IDs based on the current system time in milliseconds.
