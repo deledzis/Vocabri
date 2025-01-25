@@ -39,8 +39,8 @@ jobs:
       - name: Build App with Gradle
         run: ./gradlew build
 
-      - name: Run Unit Tests
-        run: ./gradlew testDebugUnitTest
+      - name: Run Kover XML Report
+        run: ./gradlew koverXmlReport
 
       - name: Debug Environment
         run: echo "DEEPSOURCE_DSN=${{ secrets.DEEPSOURCE_DSN }}, SERVICE_ACCOUNT=${{ secrets.SERVICE_ACCOUNT }}"
