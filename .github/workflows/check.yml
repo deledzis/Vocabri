@@ -39,26 +39,15 @@ jobs:
       - name: Build App with Gradle
         run: ./gradlew assembleDebug
 
-      - name: Run Kover XML Report and Report to DeepSource
+      - name: Run Kover XML Report
+        run: ./gradlew koverXmlReport
+
+      - name: Report Kover Report to DeepSource
         run: |
-          echo "Running Kover XML reporting job"
-          ./gradlew :koverXmlReport
-          echo "Tests have finished, here are the `ls` command results"
-          ls
-          echo "Tests have finished, here are the `ls ${{ github.workspace }}` command results"
-          ls ${{ github.workspace }}
-          echo "Tests have finished, here are the `ls build` command results"
-          ls build
-          echo "Tests have finished, here are the `ls build/reports` command results"
-          ls build/reports
-          echo "Tests have finished, here are the `ls build/reports/kover` command results"
-          ls build/reports/kover
-          echo "Tests have finished, here are the `ls build/reports/kover/xml` command results"
-          ls build/reports/kover/xml
           echo "Install deepsource CLI"
           curl https://deepsource.io/cli | sh
           # From the root directory, run the report coverage command
-           ./bin/deepsource report --analyzer test-coverage --key kotlin --value-file ${{ github.workspace }}/build/reports/kover/xml/report.xml
+          ./bin/deepsource report --analyzer test-coverage --key kotlin --value-file ${{ github.workspace }}/build/reports/kover/report.xml
         env:
           DEEPSOURCE_DSN: ${{ secrets.DEEPSOURCE_DSN }}
 
