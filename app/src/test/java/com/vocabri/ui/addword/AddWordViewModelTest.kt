@@ -1,6 +1,5 @@
 package com.vocabri.ui.addword
 
-import app.cash.turbine.test
 import com.vocabri.data.test.FakeIdGenerator
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
@@ -58,16 +57,14 @@ class AddWordViewModelTest {
 
     @Test
     fun `updateText updates the text in state`() = runTest {
-        viewModel.state.test {
-            // Act
-            viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        // Act
+        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        advanceUntilIdle()
 
-            // Assert
-            val state = awaitItem()
-            assertTrue(state is AddWordState.Editing)
-            println("STATE $state")
-            assertEquals("lernen", (state as AddWordState.Editing).text)
-        }
+        // Assert
+        val state = viewModel.state.first()
+        assertTrue(state is AddWordState.Editing)
+        assertEquals("lernen", (state as AddWordState.Editing).text)
     }
 
     @Test
