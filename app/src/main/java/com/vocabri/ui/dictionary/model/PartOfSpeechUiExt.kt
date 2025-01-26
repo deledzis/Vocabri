@@ -21,16 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.viewmodel
+package com.vocabri.ui.dictionary.model
 
-import com.vocabri.ui.dictionary.model.WordGroupUiModel
+import androidx.annotation.StringRes
+import com.vocabri.R
+import com.vocabri.domain.model.word.PartOfSpeech
 
-sealed interface DictionaryState {
-    data object Loading : DictionaryState
-
-    data object Empty : DictionaryState
-
-    data class GroupsLoaded(val groups: List<WordGroupUiModel>) : DictionaryState
-
-    data class Error(val message: String) : DictionaryState
-}
+internal val PartOfSpeech.toTitleResId: Int
+    @StringRes get() = when (this) {
+        PartOfSpeech.NOUN -> R.string.nouns
+        PartOfSpeech.VERB -> R.string.verbs
+        PartOfSpeech.ADJECTIVE -> R.string.adjectives
+        PartOfSpeech.ADVERB -> R.string.adverbs
+        PartOfSpeech.PHRASE -> R.string.phrases
+    }

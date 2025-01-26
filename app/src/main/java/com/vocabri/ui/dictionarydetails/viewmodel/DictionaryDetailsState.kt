@@ -21,16 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.viewmodel
+package com.vocabri.ui.dictionarydetails.viewmodel
 
-import com.vocabri.ui.dictionary.model.WordGroupUiModel
+import androidx.annotation.StringRes
+import com.vocabri.ui.dictionarydetails.model.WordUiModel
 
-sealed interface DictionaryState {
-    data object Loading : DictionaryState
+sealed interface DictionaryDetailsState {
+    val titleId: Int
 
-    data object Empty : DictionaryState
+    data class WordsLoaded(
+        @StringRes
+        override val titleId: Int,
+        val words: List<WordUiModel>,
+    ) : DictionaryDetailsState
 
-    data class GroupsLoaded(val groups: List<WordGroupUiModel>) : DictionaryState
+    data class Empty(@StringRes override val titleId: Int) : DictionaryDetailsState
 
-    data class Error(val message: String) : DictionaryState
+    data class Loading(@StringRes override val titleId: Int) : DictionaryDetailsState
+
+    data class Error(
+        @StringRes
+        override val titleId: Int,
+        val message: String,
+    ) : DictionaryDetailsState
 }

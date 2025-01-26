@@ -52,7 +52,7 @@ fun DeleteBackground() {
             tint = MaterialTheme.colorScheme.onError,
             modifier = Modifier.size(16.dp),
             imageVector = Icons.Default.Delete,
-            contentDescription = stringResource(R.string.dictionary_delete_word),
+            contentDescription = stringResource(R.string.dictionary_details_delete_word),
         )
     }
 }

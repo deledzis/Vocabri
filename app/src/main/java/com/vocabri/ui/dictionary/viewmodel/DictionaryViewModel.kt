@@ -24,30 +24,26 @@
 package com.vocabri.ui.dictionary.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.vocabri.domain.usecase.word.DeleteWordUseCase
-import com.vocabri.domain.usecase.word.GetWordsUseCase
+import com.vocabri.R
+import com.vocabri.domain.model.word.WordGroup
+import com.vocabri.domain.repository.ResourcesRepository
+import com.vocabri.domain.usecase.word.GetWordGroupsUseCase
 import com.vocabri.logger.logger
-import com.vocabri.ui.dictionary.model.toUiModel
-import kotlinx.coroutines.CancellationException
+import com.vocabri.ui.dictionary.model.WordGroupUiModel
+import com.vocabri.ui.dictionary.model.toTitleResId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.coroutines.cancellation.CancellationException
 
-/**
- * Handles events and manages state for the Dictionary screen.
- *
- * @property getWordsUseCase Use case for loading words from the repository.
- * @property deleteWordUseCase Use case for deleting words from the repository.
- */
 open class DictionaryViewModel(
-    private val getWordsUseCase: GetWordsUseCase,
-    private val deleteWordUseCase: DeleteWordUseCase,
+    private val getWordGroupsUseCase: GetWordGroupsUseCase,
+    private val resourcesRepository: ResourcesRepository,
     private val ioScope: CoroutineScope,
 ) : ViewModel() {
+
     private val log = logger()
 
     private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Empty)
@@ -57,53 +53,43 @@ open class DictionaryViewModel(
 
     // Handles UI events triggered by the Dictionary screen.
     fun handleEvent(event: DictionaryEvent) {
-        log.i { "Handling event: $event" }
         when (event) {
-            is DictionaryEvent.LoadWords -> loadWords()
-            is DictionaryEvent.DeleteWordClicked -> deleteWord(event.id)
-            is DictionaryEvent.AddWordClicked -> log.i { "AddWordClicked event received" }
+            is DictionaryEvent.LoadWords -> loadWordGroups()
+            is DictionaryEvent.OnGroupCardClicked -> Unit // No action needed
+            is DictionaryEvent.AddWordClicked -> Unit // No action needed
         }
     }
 
-    private fun loadWords() {
-        log.i { "Starting to load words, is previous job active: ${loadJob?.isActive}" }
+    // Loads groups of words by part of speech.
+    private fun loadWordGroups() {
         loadJob?.cancel()
-        loadJob = viewModelScope.launch(ioScope.coroutineContext) {
-            _state.update { DictionaryState.Loading }
+        loadJob = ioScope.launch {
+            _state.value = DictionaryState.Loading
             try {
-                val words = getWordsUseCase.execute()
-                log.d { "Fetched ${words.size} words from use case" }
-                val uiWords = words.map { it.toUiModel() }
-                _state.update {
-                    if (uiWords.isEmpty()) {
-                        log.i { "No words found, setting state to Empty" }
-                        DictionaryState.Empty
-                    } else {
-                        log.i { "Loaded ${uiWords.size} words, setting state to WordsLoaded" }
-                        DictionaryState.WordsLoaded(uiWords)
-                    }
+                val words = getWordGroupsUseCase.execute()
+                val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
+                    WordGroup(
+                        partOfSpeech = partOfSpeech,
+                        wordCount = words.size,
+                    )
+                }
+                val groupsUiModel = groups.map { it.toUiModel() }
+                _state.value = if (groupsUiModel.isEmpty()) {
+                    DictionaryState.Empty
+                } else {
+                    DictionaryState.GroupsLoaded(groupsUiModel)
                 }
             } catch (e: CancellationException) {
-                log.w(e) { "loadWords was cancelled" }
+                log.w(e) { "loadWordGroups was cancelled" }
             } catch (e: Exception) {
-                log.e(e) { "Error while loading words" }
-                _state.update { DictionaryState.Error(e.message ?: "Failed to load words") }
+                _state.value = DictionaryState.Error("Failed to load word groups")
             }
         }
     }
 
-    // Deletes a word using the DeleteWordUseCase and reloads the word list.
-    private fun deleteWord(id: String) {
-        log.i { "Starting to delete word with id: $id" }
-        viewModelScope.launch(ioScope.coroutineContext) {
-            try {
-                deleteWordUseCase.execute(id)
-                log.i { "Word with id: $id deleted successfully" }
-                loadWords()
-            } catch (e: Exception) {
-                log.e(e) { "Failed to delete word with id: $id" }
-                _state.update { DictionaryState.Error(e.message ?: "Failed to delete word") }
-            }
-        }
-    }
+    private fun WordGroup.toUiModel(): WordGroupUiModel = WordGroupUiModel(
+        partOfSpeech = partOfSpeech,
+        titleText = resourcesRepository.getString(partOfSpeech.toTitleResId),
+        subtitleText = resourcesRepository.getString(R.string.dictionary_group_words_count, wordCount),
+    )
 }

@@ -44,7 +44,7 @@ jobs:
       - name: Run Kover XML Report
         run: ./gradlew koverXmlReport
 
-      - name: Report Kover Report to DeepSource
+      - name: Upload Kover Report to DeepSource
         run: |
           echo "Install deepsource CLI"
           curl https://deepsource.io/cli | sh

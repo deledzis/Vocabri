@@ -21,15 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary
+package com.vocabri.ui.dictionarydetails
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.fake.TestApplication
-import com.vocabri.ui.dictionary.components.WordListItem
-import com.vocabri.ui.dictionary.model.WordUiModel
+import com.vocabri.ui.dictionarydetails.components.WordListItem
+import com.vocabri.ui.dictionarydetails.model.WordUiModel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

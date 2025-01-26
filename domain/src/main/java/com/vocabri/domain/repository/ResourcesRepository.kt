@@ -21,16 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.model
+package com.vocabri.domain.repository
 
-import com.vocabri.domain.model.word.Word
+interface ResourcesRepository {
+    fun getString(stringResId: Int): String
 
-// Extension function to map domain model to UI model
-fun Word.toUiModel(): WordUiModel = WordUiModel(
-    id = this.id,
-    text = this.text,
-    partOfSpeech = this.partOfSpeech.name,
-    notes = this.notes,
-    translations = this.translations.joinToString(", ") { it.text },
-    examples = this.examples.joinToString(", ") { it.text },
-)
+    fun getString(stringResId: Int, vararg formatArgs: Any): String
+
+    fun getQuantityString(pluralResId: Int, quantity: Int): String
+
+    fun getQuantityString(pluralResId: Int, quantity: Int, vararg formatArgs: Any): String
+}

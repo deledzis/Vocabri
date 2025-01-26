@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.components
+package com.vocabri.ui.dictionarydetails.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -41,20 +41,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.DeleteBackground
-import com.vocabri.ui.dictionary.model.WordUiModel
-import com.vocabri.ui.dictionary.viewmodel.DictionaryEvent
+import com.vocabri.ui.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.theme.VocabriTheme
 
 private const val THRESHOLD = 0.5f
 
 @Composable
-fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryEvent) -> Unit) {
+fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryDetailsEvent) -> Unit) {
     val dismissState = rememberSwipeToDismissBoxState(
         positionalThreshold = { it * THRESHOLD },
         confirmValueChange = {
             when (it) {
                 SwipeToDismissBoxValue.EndToStart -> {
-                    onEvent(DictionaryEvent.DeleteWordClicked(uiItem.id))
+                    onEvent(DictionaryDetailsEvent.DeleteWordClicked(uiItem.id))
                     true
                 }
 

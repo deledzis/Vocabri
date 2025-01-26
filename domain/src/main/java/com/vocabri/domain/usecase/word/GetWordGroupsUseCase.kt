@@ -23,36 +23,38 @@
  */
 package com.vocabri.domain.usecase.word
 
-import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGroup
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
 
 /**
- * Use case for fetching words.
+ * Use case for fetching word groups based on part of speech.
  */
-open class GetWordsUseCase(private val wordRepository: WordRepository) {
+class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
 
     private val log = logger()
 
     /**
-     * Fetches all words.
+     * Fetches groups of words and their counts grouped by part of speech.
      *
-     * @return List of all words.
+     * @return List of WordGroup objects containing the part of speech and word count.
+     * @throws Exception If an error occurs during the fetch process.
      */
-    open suspend fun execute(): List<Word> {
-        log.i { "Executing GetWordsUseCase to fetch all words" }
-        return wordRepository.getAllWords()
-    }
-
-    /**
-     * Fetches words by part of speech.
-     *
-     * @param partOfSpeech The part of speech to filter words by.
-     * @return List of words for the specified part of speech.
-     */
-    open suspend fun executeByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> {
-        log.i { "Executing GetWordsUseCase to fetch words by group: $partOfSpeech" }
-        return wordRepository.getAllWords().filter { it.partOfSpeech == partOfSpeech }
+    suspend fun execute(): List<WordGroup> {
+        log.i { "Executing GetWordGroupsUseCase" }
+        return try {
+            val words = wordRepository.getAllWords()
+            words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
+                WordGroup(
+                    partOfSpeech = partOfSpeech,
+                    wordCount = words.size,
+                )
+            }.also {
+                log.i { "Successfully fetched ${it.size} word groups" }
+            }
+        } catch (e: Exception) {
+            log.e(e) { "Error fetching word groups" }
+            throw e
+        }
     }
 }
