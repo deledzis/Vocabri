@@ -67,7 +67,7 @@ private fun Project.configureSpotless() {
 
         format("xml") {
             target("**/*.xml")
-            targetExclude("**/build/**", "**/.gradle/**")
+            targetExclude("**/build/**", "**/.gradle/**", "**/.idea/**")
             licenseHeaderFile(rootProject.file(".spotless/license-xml"), "(<[^!?])")
         }
 
