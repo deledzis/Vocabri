@@ -25,6 +25,7 @@ package com.vocabri.ui.navigation
 
 enum class NavigationRoute(val destination: String) {
     Dictionary("dictionary"),
+    DictionaryDetails("groupDetails/{groupType}"),
     Training("training"),
     Settings("settings"),
     AddWord("addWord"),

@@ -21,21 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary
+package com.vocabri.ui.dictionarydetails
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,54 +60,74 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
 import com.vocabri.ui.components.IconButtonWithCenteredText
 import com.vocabri.ui.components.ShimmerEffect
-import com.vocabri.ui.dictionary.components.WordGroupCard
-import com.vocabri.ui.dictionary.model.WordGroupUiModel
-import com.vocabri.ui.dictionary.viewmodel.DictionaryEvent
-import com.vocabri.ui.dictionary.viewmodel.DictionaryState
-import com.vocabri.ui.dictionary.viewmodel.DictionaryViewModel
+import com.vocabri.ui.dictionarydetails.components.WordListItem
+import com.vocabri.ui.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * DictionaryScreen displays the list of words in the user's dictionary
+ * and provides actions for managing the dictionary.
+ */
 @Composable
-fun DictionaryScreen(navController: NavController, viewModel: DictionaryViewModel = koinViewModel()) {
-    val log = logger("DictionaryScreen")
+fun DictionaryDetailsScreen(
+    viewModel: DictionaryDetailsViewModel = koinViewModel(),
+    navController: NavController,
+    wordGroup: String,
+) {
+    val log = logger("DictionaryDetailsScreen")
     val state by viewModel.state.collectAsState()
 
-    log.i { "DictionaryScreen is displayed" }
+    log.i { "DictionaryDetailsScreen is displayed" }
 
     LaunchedEffect(viewModel) {
         log.i { "Triggering initial load of words" }
-        viewModel.handleEvent(DictionaryEvent.LoadWords)
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup))
     }
 
-    DictionaryScreenRoot(state) { event ->
+    DictionaryDetailsScreenRoot(state) { event ->
         log.i { "Handling event: $event" }
         when (event) {
-            is DictionaryEvent.AddWordClicked -> navController.navigate("addWord")
-            is DictionaryEvent.LoadWords -> viewModel.handleEvent(event)
-            is DictionaryEvent.OnGroupCardClicked -> navController.navigate("groupDetails/${event.wordGroup}")
+            is DictionaryDetailsEvent.AddWordClicked -> navController.navigate("addWord")
+            is DictionaryDetailsEvent.LoadWords -> viewModel.handleEvent(event)
+            is DictionaryDetailsEvent.DeleteWordClicked -> viewModel.handleEvent(event)
+            DictionaryDetailsEvent.OnBackClicked -> navController.popBackStack()
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryScreenRoot(state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
+fun DictionaryDetailsScreenRoot(state: DictionaryDetailsState, onEvent: (DictionaryDetailsEvent) -> Unit) {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.dictionary_title),
+                        text = stringResource(state.titleId),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 },
+                navigationIcon = {
+                    IconButton(onClick = { onEvent(DictionaryDetailsEvent.OnBackClicked) }) {
+                        Icon(
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(20.dp),
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.back_button),
+                        )
+                    }
+                },
                 actions = {
-                    if (state is DictionaryState.GroupsLoaded) {
-                        IconButton(onClick = { onEvent(DictionaryEvent.AddWordClicked) }) {
+                    if (state is DictionaryDetailsState.WordsLoaded) {
+                        IconButton(onClick = { onEvent(DictionaryDetailsEvent.AddWordClicked) }) {
                             Icon(
                                 tint = MaterialTheme.colorScheme.tertiary,
+                                modifier = Modifier.size(24.dp),
                                 imageVector = Icons.Default.Add,
                                 contentDescription = stringResource(R.string.add_word),
                             )
@@ -123,19 +142,22 @@ fun DictionaryScreenRoot(state: DictionaryState, onEvent: (DictionaryEvent) -> U
                 .padding(paddingValues),
         ) {
             when (state) {
-                is DictionaryState.GroupsLoaded -> {
-                    WordListScreen(state = state, onEvent = onEvent)
-                }
-
-                is DictionaryState.Empty -> {
+                is DictionaryDetailsState.Empty -> {
                     EmptyScreen(onEvent = onEvent)
                 }
 
-                is DictionaryState.Loading -> {
+                is DictionaryDetailsState.Loading -> {
                     LoadingScreen()
                 }
 
-                is DictionaryState.Error -> {
+                is DictionaryDetailsState.WordsLoaded -> {
+                    WordListScreen(
+                        state = state,
+                        onEvent = onEvent,
+                    )
+                }
+
+                is DictionaryDetailsState.Error -> {
                     ErrorScreen(state = state)
                 }
             }
@@ -147,7 +169,7 @@ fun DictionaryScreenRoot(state: DictionaryState, onEvent: (DictionaryEvent) -> U
  * Displays a message when the dictionary is empty.
  */
 @Composable
-internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEvent) -> Unit) {
+fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryDetailsEvent) -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize(),
@@ -168,7 +190,7 @@ internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEven
                 contentDescriptionId = R.string.add_word,
                 icon = Icons.Default.Create,
                 onClick = {
-                    onEvent(DictionaryEvent.AddWordClicked)
+                    onEvent(DictionaryDetailsEvent.AddWordClicked)
                 },
             )
         }
@@ -179,7 +201,7 @@ internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEven
  * Displays a loading indicator while words are being loaded.
  */
 @Composable
-internal fun LoadingScreen(modifier: Modifier = Modifier) {
+fun LoadingScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -198,22 +220,17 @@ internal fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 /**
- * Displays a list of word groups.
+ * Displays a list of words.
  */
 @Composable
-internal fun WordListScreen(
+fun WordListScreen(
     modifier: Modifier = Modifier,
-    state: DictionaryState.GroupsLoaded,
-    onEvent: (DictionaryEvent) -> Unit,
+    state: DictionaryDetailsState.WordsLoaded,
+    onEvent: (DictionaryDetailsEvent) -> Unit,
 ) {
-    val groups = state.groups
-    LazyColumn(
-        modifier = modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        items(groups) { uiItem ->
-            WordGroupCard(uiItem = uiItem, onEvent = onEvent)
+    LazyColumn(modifier = modifier.fillMaxSize()) {
+        items(state.words.size) { index ->
+            WordListItem(uiItem = state.words[index], onEvent = onEvent)
         }
     }
 }
@@ -222,7 +239,7 @@ internal fun WordListScreen(
  * Displays an error message.
  */
 @Composable
-internal fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error) {
+fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryDetailsState.Error) {
     Text(
         modifier = modifier
             .padding(16.dp),
@@ -244,8 +261,8 @@ internal fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.E
 @Composable
 fun PreviewEmptyDictionaryScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(
-            state = DictionaryState.Empty,
+        DictionaryDetailsScreenRoot(
+            state = DictionaryDetailsState.Empty(titleId = R.string.adverbs),
         ) {}
     }
 }
@@ -263,7 +280,7 @@ fun PreviewEmptyDictionaryScreen() {
 @Composable
 fun PreviewLoadingScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Loading) {}
+        DictionaryDetailsScreenRoot(state = DictionaryDetailsState.Loading(titleId = R.string.nouns)) {}
     }
 }
 
@@ -280,7 +297,12 @@ fun PreviewLoadingScreen() {
 @Composable
 fun PreviewErrorScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Error(message = "Network error")) {}
+        DictionaryDetailsScreenRoot(
+            state = DictionaryDetailsState.Error(
+                titleId = R.string.verbs,
+                message = "Network error",
+            ),
+        ) {}
     }
 }
 
@@ -296,19 +318,30 @@ fun PreviewErrorScreen() {
 )
 @Composable
 fun PreviewWordListScreen() {
-    val sampleWordGroups = listOf(
-        WordGroupUiModel(
-            partOfSpeech = PartOfSpeech.VERB,
-            titleText = "Verbs",
-            subtitleText = "Words: 4",
+    val sampleWords = listOf(
+        WordUiModel(
+            id = "1",
+            text = "lernen",
+            translations = "learn",
+            examples = "Ich lerne Deutsch.",
+            partOfSpeech = PartOfSpeech.VERB.toString(),
+            notes = null,
         ),
-        WordGroupUiModel(
-            partOfSpeech = PartOfSpeech.NOUN,
-            titleText = "Nouns",
-            subtitleText = "Words: 14",
+        WordUiModel(
+            id = "2",
+            text = "Haus",
+            translations = "house, home",
+            examples = "Das ist mein Haus.",
+            partOfSpeech = PartOfSpeech.NOUN.toString(),
+            notes = null,
         ),
     )
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.GroupsLoaded(groups = sampleWordGroups)) {}
+        DictionaryDetailsScreenRoot(
+            state = DictionaryDetailsState.WordsLoaded(
+                titleId = R.string.adverbs,
+                words = sampleWords,
+            ),
+        ) {}
     }
 }

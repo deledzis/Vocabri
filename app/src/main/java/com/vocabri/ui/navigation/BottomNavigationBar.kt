@@ -65,7 +65,7 @@ fun BottomNavigationBar(navController: NavHostController) {
                     Icon(
                         painter = painterResource(id = item.iconResId),
                         contentDescription = item.label,
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = MaterialTheme.colorScheme.tertiary,
                     )
                 },
                 selected = navController.currentDestination?.route == item.route,

@@ -25,7 +25,10 @@
     <!-- Dictionary screen -->
     <string name="dictionary_title">Словарь</string>
     <string name="dictionary_empty_message">Словарь пуст.\nДобавьте первое слово!</string>
-    <string name="dictionary_delete_word">Удалить слово</string>
+    <string name="dictionary_group_words_count">Записей: %s</string>
+
+    <!-- Dictionary details screen -->
+    <string name="dictionary_details_delete_word">Удалить слово</string>
 
     <!-- Add word screen -->
     <string name="add_word">Добавить слово</string>
@@ -37,8 +40,22 @@
     <string name="select_part_of_speech">Укажите часть речи</string>
     <string name="add_word_empty_field">Пожалуйста, заполните все поля</string>
 
+    <!-- Parts of speech -->
+    <string name="nouns">Существительные</string>
+    <string name="verbs">Глаголы</string>
+    <string name="adjectives">Прилагательные</string>
+    <string name="adverbs">Наречия</string>
+    <string name="pronouns">Местоимения</string>
+    <string name="prepositions">Предлоги</string>
+    <string name="conjunctions">Союзы</string>
+    <string name="interjections">Междометия</string>
+    <string name="articles">Артикли</string>
+    <string name="phrases">Фразы</string>
+
     <!-- General -->
     <string name="cancel">Отмена</string>
+    <string name="loading">Загрузка</string>
     <string name="save">Сохранить</string>
+    <string name="back_button">Назад</string>
     <string name="error_message">Произошла ошибка: %1$s</string>
 </resources>

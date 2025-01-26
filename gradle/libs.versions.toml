@@ -35,7 +35,6 @@ androidx-junit = "1.2.1"
 compose-junit = "1.7.6"
 espressoCore = "3.6.1"
 mockk = "1.13.16"
-turbine = "1.2.0"
 robolectric = "4.14.1"
 
 [libraries]
@@ -87,7 +86,6 @@ androidx-junit-compose = { group = "androidx.compose.ui", name = "ui-test-junit4
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
-turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
 robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
 
 [plugins]

@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.viewmodel
+package com.vocabri.ui.dictionarydetails.model
 
-import com.vocabri.ui.dictionary.model.WordGroupUiModel
+import com.vocabri.domain.model.word.Word
 
-sealed interface DictionaryState {
-    data object Loading : DictionaryState
-
-    data object Empty : DictionaryState
-
-    data class GroupsLoaded(val groups: List<WordGroupUiModel>) : DictionaryState
-
-    data class Error(val message: String) : DictionaryState
-}
+// Extension function to map domain model to UI model
+fun Word.toUiModel(): WordUiModel = WordUiModel(
+    id = this.id,
+    text = this.text,
+    partOfSpeech = this.partOfSpeech.name,
+    notes = this.notes,
+    translations = this.translations.joinToString(", ") { it.text },
+    examples = this.examples.joinToString(", ") { it.text },
+)

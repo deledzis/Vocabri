@@ -21,16 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.viewmodel
+package com.vocabri.domain.model.word
 
-import com.vocabri.ui.dictionary.model.WordGroupUiModel
-
-sealed interface DictionaryState {
-    data object Loading : DictionaryState
-
-    data object Empty : DictionaryState
-
-    data class GroupsLoaded(val groups: List<WordGroupUiModel>) : DictionaryState
-
-    data class Error(val message: String) : DictionaryState
-}
+data class WordGroup(val partOfSpeech: PartOfSpeech, val wordCount: Int)

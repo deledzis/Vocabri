@@ -27,7 +27,10 @@
     <!-- Dictionary screen -->
     <string name="dictionary_title">Dictionary</string>
     <string name="dictionary_empty_message">The dictionary is empty.\nAdd your first word!</string>
-    <string name="dictionary_delete_word">Delete word</string>
+    <string name="dictionary_group_words_count">Items: %s</string>
+
+    <!-- Dictionary details screen -->
+    <string name="dictionary_details_delete_word">Delete word</string>
 
     <!-- Add word screen -->
     <string name="add_word">Add Word</string>
@@ -39,8 +42,22 @@
     <string name="select_part_of_speech">Select part of speech</string>
     <string name="add_word_empty_field">Please fill all the fields</string>
 
+    <!-- Parts of speech -->
+    <string name="nouns">Nouns</string>
+    <string name="verbs">Verbs</string>
+    <string name="adjectives">Adjectives</string>
+    <string name="adverbs">Adverbs</string>
+    <string name="pronouns">Pronouns</string>
+    <string name="prepositions">Prepositions</string>
+    <string name="conjunctions">Conjunctions</string>
+    <string name="interjections">Interjections</string>
+    <string name="articles">Articles</string>
+    <string name="phrases">Phrases</string>
+
     <!-- General -->
     <string name="cancel">Cancel</string>
+    <string name="loading">Loading</string>
     <string name="save">Save</string>
+    <string name="back_button">Back</string>
     <string name="error_message">An error occurred: %1$s</string>
 </resources>

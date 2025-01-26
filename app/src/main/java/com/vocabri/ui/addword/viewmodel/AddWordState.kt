@@ -26,7 +26,7 @@ package com.vocabri.ui.addword.viewmodel
 import androidx.annotation.StringRes
 import com.vocabri.domain.model.word.PartOfSpeech
 
-sealed class AddWordState {
+sealed interface AddWordState {
     data class Editing(
         val text: String = "",
         val translations: List<String> = emptyList(),
@@ -37,9 +37,9 @@ sealed class AddWordState {
         val isSaveButtonEnabled: Boolean = false,
         @StringRes
         val errorMessageId: Int? = null,
-    ) : AddWordState()
+    ) : AddWordState
 
-    data object Saved : AddWordState()
+    data object Saved : AddWordState
 
-    data class Error(val message: String) : AddWordState()
+    data class Error(val message: String) : AddWordState
 }

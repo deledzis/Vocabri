@@ -21,13 +21,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.dictionary.model
+package com.vocabri.utils
 
-data class WordUiModel(
-    val id: String,
-    val text: String,
-    val translations: String,
-    val examples: String,
-    val partOfSpeech: String,
-    val notes: String?,
-)
+import android.content.Context
+import com.vocabri.domain.repository.ResourcesRepository
+
+class AndroidResourcesRepository(private val context: Context) : ResourcesRepository {
+    override fun getString(stringResId: Int): String = context.getString(stringResId)
+
+    override fun getString(stringResId: Int, vararg formatArgs: Any): String =
+        context.getString(stringResId, *formatArgs)
+
+    override fun getQuantityString(pluralResId: Int, quantity: Int): String =
+        context.resources.getQuantityString(pluralResId, quantity)
+
+    override fun getQuantityString(pluralResId: Int, quantity: Int, vararg formatArgs: Any): String =
+        context.resources.getQuantityString(pluralResId, quantity, *formatArgs)
+}
