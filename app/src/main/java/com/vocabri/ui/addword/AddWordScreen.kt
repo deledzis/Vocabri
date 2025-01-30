@@ -48,7 +48,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -84,6 +83,7 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.addword.viewmodel.AddWordEvent
 import com.vocabri.ui.addword.viewmodel.AddWordState
 import com.vocabri.ui.addword.viewmodel.AddWordViewModel
+import com.vocabri.ui.components.Buttons
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
@@ -115,6 +115,7 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                     Text(
                         text = stringResource(R.string.add_word),
                         style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
                 },
                 navigationIcon = {
@@ -125,8 +126,10 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                         },
                     ) {
                         Icon(
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(20.dp),
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cancel),
+                            contentDescription = stringResource(R.string.back_button),
                         )
                     }
                 },
@@ -185,7 +188,7 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
             )
         },
         textStyle = MaterialTheme.typography.labelLarge,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
             unfocusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
@@ -224,7 +227,7 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                     )
                 },
                 textStyle = MaterialTheme.typography.labelLarge,
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(16.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
                 ),
@@ -248,8 +251,8 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                         .fillMaxHeight()
                         .aspectRatio(1f)
                         .background(
-                            MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(8.dp),
+                            MaterialTheme.colorScheme.tertiary,
+                            shape = RoundedCornerShape(16.dp),
                         ),
                 ) {
                     Icon(
@@ -269,10 +272,10 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
             state.translations.forEach { translation ->
                 TextButton(
                     onClick = { onEvent(AddWordEvent.RemoveTranslation(translation)) },
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(32.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
                     ),
                 ) {
                     Row(
@@ -305,22 +308,22 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
-        PartOfSpeech.entries.forEach { partOfSpeech ->
+        PartOfSpeech.noAll.forEach { partOfSpeech ->
             val isSelected = state.partOfSpeech == partOfSpeech
 
             TextButton(
                 onClick = {
                     onEvent(AddWordEvent.UpdatePartOfSpeech(partOfSpeech))
                 },
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(32.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSelected) {
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.tertiary
                     } else {
                         MaterialTheme.colorScheme.surface
                     },
                     contentColor = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.onTertiary
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     },
@@ -351,21 +354,16 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
 private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
     val saveButtonAlpha by animateFloatAsState(if (state.isSaveButtonEnabled) 1f else 0.7f)
 
-    Button(
-        onClick = {
-            focusManager.clearFocus()
-            onEvent(AddWordEvent.SaveWord)
-        },
-        enabled = state.isSaveButtonEnabled,
-        shape = RoundedCornerShape(8.dp),
+    Buttons.Filled(
         modifier = Modifier
             .fillMaxWidth()
             .alpha(saveButtonAlpha),
+        enabled = state.isSaveButtonEnabled,
+        contentDescriptionResId = R.string.save,
+        text = stringResource(R.string.save),
     ) {
-        Text(
-            text = stringResource(R.string.save),
-            style = MaterialTheme.typography.labelLarge,
-        )
+        focusManager.clearFocus()
+        onEvent(AddWordEvent.SaveWord)
     }
 }
 
@@ -378,6 +376,13 @@ private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, 
     name = "Day Mode",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Landscape",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    widthDp = 640,
+    heightDp = 360,
 )
 @Composable
 fun PreviewAddWordScreenEditing() {

@@ -41,6 +41,7 @@
     <string name="add_word_empty_field">Пожалуйста, заполните все поля</string>
 
     <!-- Parts of speech -->
+    <string name="all_words">Все слова</string>
     <string name="nouns">Существительные</string>
     <string name="verbs">Глаголы</string>
     <string name="adjectives">Прилагательные</string>
@@ -51,6 +52,14 @@
     <string name="interjections">Междометия</string>
     <string name="articles">Артикли</string>
     <string name="phrases">Фразы</string>
+
+    <!-- Navigation -->
+    <string name="navigation_screen_title_dictionary">Словарь</string>
+    <string name="navigation_screen_title_exercise">Тренировка</string>
+    <string name="navigation_screen_title_discover_more">Исследовать Новое</string>
+    <string name="navigation_screen_title_settings">Аккаунт</string>
+    <string name="navigation_screen_title_dictionary_details">Группа Слов</string>
+    <string name="navigation_description_plus_button">Добавить слово</string>
 
     <!-- General -->
     <string name="cancel">Отмена</string>

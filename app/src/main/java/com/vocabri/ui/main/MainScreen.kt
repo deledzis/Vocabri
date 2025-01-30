@@ -25,26 +25,47 @@ package com.vocabri.ui.main
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
+import com.vocabri.logger.logger
 import com.vocabri.ui.navigation.AppNavigation
-import com.vocabri.ui.navigation.BottomNavigationBar
+import com.vocabri.ui.navigation.MainBottomNavigation
+import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun MainScreen() {
+    val log = logger("MainScreen")
     val navController = rememberNavController()
+    val bottomNavigationScreens = listOf(
+        NavigationRoute.Start.Dictionary,
+        NavigationRoute.Start.Training,
+        NavigationRoute.Empty,
+        NavigationRoute.Start.DiscoverMore,
+        NavigationRoute.Start.Settings,
+    )
 
     Scaffold(
         bottomBar = {
-            BottomNavigationBar(navController = navController)
+            val currentRoute = navController.currentDestination?.route
+            log.e { "Current route: $currentRoute" }
+            if (currentRoute == null || currentRoute in bottomNavigationScreens.map { it.route }) {
+                MainBottomNavigation(
+                    navController = navController,
+                    navigationRoutes = bottomNavigationScreens,
+                ) {
+                    if (navController.currentDestination?.route != NavigationRoute.Secondary.AddWord.route) {
+                        navController.navigate(NavigationRoute.Secondary.AddWord.route) {
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            }
         },
-    ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+    ) {
+        Box {
             AppNavigation(navController = navController)
         }
     }
@@ -59,6 +80,13 @@ fun MainScreen() {
     name = "Day Mode",
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
+@Preview(
+    name = "Landscape",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    widthDp = 640,
+    heightDp = 360,
 )
 @Composable
 fun PreviewShimmerEffectRounded() {

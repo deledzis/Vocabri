@@ -21,13 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.navigation
+package com.vocabri.ui.components.utils
 
-import androidx.annotation.DrawableRes
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
-data class BottomNavItem(
-    val route: String,
-    val label: String,
-    @DrawableRes
-    val iconResId: Int,
-)
+@Composable
+fun rememberScreenWidth(): Dp {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    return remember(screenWidthDp) { screenWidthDp.dp }
+}
+
+@Composable
+fun rememberScreenHeight(): Dp {
+    val configuration = LocalConfiguration.current
+    val screenHeightDp = configuration.screenHeightDp
+    return remember(screenHeightDp) { screenHeightDp.dp }
+}

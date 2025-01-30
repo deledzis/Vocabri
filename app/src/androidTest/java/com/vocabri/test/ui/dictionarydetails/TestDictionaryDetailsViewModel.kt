@@ -42,7 +42,7 @@ class TestDictionaryDetailsViewModel :
         ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     ) {
     private val _state = MutableStateFlow<DictionaryDetailsState>(
-        DictionaryDetailsState.Empty(titleId = R.string.loading),
+        DictionaryDetailsState.Loading(titleId = R.string.loading),
     )
     override val state: StateFlow<DictionaryDetailsState> = _state
 

@@ -23,7 +23,9 @@
  */
 package com.vocabri.domain.usecase.word
 
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.WordGroup
+import com.vocabri.domain.model.word.WordGroups
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
 
@@ -40,11 +42,11 @@ class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
      * @return List of WordGroup objects containing the part of speech and word count.
      * @throws Exception If an error occurs during the fetch process.
      */
-    suspend fun execute(): List<WordGroup> {
+    suspend fun execute(): WordGroups {
         log.i { "Executing GetWordGroupsUseCase" }
         return try {
             val words = wordRepository.getAllWords()
-            words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
+            val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
                 WordGroup(
                     partOfSpeech = partOfSpeech,
                     wordCount = words.size,
@@ -52,6 +54,13 @@ class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
             }.also {
                 log.i { "Successfully fetched ${it.size} word groups" }
             }
+            WordGroups(
+                allWords = WordGroup(
+                    partOfSpeech = PartOfSpeech.ALL,
+                    wordCount = words.size,
+                ),
+                groups = groups,
+            )
         } catch (e: Exception) {
             log.e(e) { "Error fetching word groups" }
             throw e

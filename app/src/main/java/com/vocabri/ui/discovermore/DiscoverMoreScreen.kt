@@ -21,7 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.settings
+package com.vocabri.ui.discovermore
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -39,19 +39,19 @@ import com.vocabri.R
 
 // TODO: TBD
 @Composable
-fun SettingsScreen() {
-    SettingsScreenRoot()
+fun DiscoverMoreScreen() {
+    DiscoverMoreScreenRoot()
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreenRoot() {
+fun DiscoverMoreScreenRoot() {
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = stringResource(R.string.navigation_screen_title_settings),
+                        text = stringResource(R.string.navigation_screen_title_discover_more),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
@@ -65,7 +65,7 @@ fun SettingsScreenRoot() {
                 .fillMaxSize(),
             contentAlignment = Alignment.Center,
         ) {
-            Text(text = stringResource(R.string.navigation_screen_title_settings))
+            Text(text = stringResource(R.string.navigation_screen_title_discover_more))
         }
     }
 }

@@ -35,8 +35,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -51,20 +49,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
-import com.vocabri.ui.components.IconButtonWithCenteredText
 import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.dictionarydetails.components.WordListItem
 import com.vocabri.ui.dictionarydetails.model.WordUiModel
 import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsViewModel
+import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 
@@ -91,10 +88,21 @@ fun DictionaryDetailsScreen(
     DictionaryDetailsScreenRoot(state) { event ->
         log.i { "Handling event: $event" }
         when (event) {
-            is DictionaryDetailsEvent.AddWordClicked -> navController.navigate("addWord")
-            is DictionaryDetailsEvent.LoadWords -> viewModel.handleEvent(event)
-            is DictionaryDetailsEvent.DeleteWordClicked -> viewModel.handleEvent(event)
-            DictionaryDetailsEvent.OnBackClicked -> navController.popBackStack()
+            is DictionaryDetailsEvent.AddWordClicked -> {
+                navController.navigate(NavigationRoute.Secondary.AddWord.route)
+            }
+
+            is DictionaryDetailsEvent.LoadWords -> {
+                viewModel.handleEvent(event)
+            }
+
+            is DictionaryDetailsEvent.DeleteWordClicked -> {
+                viewModel.handleEvent(event)
+            }
+
+            DictionaryDetailsEvent.OnBackClicked -> {
+                navController.popBackStack()
+            }
         }
     }
 }
@@ -122,18 +130,6 @@ fun DictionaryDetailsScreenRoot(state: DictionaryDetailsState, onEvent: (Diction
                         )
                     }
                 },
-                actions = {
-                    if (state is DictionaryDetailsState.WordsLoaded) {
-                        IconButton(onClick = { onEvent(DictionaryDetailsEvent.AddWordClicked) }) {
-                            Icon(
-                                tint = MaterialTheme.colorScheme.tertiary,
-                                modifier = Modifier.size(24.dp),
-                                imageVector = Icons.Default.Add,
-                                contentDescription = stringResource(R.string.add_word),
-                            )
-                        }
-                    }
-                },
             )
         },
     ) { paddingValues ->
@@ -143,7 +139,7 @@ fun DictionaryDetailsScreenRoot(state: DictionaryDetailsState, onEvent: (Diction
         ) {
             when (state) {
                 is DictionaryDetailsState.Empty -> {
-                    EmptyScreen(onEvent = onEvent)
+                    onEvent(DictionaryDetailsEvent.OnBackClicked)
                 }
 
                 is DictionaryDetailsState.Loading -> {
@@ -166,38 +162,6 @@ fun DictionaryDetailsScreenRoot(state: DictionaryDetailsState, onEvent: (Diction
 }
 
 /**
- * Displays a message when the dictionary is empty.
- */
-@Composable
-fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryDetailsEvent) -> Unit) {
-    Box(
-        modifier = modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.TopCenter,
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                modifier = Modifier
-                    .padding(32.dp),
-                textAlign = TextAlign.Center,
-                text = stringResource(R.string.dictionary_empty_message),
-                style = MaterialTheme.typography.displaySmall,
-            )
-            IconButtonWithCenteredText(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f),
-                textId = R.string.add_word,
-                contentDescriptionId = R.string.add_word,
-                icon = Icons.Default.Create,
-                onClick = {
-                    onEvent(DictionaryDetailsEvent.AddWordClicked)
-                },
-            )
-        }
-    }
-}
-
-/**
  * Displays a loading indicator while words are being loaded.
  */
 @Composable
@@ -207,14 +171,33 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(vertical = 16.dp),
     ) {
-        repeat(10) {
-            ShimmerEffect(
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-                    .height(60.dp),
-                shape = RoundedCornerShape(4.dp),
-            )
+        repeat(8) {
+            Box(
+                modifier = Modifier,
+                contentAlignment = Alignment.TopStart,
+            ) {
+                ShimmerEffect(
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    shape = RoundedCornerShape(16.dp),
+                )
+                ShimmerEffect(
+                    modifier = Modifier
+                        .fillMaxWidth(0.5f)
+                        .padding(start = 32.dp, top = 16.dp)
+                        .height(18.dp),
+                    shape = RoundedCornerShape(4.dp),
+                )
+                ShimmerEffect(
+                    modifier = Modifier
+                        .fillMaxWidth(0.7f)
+                        .padding(start = 32.dp, top = 42.dp)
+                        .height(18.dp),
+                    shape = RoundedCornerShape(4.dp),
+                )
+            }
         }
     }
 }
@@ -258,11 +241,55 @@ fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryDetailsState.Err
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
+@Preview(
+    name = "Landscape",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    widthDp = 640,
+    heightDp = 360,
+)
 @Composable
-fun PreviewEmptyDictionaryScreen() {
+fun PreviewWordListScreen() {
+    val sampleWords = listOf(
+        WordUiModel(
+            id = "1",
+            text = "lernen",
+            translations = "learn",
+            examples = "Ich lerne Deutsch.",
+            partOfSpeech = PartOfSpeech.VERB.toString(),
+            notes = null,
+        ),
+        WordUiModel(
+            id = "2",
+            text = "Haus",
+            translations = "house, home",
+            examples = "Das ist mein Haus.",
+            partOfSpeech = PartOfSpeech.NOUN.toString(),
+            notes = null,
+        ),
+        WordUiModel(
+            id = "3",
+            text = "lernen",
+            translations = "learn",
+            examples = "Ich lerne Deutsch.",
+            partOfSpeech = PartOfSpeech.VERB.toString(),
+            notes = null,
+        ),
+        WordUiModel(
+            id = "4",
+            text = "Haus",
+            translations = "house, home",
+            examples = "Das ist mein Haus.",
+            partOfSpeech = PartOfSpeech.NOUN.toString(),
+            notes = null,
+        ),
+    )
     VocabriTheme {
         DictionaryDetailsScreenRoot(
-            state = DictionaryDetailsState.Empty(titleId = R.string.adverbs),
+            state = DictionaryDetailsState.WordsLoaded(
+                titleId = R.string.adverbs,
+                words = sampleWords,
+            ),
         ) {}
     }
 }
@@ -301,46 +328,6 @@ fun PreviewErrorScreen() {
             state = DictionaryDetailsState.Error(
                 titleId = R.string.verbs,
                 message = "Network error",
-            ),
-        ) {}
-    }
-}
-
-@Preview(
-    name = "Night Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Preview(
-    name = "Day Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Composable
-fun PreviewWordListScreen() {
-    val sampleWords = listOf(
-        WordUiModel(
-            id = "1",
-            text = "lernen",
-            translations = "learn",
-            examples = "Ich lerne Deutsch.",
-            partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null,
-        ),
-        WordUiModel(
-            id = "2",
-            text = "Haus",
-            translations = "house, home",
-            examples = "Das ist mein Haus.",
-            partOfSpeech = PartOfSpeech.NOUN.toString(),
-            notes = null,
-        ),
-    )
-    VocabriTheme {
-        DictionaryDetailsScreenRoot(
-            state = DictionaryDetailsState.WordsLoaded(
-                titleId = R.string.adverbs,
-                words = sampleWords,
             ),
         ) {}
     }
