@@ -45,13 +45,7 @@ class DeleteWordUseCase(private val wordRepository: WordRepository) {
      */
     suspend fun execute(id: String) {
         log.i { "Executing DeleteWordUseCase for word ID: $id" }
-
-        try {
-            wordRepository.deleteWordById(id)
-            log.i { "Word with ID $id successfully deleted" }
-        } catch (e: Exception) {
-            log.e(e) { "Error deleting word with ID: $id" }
-            throw e
-        }
+        wordRepository.deleteWordById(id)
+        log.i { "Word with ID $id successfully deleted" }
     }
 }

@@ -54,7 +54,7 @@ open class DictionaryDetailsViewModel(
     private val log = logger()
 
     private val _state = MutableStateFlow<DictionaryDetailsState>(
-        DictionaryDetailsState.Empty(titleId = R.string.loading),
+        DictionaryDetailsState.Loading(titleId = R.string.loading),
     )
     open val state: StateFlow<DictionaryDetailsState> = _state
 
@@ -91,7 +91,10 @@ open class DictionaryDetailsViewModel(
         loadJob = viewModelScope.launch(ioScope.coroutineContext) {
             _state.update { DictionaryDetailsState.Loading(partOfSpeech.toTitleResId) }
             try {
-                val words = getWordsUseCase.executeByPartOfSpeech(partOfSpeech)
+                val words = when (partOfSpeech) {
+                    PartOfSpeech.ALL -> getWordsUseCase.execute()
+                    else -> getWordsUseCase.executeByPartOfSpeech(partOfSpeech)
+                }
                 log.d { "Fetched ${words.size} $partOfSpeech words" }
                 val uiWords = words.map { it.toUiModel() }
                 _state.update {

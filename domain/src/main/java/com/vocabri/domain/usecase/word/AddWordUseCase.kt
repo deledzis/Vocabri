@@ -53,7 +53,7 @@ class AddWordUseCase(private val wordRepository: WordRepository) {
         try {
             wordRepository.insertWord(word)
             log.i { "Word successfully inserted: ${word.text}" }
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
             log.e(e) { "Error inserting word: ${word.text}" }
             throw e
         }

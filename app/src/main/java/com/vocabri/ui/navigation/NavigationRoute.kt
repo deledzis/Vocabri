@@ -23,10 +23,63 @@
  */
 package com.vocabri.ui.navigation
 
-enum class NavigationRoute(val destination: String) {
-    Dictionary("dictionary"),
-    DictionaryDetails("groupDetails/{groupType}"),
-    Training("training"),
-    Settings("settings"),
-    AddWord("addWord"),
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
+import com.vocabri.R
+
+sealed interface NavigationRoute {
+    val route: String
+
+    data object Empty : NavigationRoute {
+        override val route: String = "empty"
+    }
+
+    sealed class Start(
+        override val route: String,
+        @StringRes val titleResId: Int,
+        @DrawableRes val iconSelectedResId: Int,
+        @DrawableRes val iconUnselectedResId: Int,
+    ) : NavigationRoute {
+
+        data object Dictionary : Start(
+            route = "dictionary",
+            titleResId = R.string.navigation_screen_title_dictionary,
+            iconSelectedResId = R.drawable.ic_navigation_dictionary,
+            iconUnselectedResId = R.drawable.ic_navigation_dictionary,
+        )
+
+        data object Training : Start(
+            route = "training",
+            titleResId = R.string.navigation_screen_title_exercise,
+            iconSelectedResId = R.drawable.ic_navigation_exercise,
+            iconUnselectedResId = R.drawable.ic_navigation_exercise,
+        )
+
+        data object DiscoverMore : Start(
+            route = "discover_more",
+            titleResId = R.string.navigation_screen_title_discover_more,
+            iconSelectedResId = R.drawable.ic_navigation_discover_more,
+            iconUnselectedResId = R.drawable.ic_navigation_discover_more,
+        )
+
+        data object Settings : Start(
+            route = "settings",
+            titleResId = R.string.navigation_screen_title_settings,
+            iconSelectedResId = R.drawable.ic_navigation_settings,
+            iconUnselectedResId = R.drawable.ic_navigation_settings,
+        )
+    }
+
+    sealed class Secondary(override val route: String) : NavigationRoute {
+        data object DictionaryDetails : Secondary(
+            route = "group_details/{groupType}",
+        ) {
+            fun fromGroup(groupType: String) = DictionaryDetails.route
+                .replace("{groupType}", groupType)
+        }
+
+        data object AddWord : Secondary(
+            route = "add_word",
+        )
+    }
 }

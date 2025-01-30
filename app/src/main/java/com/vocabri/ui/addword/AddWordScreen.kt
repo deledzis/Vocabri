@@ -48,7 +48,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -84,12 +83,20 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.addword.viewmodel.AddWordEvent
 import com.vocabri.ui.addword.viewmodel.AddWordState
 import com.vocabri.ui.addword.viewmodel.AddWordViewModel
+import com.vocabri.ui.components.Buttons
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
+private const val BUTTON_ENABLED_ALPHA = 0.7f
+private const val BUTTON_DISABLED_ALPHA = 1.0f
+
 @Composable
-fun AddWordScreen(viewModel: AddWordViewModel = koinViewModel(), navController: NavController) {
+fun AddWordScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AddWordViewModel = koinViewModel(),
+    navController: NavController,
+) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state) {
@@ -98,23 +105,33 @@ fun AddWordScreen(viewModel: AddWordViewModel = koinViewModel(), navController: 
         }
     }
 
-    AddWordScreenRoot(state, navController) { event ->
-        viewModel.handleEvent(event)
-    }
+    AddWordScreenRoot(
+        modifier = modifier,
+        state = state,
+        navController = navController,
+        onEvent = { event -> viewModel.handleEvent(event) },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent: (AddWordEvent) -> Unit) {
+fun AddWordScreenRoot(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    state: AddWordState,
+    onEvent: (AddWordEvent) -> Unit,
+) {
     val focusManager = LocalFocusManager.current
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = stringResource(R.string.add_word),
                         style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.tertiary,
                     )
                 },
                 navigationIcon = {
@@ -125,8 +142,10 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                         },
                     ) {
                         Icon(
+                            tint = MaterialTheme.colorScheme.tertiary,
+                            modifier = Modifier.size(20.dp),
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = stringResource(R.string.cancel),
+                            contentDescription = stringResource(R.string.back_button),
                         )
                     }
                 },
@@ -149,13 +168,13 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                         },
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    SelectPartOfSpeech(state, onEvent)
-                    WordField(state, onEvent)
-                    TranslationField(state, onEvent)
-                    SaveButton(focusManager, state, onEvent)
+                    SelectPartOfSpeech(state = state, onEvent = onEvent)
+                    WordField(state = state, onEvent = onEvent)
+                    TranslationField(state = state, onEvent = onEvent)
+                    SaveButton(focusManager = focusManager, state = state, onEvent = onEvent)
                     AnimatedVisibility(visible = state.errorMessageId != null) {
                         Text(
-                            text = state.errorMessageId?.let { stringResource(it) } ?: "",
+                            text = state.errorMessageId?.let { stringResource(it) }.orEmpty(),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.labelLarge,
                         )
@@ -173,9 +192,9 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
 }
 
 @Composable
-fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun WordField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     TextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         value = state.text,
         onValueChange = { onEvent(AddWordEvent.UpdateText(it)) },
         placeholder = {
@@ -185,7 +204,7 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
             )
         },
         textStyle = MaterialTheme.typography.labelLarge,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = TextFieldDefaults.colors(
             focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
             unfocusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
@@ -198,10 +217,10 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun TranslationField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -224,7 +243,7 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                     )
                 },
                 textStyle = MaterialTheme.typography.labelLarge,
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(16.dp),
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done,
                 ),
@@ -248,8 +267,8 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
                         .fillMaxHeight()
                         .aspectRatio(1f)
                         .background(
-                            MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(8.dp),
+                            MaterialTheme.colorScheme.tertiary,
+                            shape = RoundedCornerShape(16.dp),
                         ),
                 ) {
                     Icon(
@@ -269,10 +288,10 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
             state.translations.forEach { translation ->
                 TextButton(
                     onClick = { onEvent(AddWordEvent.RemoveTranslation(translation)) },
-                    shape = RoundedCornerShape(8.dp),
+                    shape = RoundedCornerShape(32.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                        containerColor = MaterialTheme.colorScheme.tertiary,
+                        contentColor = MaterialTheme.colorScheme.onTertiary,
                     ),
                 ) {
                     Row(
@@ -299,34 +318,33 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun SelectPartOfSpeech(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
-        PartOfSpeech.entries.forEach { partOfSpeech ->
+        PartOfSpeech.noAll.forEach { partOfSpeech ->
             val isSelected = state.partOfSpeech == partOfSpeech
 
             TextButton(
                 onClick = {
                     onEvent(AddWordEvent.UpdatePartOfSpeech(partOfSpeech))
                 },
-                shape = RoundedCornerShape(8.dp),
+                shape = RoundedCornerShape(32.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isSelected) {
-                        MaterialTheme.colorScheme.primary
+                        MaterialTheme.colorScheme.tertiary
                     } else {
                         MaterialTheme.colorScheme.surface
                     },
                     contentColor = if (isSelected) {
-                        MaterialTheme.colorScheme.onPrimary
+                        MaterialTheme.colorScheme.onTertiary
                     } else {
                         MaterialTheme.colorScheme.onSurface
                     },
                 ),
             ) {
-                // TODO: make unified capitalize method
                 Text(
                     text = partOfSpeech.name.lowercase()
                         .replaceFirstChar {
@@ -339,7 +357,7 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
                             }
                         },
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight(700),
+                        fontWeight = FontWeight.Black,
                     ),
                 )
             }
@@ -348,24 +366,30 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
 }
 
 @Composable
-private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
-    val saveButtonAlpha by animateFloatAsState(if (state.isSaveButtonEnabled) 1f else 0.7f)
-
-    Button(
-        onClick = {
-            focusManager.clearFocus()
-            onEvent(AddWordEvent.SaveWord)
+private fun SaveButton(
+    modifier: Modifier = Modifier,
+    focusManager: FocusManager,
+    state: AddWordState.Editing,
+    onEvent: (AddWordEvent) -> Unit,
+) {
+    val saveButtonAlpha by animateFloatAsState(
+        if (state.isSaveButtonEnabled) {
+            BUTTON_ENABLED_ALPHA
+        } else {
+            BUTTON_DISABLED_ALPHA
         },
-        enabled = state.isSaveButtonEnabled,
-        shape = RoundedCornerShape(8.dp),
-        modifier = Modifier
+    )
+
+    Buttons.Filled(
+        modifier = modifier
             .fillMaxWidth()
             .alpha(saveButtonAlpha),
+        enabled = state.isSaveButtonEnabled,
+        contentDescriptionResId = R.string.save,
+        text = stringResource(R.string.save),
     ) {
-        Text(
-            text = stringResource(R.string.save),
-            style = MaterialTheme.typography.labelLarge,
-        )
+        focusManager.clearFocus()
+        onEvent(AddWordEvent.SaveWord)
     }
 }
 
@@ -379,8 +403,15 @@ private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, 
     showBackground = true,
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
+@Preview(
+    name = "Landscape",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    widthDp = 640,
+    heightDp = 360,
+)
 @Composable
-fun PreviewAddWordScreenEditing() {
+private fun PreviewAddWordScreenEditing() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(
@@ -406,7 +437,7 @@ fun PreviewAddWordScreenEditing() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewAddWordScreenEditingEmpty() {
+private fun PreviewAddWordScreenEditingEmpty() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(
@@ -428,7 +459,7 @@ fun PreviewAddWordScreenEditingEmpty() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewAddWordScreenError() {
+private fun PreviewAddWordScreenError() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(

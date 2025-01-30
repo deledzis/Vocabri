@@ -21,20 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.model.word
+package com.vocabri.ui.components.utils
 
-// Represents the grammatical part of speech for a word.
-enum class PartOfSpeech {
-    ALL, // Represents all parts of speech
-    NOUN, // Represents a noun in the language
-    VERB, // Represents a verb in the language
-    ADJECTIVE, // Represents an adjective in the language
-    ADVERB, // Represents an adverb in the language
-    PHRASE, // Represents a phrase or idiomatic expression
-    ;
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
-    companion object {
-        val noAll: List<PartOfSpeech>
-            get() = PartOfSpeech.entries.filterNot { it == ALL }
-    }
+@Composable
+fun rememberScreenWidth(): Dp {
+    val configuration = LocalConfiguration.current
+    val screenWidthDp = configuration.screenWidthDp
+    return remember(screenWidthDp) { screenWidthDp.dp }
+}
+
+@Composable
+fun rememberScreenHeight(): Dp {
+    val configuration = LocalConfiguration.current
+    val screenHeightDp = configuration.screenHeightDp
+    return remember(screenHeightDp) { screenHeightDp.dp }
 }

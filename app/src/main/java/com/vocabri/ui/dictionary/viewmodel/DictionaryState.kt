@@ -30,7 +30,7 @@ sealed interface DictionaryState {
 
     data object Empty : DictionaryState
 
-    data class GroupsLoaded(val groups: List<WordGroupUiModel>) : DictionaryState
+    data class GroupsLoaded(val allWords: WordGroupUiModel, val groups: List<WordGroupUiModel>) : DictionaryState
 
     data class Error(val message: String) : DictionaryState
 }

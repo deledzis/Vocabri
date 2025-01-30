@@ -66,23 +66,19 @@ open class DictionaryViewModel(
         loadJob = ioScope.launch {
             _state.value = DictionaryState.Loading
             try {
-                val words = getWordGroupsUseCase.execute()
-                val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
-                    WordGroup(
-                        partOfSpeech = partOfSpeech,
-                        wordCount = words.size,
-                    )
-                }
-                val groupsUiModel = groups.map { it.toUiModel() }
+                val wordGroups = getWordGroupsUseCase.execute()
+                val allWordsGroupUiModel = wordGroups.allWords.toUiModel()
+                val groupsUiModel = wordGroups.groups.map { it.toUiModel() }
                 _state.value = if (groupsUiModel.isEmpty()) {
                     DictionaryState.Empty
                 } else {
-                    DictionaryState.GroupsLoaded(groupsUiModel)
+                    DictionaryState.GroupsLoaded(allWords = allWordsGroupUiModel, groups = groupsUiModel)
                 }
             } catch (e: CancellationException) {
                 log.w(e) { "loadWordGroups was cancelled" }
             } catch (e: Exception) {
-                _state.value = DictionaryState.Error("Failed to load word groups")
+                log.w(e) { "loadWordGroups failed due to exception: $e" }
+                _state.value = DictionaryState.Error("Failed to load word groups, please try again later.")
             }
         }
     }

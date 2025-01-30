@@ -25,6 +25,7 @@ package com.vocabri.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -34,43 +35,56 @@ import com.vocabri.logger.logger
 import com.vocabri.ui.addword.AddWordScreen
 import com.vocabri.ui.dictionary.DictionaryScreen
 import com.vocabri.ui.dictionarydetails.DictionaryDetailsScreen
+import com.vocabri.ui.discovermore.DiscoverMoreScreen
 import com.vocabri.ui.settings.SettingsScreen
 import com.vocabri.ui.training.TrainingScreen
 
 val log = logger("AppNavigation")
 
 @Composable
-fun AppNavigation(navController: NavHostController) {
-    NavHost(navController = navController, startDestination = NavigationRoute.Dictionary.destination) {
-        composable(NavigationRoute.Dictionary.destination) {
+fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
+    NavHost(
+        modifier = modifier,
+        navController = navController,
+        startDestination = NavigationRoute.Start.Dictionary.route,
+    ) {
+        /* Start (bottom navigation entries) Screens */
+        composable(NavigationRoute.Start.Dictionary.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to DictionaryScreen" }
             }
             DictionaryScreen(navController = navController)
         }
-        composable(
-            NavigationRoute.DictionaryDetails.destination,
-            arguments = listOf(navArgument("groupType") { type = NavType.StringType }),
-        ) { backStackEntry ->
-            val wordGroup = backStackEntry.arguments?.getString("groupType") ?: ""
-            LaunchedEffect(navController.currentDestination) {
-                log.i { "Navigating to DictionaryDetailsScreen for group $wordGroup" }
-            }
-            DictionaryDetailsScreen(navController = navController, wordGroup = wordGroup)
-        }
-        composable(NavigationRoute.Training.destination) {
+        composable(NavigationRoute.Start.Training.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to TrainingScreen" }
             }
             TrainingScreen()
         }
-        composable(NavigationRoute.Settings.destination) {
+        composable(NavigationRoute.Start.DiscoverMore.route) {
+            LaunchedEffect(navController.currentDestination) {
+                log.i { "Navigating to DiscoverMoreScreen" }
+            }
+            DiscoverMoreScreen()
+        }
+        composable(NavigationRoute.Start.Settings.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to SettingsScreen" }
             }
             SettingsScreen()
         }
-        composable(NavigationRoute.AddWord.destination) {
+        /* Secondary Screens */
+        composable(
+            NavigationRoute.Secondary.DictionaryDetails.route,
+            arguments = listOf(navArgument("groupType") { type = NavType.StringType }),
+        ) { backStackEntry ->
+            val wordGroup = backStackEntry.arguments?.getString("groupType").orEmpty()
+            LaunchedEffect(navController.currentDestination) {
+                log.i { "Navigating to DictionaryDetailsScreen for group $wordGroup" }
+            }
+            DictionaryDetailsScreen(navController = navController, wordGroup = wordGroup)
+        }
+        composable(NavigationRoute.Secondary.AddWord.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to AddWordScreen" }
             }

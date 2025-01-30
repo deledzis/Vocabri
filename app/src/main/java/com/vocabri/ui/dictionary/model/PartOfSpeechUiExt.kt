@@ -34,4 +34,5 @@ internal val PartOfSpeech.toTitleResId: Int
         PartOfSpeech.ADJECTIVE -> R.string.adjectives
         PartOfSpeech.ADVERB -> R.string.adverbs
         PartOfSpeech.PHRASE -> R.string.phrases
+        PartOfSpeech.ALL -> R.string.all_words
     }

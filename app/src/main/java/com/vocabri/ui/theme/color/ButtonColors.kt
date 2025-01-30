@@ -21,13 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.navigation
+@file:Suppress("MagicNumber")
 
-import androidx.annotation.DrawableRes
+package com.vocabri.ui.theme.color
 
-data class BottomNavItem(
-    val route: String,
-    val label: String,
-    @DrawableRes
-    val iconResId: Int,
-)
+import androidx.compose.ui.graphics.Color
+
+object ButtonColors {
+    val Disabled = Color(0xFFEAC9D8)
+}

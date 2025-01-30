@@ -30,9 +30,6 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vocabri.R
-import com.vocabri.data.di.dataModule
-import com.vocabri.di.appModule
-import com.vocabri.domain.di.domainModule
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.test.di.testModule
 import com.vocabri.test.rule.KoinTestRule
@@ -47,7 +44,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class DictionaryDetailsScreenTest {
+class DictionaryDetailsNavigationRouteTest {
 
     @get:Rule
     val composeTestRule = createComposeRule()
@@ -55,9 +52,6 @@ class DictionaryDetailsScreenTest {
     @get:Rule
     val koinTestRule = KoinTestRule(
         listOf(
-            domainModule,
-            dataModule,
-            appModule,
             testModule,
         ),
     )
@@ -65,27 +59,7 @@ class DictionaryDetailsScreenTest {
     private val navController = mockk<NavHostController>(relaxed = true)
 
     @Test
-    fun testWordsLoadSuccessfully() {
-        val viewModel = TestDictionaryDetailsViewModel()
-        viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.VERB)
-
-        composeTestRule.setContent {
-            VocabriTheme {
-                DictionaryDetailsScreen(
-                    viewModel = viewModel,
-                    navController = navController,
-                    wordGroup = PartOfSpeech.VERB.name,
-                )
-            }
-        }
-
-        composeTestRule.onNodeWithText("Loading").assertExists()
-        composeTestRule.onNodeWithText("The dictionary is empty.\nAdd your first word!")
-            .assertExists()
-    }
-
-    @Test
-    fun testAddWordButtonInIdleState() {
+    fun testInLoadingStateNoPatOfSpeechInTitleShown() {
         val viewModel = TestDictionaryDetailsViewModel()
         viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.NOUN)
 
@@ -99,13 +73,11 @@ class DictionaryDetailsScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Add Word").assertExists().performClick()
-
-        verify { navController.navigate("addWord") }
+        composeTestRule.onNodeWithText("Loading").assertExists()
     }
 
     @Test
-    fun testAddWordButtonInWordsLoadedState() {
+    fun testBackButtonInWordsLoadedState() {
         val viewModel = TestDictionaryDetailsViewModel()
         viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.VERB)
 
@@ -135,9 +107,9 @@ class DictionaryDetailsScreenTest {
             }
         }
 
-        composeTestRule.onNodeWithContentDescription("Add Word").assertExists().performClick()
+        composeTestRule.onNodeWithContentDescription("Back").assertExists().performClick()
 
-        verify { navController.navigate("addWord") }
+        verify { navController.popBackStack() }
     }
 
     @Test

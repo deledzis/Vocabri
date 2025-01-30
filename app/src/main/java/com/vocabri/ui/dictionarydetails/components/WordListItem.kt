@@ -101,23 +101,12 @@ fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel) {
                 style = MaterialTheme.typography.labelSmall,
             )
         }
-        // Delete button for manual deletion
-        /*IconButton(
-            onClick = { onEvent(DictionaryEvent.DeleteWordClicked(uiItem.id)) }
-        ) {
-            Icon(
-                tint = MaterialTheme.colorScheme.tertiary,
-                modifier = Modifier.size(16.dp),
-                imageVector = Icons.Default.Delete,
-                contentDescription = stringResource(R.string.dictionary_delete_word)
-            )
-        }*/
     }
 }
 
 @Preview(showBackground = true, name = "Single Word Item")
 @Composable
-fun PreviewWordListItem() {
+private fun PreviewWordListItem() {
     val sampleWord = WordUiModel(
         id = "1",
         text = "lernen",
