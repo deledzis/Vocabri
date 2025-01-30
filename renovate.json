@@ -3,9 +3,6 @@
   "extends": [
     "config:recommended"
   ],
-  "automerge": true,
-  "automergeType": "pr",
-  "automergeStrategy": "squash",
   "requiredStatusChecks": [
     "Auto Merge / check / Build and Test",
     "Auto Merge / lint / Code Style"

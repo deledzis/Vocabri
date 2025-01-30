@@ -51,7 +51,7 @@ fun Project.applyDetekt() {
         }
 
         dependencies {
-            add("detektPlugins", libs.findLibrary("detekt-compose-rules").get())
+            add("detektPlugins", libs.findLibrary("detekt.compose.rules").get())
         }
 
         tasks.withType<Detekt>().configureEach {

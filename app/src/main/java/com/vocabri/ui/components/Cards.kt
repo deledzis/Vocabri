@@ -88,8 +88,8 @@ object Cards {
 
     @Composable
     fun Gradient(
-        gradient: List<Color>,
         modifier: Modifier = Modifier,
+        gradient: List<Color>,
         shape: Shape = RoundedCornerShape(16.dp),
         shadowColor: Color = ShadowColors.TertiaryColor,
         onClick: () -> Unit,

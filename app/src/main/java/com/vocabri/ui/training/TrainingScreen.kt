@@ -37,16 +37,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.vocabri.R
 
-// TODO: TBD
 @Composable
-fun TrainingScreen() {
-    TrainingScreenRoot()
+fun TrainingScreen(modifier: Modifier = Modifier) {
+    TrainingScreenRoot(modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TrainingScreenRoot() {
+fun TrainingScreenRoot(modifier: Modifier = Modifier) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {

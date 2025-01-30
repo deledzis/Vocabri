@@ -21,6 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+@file:Suppress("MagicNumber")
+
 package com.vocabri.ui.theme.color
 
 import androidx.compose.ui.graphics.Color

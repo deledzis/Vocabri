@@ -44,26 +44,21 @@ class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
      */
     suspend fun execute(): WordGroups {
         log.i { "Executing GetWordGroupsUseCase" }
-        return try {
-            val words = wordRepository.getAllWords()
-            val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
-                WordGroup(
-                    partOfSpeech = partOfSpeech,
-                    wordCount = words.size,
-                )
-            }.also {
-                log.i { "Successfully fetched ${it.size} word groups" }
-            }
-            WordGroups(
-                allWords = WordGroup(
-                    partOfSpeech = PartOfSpeech.ALL,
-                    wordCount = words.size,
-                ),
-                groups = groups,
+        val words = wordRepository.getAllWords()
+        val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
+            WordGroup(
+                partOfSpeech = partOfSpeech,
+                wordCount = words.size,
             )
-        } catch (e: Exception) {
-            log.e(e) { "Error fetching word groups" }
-            throw e
+        }.also {
+            log.i { "Successfully fetched ${it.size} word groups" }
         }
+        return WordGroups(
+            allWords = WordGroup(
+                partOfSpeech = PartOfSpeech.ALL,
+                wordCount = words.size,
+            ),
+            groups = groups,
+        )
     }
 }

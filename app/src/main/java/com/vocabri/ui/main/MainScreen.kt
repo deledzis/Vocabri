@@ -23,10 +23,12 @@
  */
 package com.vocabri.ui.main
 
+import android.annotation.SuppressLint
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.rememberNavController
 import com.vocabri.logger.logger
@@ -35,8 +37,9 @@ import com.vocabri.ui.navigation.MainBottomNavigation
 import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen() {
+fun MainScreen(modifier: Modifier = Modifier) {
     val log = logger("MainScreen")
     val navController = rememberNavController()
     val bottomNavigationScreens = listOf(
@@ -48,6 +51,7 @@ fun MainScreen() {
     )
 
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             val currentRoute = navController.currentDestination?.route
             log.e { "Current route: $currentRoute" }
@@ -65,7 +69,7 @@ fun MainScreen() {
             }
         },
     ) {
-        Box {
+        Box(modifier = Modifier) {
             AppNavigation(navController = navController)
         }
     }
@@ -89,7 +93,7 @@ fun MainScreen() {
     heightDp = 360,
 )
 @Composable
-fun PreviewShimmerEffectRounded() {
+private fun PreviewShimmerEffectRounded() {
     VocabriTheme {
         MainScreen()
     }

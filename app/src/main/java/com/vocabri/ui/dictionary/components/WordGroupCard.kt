@@ -88,9 +88,14 @@ fun WordGroupHighlightedCard(
 }
 
 @Composable
-private fun WordGroupCardContent(uiItem: WordGroupUiModel, titleColor: Color, subtitleColor: Color) {
+private fun WordGroupCardContent(
+    modifier: Modifier = Modifier,
+    uiItem: WordGroupUiModel,
+    titleColor: Color,
+    subtitleColor: Color,
+) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .padding(16.dp),
         horizontalAlignment = Alignment.Start,
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -121,7 +126,7 @@ private fun WordGroupCardContent(uiItem: WordGroupUiModel, titleColor: Color, su
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun WordGroupCardPreview() {
+private fun WordGroupCardPreview() {
     VocabriTheme {
         WordGroupCard(
             uiItem = WordGroupUiModel(
@@ -144,7 +149,7 @@ fun WordGroupCardPreview() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun WordWordGroupHighlightedCard() {
+private fun WordWordGroupHighlightedCard() {
     VocabriTheme {
         WordGroupHighlightedCard(
             uiItem = WordGroupUiModel(

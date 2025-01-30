@@ -37,16 +37,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.vocabri.R
 
-// TODO: TBD
 @Composable
-fun DiscoverMoreScreen() {
-    DiscoverMoreScreenRoot()
+fun DiscoverMoreScreen(modifier: Modifier = Modifier) {
+    DiscoverMoreScreenRoot(modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverMoreScreenRoot() {
+fun DiscoverMoreScreenRoot(modifier: Modifier = Modifier) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {

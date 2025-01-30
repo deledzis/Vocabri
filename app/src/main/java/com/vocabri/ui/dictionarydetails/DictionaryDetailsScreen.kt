@@ -65,12 +65,17 @@ import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 
+private const val LOADING_SKELETONS_COUNT = 8
+private const val LOADING_SKELETON_TITLE_WIDTH_PERCENT = 0.5f
+private const val LOADING_SKELETON_SUBTITLE_WIDTH_PERCENT = 0.7f
+
 /**
  * DictionaryScreen displays the list of words in the user's dictionary
  * and provides actions for managing the dictionary.
  */
 @Composable
 fun DictionaryDetailsScreen(
+    modifier: Modifier = Modifier,
     viewModel: DictionaryDetailsViewModel = koinViewModel(),
     navController: NavController,
     wordGroup: String,
@@ -85,7 +90,7 @@ fun DictionaryDetailsScreen(
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup))
     }
 
-    DictionaryDetailsScreenRoot(state) { event ->
+    DictionaryDetailsScreenRoot(modifier = modifier, state = state) { event ->
         log.i { "Handling event: $event" }
         when (event) {
             is DictionaryDetailsEvent.AddWordClicked -> {
@@ -109,8 +114,13 @@ fun DictionaryDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryDetailsScreenRoot(state: DictionaryDetailsState, onEvent: (DictionaryDetailsEvent) -> Unit) {
+fun DictionaryDetailsScreenRoot(
+    modifier: Modifier = Modifier,
+    state: DictionaryDetailsState,
+    onEvent: (DictionaryDetailsEvent) -> Unit,
+) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
@@ -171,7 +181,7 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(vertical = 16.dp),
     ) {
-        repeat(8) {
+        repeat(LOADING_SKELETONS_COUNT) {
             Box(
                 modifier = Modifier,
                 contentAlignment = Alignment.TopStart,
@@ -185,14 +195,14 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
                 )
                 ShimmerEffect(
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
+                        .fillMaxWidth(LOADING_SKELETON_TITLE_WIDTH_PERCENT)
                         .padding(start = 32.dp, top = 16.dp)
                         .height(18.dp),
                     shape = RoundedCornerShape(4.dp),
                 )
                 ShimmerEffect(
                     modifier = Modifier
-                        .fillMaxWidth(0.7f)
+                        .fillMaxWidth(LOADING_SKELETON_SUBTITLE_WIDTH_PERCENT)
                         .padding(start = 32.dp, top = 42.dp)
                         .height(18.dp),
                     shape = RoundedCornerShape(4.dp),
@@ -249,7 +259,7 @@ fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryDetailsState.Err
     heightDp = 360,
 )
 @Composable
-fun PreviewWordListScreen() {
+private fun PreviewWordListScreen() {
     val sampleWords = listOf(
         WordUiModel(
             id = "1",
@@ -305,7 +315,7 @@ fun PreviewWordListScreen() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewLoadingScreen() {
+private fun PreviewLoadingScreen() {
     VocabriTheme {
         DictionaryDetailsScreenRoot(state = DictionaryDetailsState.Loading(titleId = R.string.nouns)) {}
     }
@@ -322,7 +332,7 @@ fun PreviewLoadingScreen() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewErrorScreen() {
+private fun PreviewErrorScreen() {
     VocabriTheme {
         DictionaryDetailsScreenRoot(
             state = DictionaryDetailsState.Error(

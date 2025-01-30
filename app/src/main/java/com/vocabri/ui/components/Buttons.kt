@@ -68,7 +68,6 @@ import com.vocabri.R
 import com.vocabri.ui.components.modifier.dashedBorder
 import com.vocabri.ui.components.modifier.shadow
 import com.vocabri.ui.theme.VocabriTheme
-import com.vocabri.ui.theme.color.ButtonColors
 import com.vocabri.ui.theme.color.ShadowColors
 
 object Buttons {
@@ -401,7 +400,7 @@ object Buttons {
                                 if (enabled) {
                                     Modifier.background(MaterialTheme.colorScheme.tertiary)
                                 } else {
-                                    Modifier.background(ButtonColors.Disabled)
+                                    Modifier.background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f))
                                 },
                             )
                             .padding(
@@ -493,7 +492,7 @@ object Buttons {
                             if (enabled) {
                                 Modifier.background(MaterialTheme.colorScheme.tertiary)
                             } else {
-                                Modifier.background(ButtonColors.Disabled)
+                                Modifier.background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f))
                             },
                         )
                         .clickable(

@@ -49,7 +49,6 @@ private fun Project.configureSpotless() {
             targetExclude("**/build/**", "**/tmp/**", "**/resources/**", "**/.gradle/**")
 
             ktlint()
-                .setEditorConfigPath("$projectDir/.editorconfig")
                 .editorConfigOverride(
                     mapOf(
                         "android" to "true",

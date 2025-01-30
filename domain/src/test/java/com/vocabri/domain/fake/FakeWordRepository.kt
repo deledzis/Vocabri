@@ -34,8 +34,8 @@ class FakeWordRepository : WordRepository {
     override suspend fun getWordById(id: String): Word = words.first { it.id == id }
 
     override suspend fun insertWord(word: Word) {
-        if (words.any { it.text.equals(word.text, ignoreCase = true) }) {
-            throw IllegalArgumentException("Word with text '${word.text}' already exists")
+        require(words.none { it.text.equals(word.text, ignoreCase = true) }) {
+            "Word with text '${word.text}' already exists"
         }
         words.add(word)
     }

@@ -40,9 +40,9 @@ import androidx.compose.ui.unit.dp
 import com.vocabri.R
 
 @Composable
-fun DeleteBackground() {
+fun DeleteBackground(modifier: Modifier = Modifier) {
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.error)
             .padding(16.dp),

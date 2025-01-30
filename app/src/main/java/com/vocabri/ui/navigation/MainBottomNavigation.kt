@@ -45,9 +45,9 @@ import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun MainBottomNavigation(
+    modifier: Modifier = Modifier,
     navController: NavController,
     navigationRoutes: List<NavigationRoute>,
-    modifier: Modifier = Modifier,
     onPlusButtonClick: () -> Unit,
 ) {
     Box(
@@ -66,8 +66,13 @@ fun MainBottomNavigation(
 }
 
 @Composable
-private fun NavigationPlate(navController: NavController, navigationRoutes: List<NavigationRoute>) {
+private fun NavigationPlate(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    navigationRoutes: List<NavigationRoute>,
+) {
     NavigationBar(
+        modifier = modifier,
         containerColor = MaterialTheme.colorScheme.surface,
     ) {
         navigationRoutes.forEach { screen ->

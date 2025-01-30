@@ -55,7 +55,7 @@ import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun ShimmerEffect(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     shape: Shape,
     widthOfShadowBrush: Int = 500,
     angleOfAxisY: Float = 270f,
@@ -112,7 +112,7 @@ fun ShimmerEffect(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewShimmerEffectRounded() {
+private fun PreviewShimmerEffectRounded() {
     VocabriTheme {
         ShimmerEffect(
             modifier = Modifier
@@ -134,7 +134,7 @@ fun PreviewShimmerEffectRounded() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewShimmerEffectLayout() {
+private fun PreviewShimmerEffectLayout() {
     VocabriTheme {
         Column(modifier = Modifier.fillMaxSize()) {
             Row(

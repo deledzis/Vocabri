@@ -77,7 +77,8 @@ open class DictionaryViewModel(
             } catch (e: CancellationException) {
                 log.w(e) { "loadWordGroups was cancelled" }
             } catch (e: Exception) {
-                _state.value = DictionaryState.Error("Failed to load word groups")
+                log.w(e) { "loadWordGroups failed due to exception: $e" }
+                _state.value = DictionaryState.Error("Failed to load word groups, please try again later.")
             }
         }
     }

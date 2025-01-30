@@ -69,8 +69,17 @@ import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 
+private const val CATEGORY_GRID_WIDTH_DP = 200 // in dp
+private const val LOADING_SKELETONS_COUNT = 4
+private const val LOADING_SKELETON_TITLE_WIDTH_PERCENT = 0.5f
+private const val LOADING_SKELETON_SUBTITLE_WIDTH_PERCENT = 0.7f
+
 @Composable
-fun DictionaryScreen(navController: NavController, viewModel: DictionaryViewModel = koinViewModel()) {
+fun DictionaryScreen(
+    modifier: Modifier = Modifier,
+    viewModel: DictionaryViewModel = koinViewModel(),
+    navController: NavController,
+) {
     val log = logger("DictionaryScreen")
     val state by viewModel.state.collectAsState()
 
@@ -81,7 +90,7 @@ fun DictionaryScreen(navController: NavController, viewModel: DictionaryViewMode
         viewModel.handleEvent(DictionaryEvent.LoadWords)
     }
 
-    DictionaryScreenRoot(state) { event ->
+    DictionaryScreenRoot(modifier = modifier, state = state) { event ->
         log.i { "Handling event: $event" }
         when (event) {
             is DictionaryEvent.AddWordClicked -> {
@@ -103,8 +112,9 @@ fun DictionaryScreen(navController: NavController, viewModel: DictionaryViewMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryScreenRoot(state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
+fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
@@ -181,7 +191,7 @@ internal fun LoadingScreen(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(vertical = 16.dp),
     ) {
-        repeat(4) {
+        repeat(LOADING_SKELETONS_COUNT) {
             Box(
                 modifier = Modifier,
                 contentAlignment = Alignment.TopStart,
@@ -195,14 +205,14 @@ internal fun LoadingScreen(modifier: Modifier = Modifier) {
                 )
                 ShimmerEffect(
                     modifier = Modifier
-                        .fillMaxWidth(0.5f)
+                        .fillMaxWidth(LOADING_SKELETON_TITLE_WIDTH_PERCENT)
                         .padding(start = 32.dp, top = 24.dp)
                         .height(24.dp),
                     shape = RoundedCornerShape(4.dp),
                 )
                 ShimmerEffect(
                     modifier = Modifier
-                        .fillMaxWidth(0.7f)
+                        .fillMaxWidth(LOADING_SKELETON_SUBTITLE_WIDTH_PERCENT)
                         .padding(start = 32.dp, top = 56.dp)
                         .height(24.dp),
                     shape = RoundedCornerShape(4.dp),
@@ -234,14 +244,14 @@ internal fun WordListScreen(
         val screenHeight = configuration.screenHeightDp
         val isLandscape = screenWidth > screenHeight
 
-        val columnCount = screenWidth / 200 // considering ~200dp is a good width for a card
+        val columnCount = screenWidth / CATEGORY_GRID_WIDTH_DP
         log.e { "columnCount: $columnCount" }
 
         when (isLandscape) {
             true -> {
                 // show all cards in a grid
                 LazyVerticalGrid(
-                    columns = GridCells.Adaptive(minSize = 200.dp),
+                    columns = GridCells.Adaptive(minSize = CATEGORY_GRID_WIDTH_DP.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxSize(),
@@ -311,7 +321,7 @@ internal fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.E
     heightDp = 360,
 )
 @Composable
-fun PreviewWordListScreen() {
+private fun PreviewWordListScreen() {
     val allWords = WordGroupUiModel(
         partOfSpeech = PartOfSpeech.ALL,
         titleText = "All words",
@@ -345,7 +355,7 @@ fun PreviewWordListScreen() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewEmptyDictionaryScreen() {
+private fun PreviewEmptyDictionaryScreen() {
     VocabriTheme {
         DictionaryScreenRoot(
             state = DictionaryState.Empty,
@@ -364,7 +374,7 @@ fun PreviewEmptyDictionaryScreen() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewLoadingScreen() {
+private fun PreviewLoadingScreen() {
     VocabriTheme {
         DictionaryScreenRoot(state = DictionaryState.Loading) {}
     }
@@ -381,7 +391,7 @@ fun PreviewLoadingScreen() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewErrorScreen() {
+private fun PreviewErrorScreen() {
     VocabriTheme {
         DictionaryScreenRoot(state = DictionaryState.Error(message = "Network error")) {}
     }

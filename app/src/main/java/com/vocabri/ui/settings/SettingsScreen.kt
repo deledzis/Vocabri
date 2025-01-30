@@ -37,16 +37,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.vocabri.R
 
-// TODO: TBD
 @Composable
-fun SettingsScreen() {
-    SettingsScreenRoot()
+fun SettingsScreen(modifier: Modifier = Modifier) {
+    SettingsScreenRoot(modifier = modifier)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsScreenRoot() {
+fun SettingsScreenRoot(modifier: Modifier = Modifier) {
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {

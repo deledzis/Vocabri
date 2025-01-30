@@ -88,8 +88,15 @@ import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
+private const val BUTTON_ENABLED_ALPHA = 0.7f
+private const val BUTTON_DISABLED_ALPHA = 1.0f
+
 @Composable
-fun AddWordScreen(viewModel: AddWordViewModel = koinViewModel(), navController: NavController) {
+fun AddWordScreen(
+    modifier: Modifier = Modifier,
+    viewModel: AddWordViewModel = koinViewModel(),
+    navController: NavController,
+) {
     val state by viewModel.state.collectAsState()
 
     LaunchedEffect(state) {
@@ -98,17 +105,26 @@ fun AddWordScreen(viewModel: AddWordViewModel = koinViewModel(), navController: 
         }
     }
 
-    AddWordScreenRoot(state, navController) { event ->
-        viewModel.handleEvent(event)
-    }
+    AddWordScreenRoot(
+        modifier = modifier,
+        state = state,
+        navController = navController,
+        onEvent = { event -> viewModel.handleEvent(event) },
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent: (AddWordEvent) -> Unit) {
+fun AddWordScreenRoot(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    state: AddWordState,
+    onEvent: (AddWordEvent) -> Unit,
+) {
     val focusManager = LocalFocusManager.current
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             TopAppBar(
                 title = {
@@ -152,10 +168,10 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                         },
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                 ) {
-                    SelectPartOfSpeech(state, onEvent)
-                    WordField(state, onEvent)
-                    TranslationField(state, onEvent)
-                    SaveButton(focusManager, state, onEvent)
+                    SelectPartOfSpeech(state = state, onEvent = onEvent)
+                    WordField(state = state, onEvent = onEvent)
+                    TranslationField(state = state, onEvent = onEvent)
+                    SaveButton(focusManager = focusManager, state = state, onEvent = onEvent)
                     AnimatedVisibility(visible = state.errorMessageId != null) {
                         Text(
                             text = state.errorMessageId?.let { stringResource(it) }.orEmpty(),
@@ -176,9 +192,9 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
 }
 
 @Composable
-fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun WordField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     TextField(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         value = state.text,
         onValueChange = { onEvent(AddWordEvent.UpdateText(it)) },
         placeholder = {
@@ -201,10 +217,10 @@ fun WordField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun TranslationField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -302,9 +318,9 @@ fun TranslationField(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Uni
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun SelectPartOfSpeech(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     FlowRow(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp),
     ) {
@@ -329,7 +345,6 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
                     },
                 ),
             ) {
-                // TODO: make unified capitalize method
                 Text(
                     text = partOfSpeech.name.lowercase()
                         .replaceFirstChar {
@@ -342,7 +357,7 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
                             }
                         },
                     style = MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight(700),
+                        fontWeight = FontWeight.Black,
                     ),
                 )
             }
@@ -351,11 +366,22 @@ fun SelectPartOfSpeech(state: AddWordState.Editing, onEvent: (AddWordEvent) -> U
 }
 
 @Composable
-private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
-    val saveButtonAlpha by animateFloatAsState(if (state.isSaveButtonEnabled) 1f else 0.7f)
+private fun SaveButton(
+    modifier: Modifier = Modifier,
+    focusManager: FocusManager,
+    state: AddWordState.Editing,
+    onEvent: (AddWordEvent) -> Unit,
+) {
+    val saveButtonAlpha by animateFloatAsState(
+        if (state.isSaveButtonEnabled) {
+            BUTTON_ENABLED_ALPHA
+        } else {
+            BUTTON_DISABLED_ALPHA
+        },
+    )
 
     Buttons.Filled(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .alpha(saveButtonAlpha),
         enabled = state.isSaveButtonEnabled,
@@ -385,7 +411,7 @@ private fun SaveButton(focusManager: FocusManager, state: AddWordState.Editing, 
     heightDp = 360,
 )
 @Composable
-fun PreviewAddWordScreenEditing() {
+private fun PreviewAddWordScreenEditing() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(
@@ -411,7 +437,7 @@ fun PreviewAddWordScreenEditing() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewAddWordScreenEditingEmpty() {
+private fun PreviewAddWordScreenEditingEmpty() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(
@@ -433,7 +459,7 @@ fun PreviewAddWordScreenEditingEmpty() {
     uiMode = Configuration.UI_MODE_NIGHT_NO,
 )
 @Composable
-fun PreviewAddWordScreenError() {
+private fun PreviewAddWordScreenError() {
     val navController = rememberNavController()
     VocabriTheme {
         AddWordScreenRoot(

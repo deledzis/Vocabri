@@ -44,14 +44,18 @@ import androidx.navigation.compose.rememberNavController
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun EmptyBottomNavigationItem() {
-    Box(modifier = Modifier.size(64.dp))
+fun EmptyBottomNavigationItem(modifier: Modifier = Modifier) {
+    Box(modifier = modifier.size(64.dp))
 }
 
 @Composable
-fun RowScope.ContentBottomNavigationItem(navigationRoute: NavigationRoute.Start, navController: NavController) {
+fun RowScope.ContentBottomNavigationItem(
+    modifier: Modifier = Modifier,
+    navigationRoute: NavigationRoute.Start,
+    navController: NavController,
+) {
     NavigationBarItem(
-        modifier = Modifier
+        modifier = modifier
             .height(64.dp),
         icon = {
             Icon(
