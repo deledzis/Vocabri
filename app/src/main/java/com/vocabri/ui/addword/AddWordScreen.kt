@@ -158,7 +158,7 @@ fun AddWordScreenRoot(state: AddWordState, navController: NavController, onEvent
                     SaveButton(focusManager, state, onEvent)
                     AnimatedVisibility(visible = state.errorMessageId != null) {
                         Text(
-                            text = state.errorMessageId?.let { stringResource(it) } ?: "",
+                            text = state.errorMessageId?.let { stringResource(it) }.orEmpty(),
                             color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.labelLarge,
                         )

@@ -74,8 +74,8 @@ sealed interface NavigationRoute {
         data object DictionaryDetails : Secondary(
             route = "group_details/{groupType}",
         ) {
-            fun fromGroup(groupType: String) =
-                DictionaryDetails.route.replace("{groupType}", groupType)
+            fun fromGroup(groupType: String) = DictionaryDetails.route
+                .replace("{groupType}", groupType)
         }
 
         data object AddWord : Secondary(

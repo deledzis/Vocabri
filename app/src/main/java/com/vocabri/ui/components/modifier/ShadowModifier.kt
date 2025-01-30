@@ -33,34 +33,33 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
-fun Modifier.shadow(color: Color, offsetX: Dp = 0.dp, offsetY: Dp = 0.dp, blurRadius: Dp = 0.dp) =
-    then(
-        drawBehind {
-            drawIntoCanvas { canvas ->
-                val paint = Paint()
-                val frameworkPaint = paint.asFrameworkPaint()
-                if (blurRadius != 0.dp) {
-                    frameworkPaint.maskFilter = BlurMaskFilter(
-                        blurRadius.toPx(),
-                        BlurMaskFilter.Blur.NORMAL,
-                    )
-                }
-                frameworkPaint.color = color.toArgb()
-
-                val leftPixel = offsetX.toPx()
-                val topPixel = offsetY.toPx()
-                val rightPixel = size.width + topPixel
-                val bottomPixel = size.height + leftPixel
-
-                canvas.drawRoundRect(
-                    left = leftPixel,
-                    top = topPixel,
-                    right = rightPixel,
-                    bottom = bottomPixel,
-                    radiusX = blurRadius.toPx(),
-                    radiusY = blurRadius.toPx(),
-                    paint = paint,
+fun Modifier.shadow(color: Color, offsetX: Dp = 0.dp, offsetY: Dp = 0.dp, blurRadius: Dp = 0.dp) = then(
+    drawBehind {
+        drawIntoCanvas { canvas ->
+            val paint = Paint()
+            val frameworkPaint = paint.asFrameworkPaint()
+            if (blurRadius != 0.dp) {
+                frameworkPaint.maskFilter = BlurMaskFilter(
+                    blurRadius.toPx(),
+                    BlurMaskFilter.Blur.NORMAL,
                 )
             }
-        },
-    )
+            frameworkPaint.color = color.toArgb()
+
+            val leftPixel = offsetX.toPx()
+            val topPixel = offsetY.toPx()
+            val rightPixel = size.width + topPixel
+            val bottomPixel = size.height + leftPixel
+
+            canvas.drawRoundRect(
+                left = leftPixel,
+                top = topPixel,
+                right = rightPixel,
+                bottom = bottomPixel,
+                radiusX = blurRadius.toPx(),
+                radiusY = blurRadius.toPx(),
+                paint = paint,
+            )
+        }
+    },
+)

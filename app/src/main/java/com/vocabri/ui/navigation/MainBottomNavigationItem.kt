@@ -49,10 +49,7 @@ fun EmptyBottomNavigationItem() {
 }
 
 @Composable
-fun RowScope.ContentBottomNavigationItem(
-    navigationRoute: NavigationRoute.Start,
-    navController: NavController
-) {
+fun RowScope.ContentBottomNavigationItem(navigationRoute: NavigationRoute.Start, navController: NavController) {
     NavigationBarItem(
         modifier = Modifier
             .height(64.dp),

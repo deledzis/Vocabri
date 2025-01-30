@@ -76,7 +76,7 @@ fun AppNavigation(navController: NavHostController) {
             NavigationRoute.Secondary.DictionaryDetails.route,
             arguments = listOf(navArgument("groupType") { type = NavType.StringType }),
         ) { backStackEntry ->
-            val wordGroup = backStackEntry.arguments?.getString("groupType") ?: ""
+            val wordGroup = backStackEntry.arguments?.getString("groupType").orEmpty()
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to DictionaryDetailsScreen for group $wordGroup" }
             }
