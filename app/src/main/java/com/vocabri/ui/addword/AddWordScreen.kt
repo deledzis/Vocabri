@@ -25,7 +25,6 @@ package com.vocabri.ui.addword
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -65,7 +64,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
@@ -372,18 +370,9 @@ private fun SaveButton(
     state: AddWordState.Editing,
     onEvent: (AddWordEvent) -> Unit,
 ) {
-    val saveButtonAlpha by animateFloatAsState(
-        if (state.isSaveButtonEnabled) {
-            BUTTON_ENABLED_ALPHA
-        } else {
-            BUTTON_DISABLED_ALPHA
-        },
-    )
-
     Buttons.Filled(
         modifier = modifier
-            .fillMaxWidth()
-            .alpha(saveButtonAlpha),
+            .fillMaxWidth(),
         enabled = state.isSaveButtonEnabled,
         contentDescriptionResId = R.string.save,
         text = stringResource(R.string.save),

@@ -23,4 +23,7 @@
  */
 package com.vocabri.domain.model.word
 
-data class Example(val id: String, val text: String)
+/**
+ * Domain model for usage example.
+ */
+data class Example(val id: String, val example: String)

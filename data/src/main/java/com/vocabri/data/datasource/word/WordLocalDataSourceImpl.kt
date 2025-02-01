@@ -23,148 +23,236 @@
  */
 package com.vocabri.data.datasource.word
 
-import app.cash.sqldelight.async.coroutines.awaitAsList
-import app.cash.sqldelight.async.coroutines.awaitAsOneOrNull
-import com.vocabri.data.ExampleEntity
-import com.vocabri.data.TranslationEntity
-import com.vocabri.data.WordEntity
 import com.vocabri.data.db.VocabriDatabase
+import com.vocabri.domain.model.word.Example
+import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.model.word.Translation
+import com.vocabri.domain.model.word.Word
 import com.vocabri.logger.logger
 
 /**
- * A data source implementation for [WordEntity], [TranslationEntity], [ExampleEntity]
- * which uses local DB as a source of data.
- *
- * Handles word-related CRUD operations and interacts with the [VocabriDatabase].
+ * Implementation of the WordDataSource interface using SQLDelight for local storage.
+ * All queries for the different parts of speech are located in database.wordQueries.
  */
 class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataSource {
 
     private val log = logger()
 
     /**
-     * Inserts a word entity into the database.
+     * Inserts a new word into the database, along with part-of-speech-specific data.
      */
-    override suspend fun insertWord(word: WordEntity) {
-        log.i { "Inserting word: ${word.text}" }
-        database.wordQueries.insertWord(
-            id = word.id,
-            text = word.text,
-            partOfSpeech = word.partOfSpeech,
-            notes = word.notes,
-        )
-        log.i { "Word inserted with ID: ${word.id}" }
-    }
+    override suspend fun insertWord(word: Word) {
+        log.i { "Starting insertWord for Word ID = ${word.id}, text = ${word.text}" }
 
-    /**
-     * Inserts a translation entity into the database.
-     */
-    override suspend fun insertTranslation(translation: TranslationEntity) {
-        log.i { "Inserting translation: ${translation.translation} for word ID: ${translation.wordId}" }
-        database.wordQueries.insertTranslation(
-            id = translation.id,
-            wordId = translation.wordId,
-            translation = translation.translation,
-        )
-        log.i { "Translation inserted with ID: ${translation.id}" }
-    }
-
-    /**
-     * Inserts an example entity into the database.
-     */
-    override suspend fun insertExample(example: ExampleEntity) {
-        log.i { "Inserting example: ${example.example} for word ID: ${example.wordId}" }
-        database.wordQueries.insertExample(
-            id = example.id,
-            wordId = example.wordId,
-            example = example.example,
-        )
-        log.i { "Example inserted with ID: ${example.id}" }
-    }
-
-    /**
-     * Retrieves all word entities from the database.
-     */
-    override suspend fun getAllWords(): List<WordEntity> {
-        log.i { "Fetching all words from the database" }
-        val words = database.wordQueries.getAllWords { id, text, partOfSpeech, notes ->
-            WordEntity(
-                id = id,
-                text = text,
-                partOfSpeech = partOfSpeech,
-                notes = notes,
+        try {
+            // Insert into WordBaseEntity
+            database.wordQueries.insertWord(
+                id = word.id,
+                text = word.text,
             )
-        }.awaitAsList()
-        log.i { "Retrieved ${words.size} words from the database: $words" }
-        return words
-    }
+            log.i { "Inserted base entity for Word ID = ${word.id}" }
+        } catch (e: Exception) {
+            log.e { "Error inserting base entity for Word ID = ${word.id}: ${e.message}" }
+            throw e
+        }
 
-    /**
-     * Retrieves a word entity by its ID.
-     */
-    override suspend fun getWordById(wordId: String): WordEntity? {
-        log.i { "Fetching word with ID: $wordId" }
-        val word = database.wordQueries.getWordById(wordId).awaitAsOneOrNull()
-        log.i { if (word != null) "Word found with ID: $wordId" else "No word found with ID: $wordId" }
-        return word
-    }
+        // Insert into the specific table, depending on the type of Word
+        when (word) {
+            is Word.Noun -> {
+                try {
+                    database.wordQueries.insertNoun(
+                        id = word.id,
+                        gender = word.gender,
+                        pluralForm = word.pluralForm,
+                    )
+                    log.i { "Inserted noun entity for Word ID = ${word.id}" }
+                } catch (e: Exception) {
+                    log.e { "Error inserting noun entity for Word ID = ${word.id}: ${e.message}" }
+                    throw e
+                }
+            }
 
-    /**
-     * Retrieves all translations for a given word ID.
-     */
-    override suspend fun getTranslationsByWordId(wordId: String): List<TranslationEntity> {
-        log.i { "Fetching translations for word ID: $wordId" }
-        val translations =
-            database.wordQueries.getTranslationsByWordId(wordId) { id, newWordId, translation ->
-                TranslationEntity(
-                    id = id,
-                    wordId = newWordId,
-                    translation = translation,
+            is Word.Verb -> {
+                try {
+                    database.wordQueries.insertVerb(
+                        id = word.id,
+                        conjugation = word.conjugation,
+                        tenseForms = word.tenseForms,
+                    )
+                    log.i { "Inserted verb entity for Word ID = ${word.id}" }
+                } catch (e: Exception) {
+                    log.e { "Error inserting verb entity for Word ID = ${word.id}: ${e.message}" }
+                    throw e
+                }
+            }
+
+            is Word.Adjective -> {
+                try {
+                    database.wordQueries.insertAdjective(
+                        id = word.id,
+                        comparative = word.comparative,
+                        superlative = word.superlative,
+                    )
+                    log.i { "Inserted adjective entity for Word ID = ${word.id}" }
+                } catch (e: Exception) {
+                    log.e { "Error inserting adjective entity for Word ID = ${word.id}: ${e.message}" }
+                    throw e
+                }
+            }
+
+            is Word.Adverb -> {
+                try {
+                    database.wordQueries.insertAdverb(
+                        id = word.id,
+                        comparative = word.comparative,
+                        superlative = word.superlative,
+                    )
+                    log.i { "Inserted adverb entity for Word ID = ${word.id}" }
+                } catch (e: Exception) {
+                    log.e { "Error inserting adverb entity for Word ID = ${word.id}: ${e.message}" }
+                    throw e
+                }
+            }
+        }
+
+        // Insert translations
+        word.translations.forEach { translation ->
+            try {
+                database.wordQueries.insertTranslation(
+                    id = translation.id,
+                    wordId = word.id,
+                    translation = translation.translation,
                 )
-            }.awaitAsList()
-        log.i { "Retrieved ${translations.size} translations for word ID: $wordId" }
-        return translations
+                log.i { "Inserted translation ID = ${translation.id} for Word ID = ${word.id}" }
+            } catch (e: Exception) {
+                log.e { "Error inserting translation ID = ${translation.id} for Word ID = ${word.id}: ${e.message}" }
+                throw e
+            }
+        }
+
+        // Insert examples
+        word.examples.forEach { example ->
+            try {
+                database.wordQueries.insertExample(
+                    id = example.id,
+                    wordId = word.id,
+                    example = example.example,
+                )
+                log.i { "Inserted example ID = ${example.id} for Word ID = ${word.id}" }
+            } catch (e: Exception) {
+                log.e { "Error inserting example ID = ${example.id} for Word ID = ${word.id}: ${e.message}" }
+                throw e
+            }
+        }
+
+        log.i { "Finished inserting word with ID = ${word.id}" }
     }
 
     /**
-     * Retrieves all examples for a given word ID.
+     * Retrieves words by part of speech (or all if null).
      */
-    override suspend fun getExamplesByWordId(wordId: String): List<ExampleEntity> {
-        log.i { "Fetching examples for word ID: $wordId" }
-        val examples = database.wordQueries.getExamplesByWordId(wordId) { id, newWordId, example ->
-            ExampleEntity(
-                id = id,
-                wordId = newWordId,
-                example = example,
-            )
-        }.awaitAsList()
-        log.i { "Retrieved ${examples.size} examples for word ID: $wordId" }
-        return examples
+    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech?): List<Word> {
+        log.i { "getWordsByPartOfSpeech invoked with partOfSpeech = $partOfSpeech" }
+
+        val baseWords = try {
+            database.wordQueries.selectAllWords().executeAsList()
+        } catch (e: Exception) {
+            log.e { "Error querying WordBaseEntity: ${e.message}" }
+            throw e
+        }
+
+        log.i { "Fetched base words count: ${baseWords.size}" }
+
+        val domainWords = baseWords.map { wordBase ->
+            // Fetch translations
+            val translations = database.wordQueries.selectTranslationsByWordId(wordBase.id)
+                .executeAsList()
+                .map { Translation(id = it.id, translation = it.translation) }
+
+            // Fetch examples
+            val examples = database.wordQueries.selectExamplesByWordId(wordBase.id)
+                .executeAsList()
+                .map { Example(id = it.id, example = it.example) }
+
+            // Determine part of speech by trying to fetch from each specialized entity
+            val nounEntity = database.wordQueries.selectNounById(wordBase.id).executeAsOneOrNull()
+            if (nounEntity != null) {
+                return@map Word.Noun(
+                    id = wordBase.id,
+                    text = wordBase.text,
+                    translations = translations,
+                    examples = examples,
+                    gender = nounEntity.gender,
+                    pluralForm = nounEntity.pluralForm,
+                )
+            }
+
+            val verbEntity = database.wordQueries.selectVerbById(wordBase.id).executeAsOneOrNull()
+            if (verbEntity != null) {
+                return@map Word.Verb(
+                    id = wordBase.id,
+                    text = wordBase.text,
+                    translations = translations,
+                    examples = examples,
+                    conjugation = verbEntity.conjugation,
+                    tenseForms = verbEntity.tenseForms,
+                )
+            }
+
+            val adjEntity = database.wordQueries.selectAdjectiveById(wordBase.id).executeAsOneOrNull()
+            if (adjEntity != null) {
+                return@map Word.Adjective(
+                    id = wordBase.id,
+                    text = wordBase.text,
+                    translations = translations,
+                    examples = examples,
+                    comparative = adjEntity.comparative,
+                    superlative = adjEntity.superlative,
+                )
+            }
+
+            val advEntity = database.wordQueries.selectAdverbById(wordBase.id).executeAsOneOrNull()
+            if (advEntity != null) {
+                return@map Word.Adverb(
+                    id = wordBase.id,
+                    text = wordBase.text,
+                    translations = translations,
+                    examples = examples,
+                    comparative = advEntity.comparative,
+                    superlative = advEntity.superlative,
+                )
+            } else {
+                throw IllegalStateException("Unknown part of speech for word with ID = ${wordBase.id}")
+            }
+        }
+
+        // Filter by partOfSpeech if needed
+        if (partOfSpeech == null) {
+            log.i { "Returning all words, total count = ${domainWords.size}" }
+            return domainWords
+        }
+
+        val filtered = domainWords.filter { word ->
+            when (word) {
+                is Word.Noun -> partOfSpeech == PartOfSpeech.NOUN
+                is Word.Verb -> partOfSpeech == PartOfSpeech.VERB
+                is Word.Adjective -> partOfSpeech == PartOfSpeech.ADJECTIVE
+                is Word.Adverb -> partOfSpeech == PartOfSpeech.ADVERB
+            }
+        }
+
+        log.i { "Returning filtered words, total count = ${filtered.size}" }
+        return filtered
     }
 
     /**
-     * Deletes a word entity by its ID.
+     * Deletes a word and all related records from the database.
+     * With ON DELETE CASCADE in the schema, removing from WordBaseEntity
+     * should remove all related records automatically.
      */
-    override suspend fun deleteWordById(wordId: String) {
-        log.i { "Deleting word with ID: $wordId" }
+    override suspend fun deleteWord(wordId: String) {
+        log.i { "Deleting word by ID = $wordId" }
         database.wordQueries.deleteWordById(wordId)
-        log.i { "Word with ID $wordId deleted" }
-    }
-
-    /**
-     * Deletes all translations for a given word ID.
-     */
-    override suspend fun deleteTranslationsByWordId(wordId: String) {
-        log.i { "Deleting translations for word ID: $wordId" }
-        database.wordQueries.deleteTranslationsByWordId(wordId)
-        log.i { "Translations for word ID $wordId deleted" }
-    }
-
-    /**
-     * Deletes all examples for a given word ID.
-     */
-    override suspend fun deleteExamplesByWordId(wordId: String) {
-        log.i { "Deleting examples for word ID: $wordId" }
-        database.wordQueries.deleteExamplesByWordId(wordId)
-        log.i { "Examples for word ID $wordId deleted" }
+        log.i { "Word with ID = $wordId deleted successfully" }
     }
 }

@@ -21,9 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.model.word
+package com.vocabri.data.util
+
+import com.vocabri.utils.IdGenerator
+import java.util.UUID
 
 /**
- * Domain model for translation.
+ * ID generator that creates unique string IDs based on the [UUID.randomUUID].
+ *
+ * This implementation is simple and ensures IDs are unique.
  */
-data class Translation(val id: String, val translation: String)
+class UuidIdGenerator : IdGenerator {
+    /**
+     * Generates a unique string ID based on the [UUID.randomUUID] results.
+     *
+     * @return A string representation of UUID
+     */
+    override fun generateStringId(): String = UUID.randomUUID().toString()
+}

@@ -28,6 +28,7 @@ import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import kotlinx.coroutines.runBlocking
@@ -50,13 +51,13 @@ class AddWordUseCaseTest {
 
     @Test
     fun `execute adds word with details to repository`() = runTest {
-        val word = Word(
+        val word = Word.Verb(
             id = "1",
             text = "lernen",
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb",
+            conjugation = "irregular",
+            tenseForms = "present, past, perfect",
         )
 
         addWordUseCase.execute(word)
@@ -66,29 +67,28 @@ class AddWordUseCaseTest {
 
         val addedWord = words[0]
         assertEquals("lernen", addedWord.text)
-        assertEquals(PartOfSpeech.VERB, addedWord.partOfSpeech)
-        assertEquals("Irregular verb", addedWord.notes)
+        assertEquals(PartOfSpeech.VERB, addedWord.toPartOfSpeech())
         assertEquals(1, addedWord.translations.size)
-        assertEquals("learn", addedWord.translations[0].text)
+        assertEquals("learn", addedWord.translations[0].translation)
     }
 
     @Test
     fun `getWords retrieves all words with details from repository`() = runTest {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = listOf(Translation("1", "learn")),
             examples = listOf(Example("1", "Ich lerne")),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present, past, perfect",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = listOf(Translation("2", "house")),
             examples = listOf(Example("2", "Das ist mein Haus")),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = "das",
+            pluralForm = "Häuser",
         )
 
         fakeRepository.insertWord(word1)
@@ -99,30 +99,30 @@ class AddWordUseCaseTest {
 
         val retrievedWord1 = words[0]
         assertEquals("lernen", retrievedWord1.text)
-        assertEquals(PartOfSpeech.VERB, retrievedWord1.partOfSpeech)
+        assertEquals(PartOfSpeech.VERB, retrievedWord1.toPartOfSpeech())
         assertEquals(1, retrievedWord1.translations.size)
-        assertEquals("learn", retrievedWord1.translations[0].text)
+        assertEquals("learn", retrievedWord1.translations[0].translation)
         assertEquals(1, retrievedWord1.examples.size)
-        assertEquals("Ich lerne", retrievedWord1.examples[0].text)
+        assertEquals("Ich lerne", retrievedWord1.examples[0].example)
 
         val retrievedWord2 = words[1]
         assertEquals("Haus", retrievedWord2.text)
-        assertEquals(PartOfSpeech.NOUN, retrievedWord2.partOfSpeech)
+        assertEquals(PartOfSpeech.NOUN, retrievedWord2.toPartOfSpeech())
         assertEquals(1, retrievedWord2.translations.size)
-        assertEquals("house", retrievedWord2.translations[0].text)
+        assertEquals("house", retrievedWord2.translations[0].translation)
         assertEquals(1, retrievedWord2.examples.size)
-        assertEquals("Das ist mein Haus", retrievedWord2.examples[0].text)
+        assertEquals("Das ist mein Haus", retrievedWord2.examples[0].example)
     }
 
     @Test
     fun `execute does not add duplicate words to repository`() = runTest {
-        val word = Word(
+        val word = Word.Verb(
             id = "1",
             text = "lernen",
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb",
+            conjugation = "irregular",
+            tenseForms = "present, past, perfect",
         )
 
         addWordUseCase.execute(word)

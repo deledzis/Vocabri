@@ -67,7 +67,7 @@ class DictionaryDetailsViewModelTest {
 
     @Before
     fun setup() {
-        mockWordRepository = mockk<WordRepository>(relaxed = true)
+        mockWordRepository = mockk(relaxed = true)
         getWordsUseCase = GetWordsUseCase(mockWordRepository)
         deleteWordUseCase = DeleteWordUseCase(mockWordRepository)
         viewModel = DictionaryDetailsViewModel(
@@ -85,28 +85,30 @@ class DictionaryDetailsViewModelTest {
     @Test
     fun `LoadWordsByGroup transitions state to WordsLoaded on success`() = runTest {
         val sampleWords = listOf(
-            Word(
+            Word.Verb(
                 id = "1",
                 text = "lernen",
                 translations = listOf(
-                    Translation(id = "1", text = "learn"),
-                    Translation(id = "2", text = "study"),
+                    Translation(id = "1", translation = "learn"),
+                    Translation(id = "2", translation = "study"),
                 ),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.VERB,
+                conjugation = "regular",
+                tenseForms = "present",
             ),
-            Word(
+            Word.Noun(
                 id = "2",
                 text = "Haus",
                 translations = listOf(
-                    Translation(id = "3", text = "house"),
+                    Translation(id = "3", translation = "house"),
                 ),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.NOUN,
+                gender = "das",
+                pluralForm = "Häuser",
             ),
         )
 
-        coEvery { mockWordRepository.getAllWords() } returns sampleWords
+        coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns sampleWords.take(1)
 
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
         advanceUntilIdle()
@@ -114,8 +116,12 @@ class DictionaryDetailsViewModelTest {
         // Assert
         val state = viewModel.state.first()
         assertTrue(state is DictionaryDetailsState.WordsLoaded)
-        assertEquals((state as DictionaryDetailsState.WordsLoaded).words.size, 1)
-        coVerify(exactly = 1) { mockWordRepository.getAllWords() }
+
+        state as DictionaryDetailsState.WordsLoaded
+        assertEquals(1, state.words.size)
+        assertEquals("lernen", state.words[0].text)
+
+        coVerify(exactly = 1) { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) }
     }
 
     @Test
@@ -128,50 +134,59 @@ class DictionaryDetailsViewModelTest {
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(DictionaryDetailsState.Error(titleId = samplePartOfSpeech.toTitleResId, errorMessage), state)
+        assertEquals(
+            DictionaryDetailsState.Error(
+                titleId = samplePartOfSpeech.toTitleResId,
+                message = errorMessage,
+            ),
+            state,
+        )
         coVerify(exactly = 1) { getWordsUseCase.executeByPartOfSpeech(samplePartOfSpeech) }
     }
 
     @Test
     fun `LoadWordsByGroup handles empty list gracefully`() = runTest {
-        coEvery { mockWordRepository.getAllWords() } returns emptyList()
+        coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns emptyList()
 
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
         advanceUntilIdle()
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId), state)
-        coVerify(exactly = 1) { mockWordRepository.getAllWords() }
+        assertEquals(
+            DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId),
+            state,
+        )
+        coVerify(exactly = 1) { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) }
     }
 
     @Test
     fun `DeleteWord deletes word and reloads group`() = runTest {
         val sampleWords = listOf(
-            Word(
+            Word.Verb(
                 id = "1",
                 text = "lernen",
                 translations = listOf(
-                    Translation(id = "1", text = "learn"),
+                    Translation(id = "1", translation = "learn"),
                 ),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.VERB,
+                conjugation = "regular",
+                tenseForms = "present",
             ),
-            Word(
+            Word.Noun(
                 id = "2",
                 text = "Haus",
                 translations = emptyList(),
                 examples = emptyList(),
-                partOfSpeech = PartOfSpeech.NOUN,
-                notes = null,
+                gender = "das",
+                pluralForm = "Häuser",
             ),
         )
 
-        coEvery { mockWordRepository.getAllWords() } returns sampleWords
+        coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns sampleWords.take(1)
         coEvery { mockWordRepository.deleteWordById("1") } just Runs
 
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
-        // Simulate deleting the word
         viewModel.handleEvent(DictionaryDetailsEvent.DeleteWordClicked("1"))
         advanceUntilIdle()
 
@@ -179,12 +194,12 @@ class DictionaryDetailsViewModelTest {
         val state = viewModel.state.first()
         assertTrue(state is DictionaryDetailsState.WordsLoaded)
         coVerify { mockWordRepository.deleteWordById("1") }
-        coVerify(exactly = 2) { mockWordRepository.getAllWords() }
+        coVerify(exactly = 2) { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) }
     }
 
     @Test
     fun `LoadWordsByGroup prevents duplicate calls`() = runTest {
-        coEvery { mockWordRepository.getAllWords() } returns emptyList()
+        coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns emptyList()
 
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
         viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
@@ -192,7 +207,10 @@ class DictionaryDetailsViewModelTest {
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId), state)
-        coVerify(exactly = 1) { mockWordRepository.getAllWords() }
+        assertEquals(
+            DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId),
+            state,
+        )
+        coVerify(exactly = 1) { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) }
     }
 }
