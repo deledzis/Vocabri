@@ -24,13 +24,15 @@
 package com.vocabri.ui.dictionarydetails.model
 
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.toPartOfSpeech
 
-// Extension function to map domain model to UI model
+/**
+ * Extension function to map a sealed class Word into a UI model WordUiModel.
+ */
 fun Word.toUiModel(): WordUiModel = WordUiModel(
     id = this.id,
     text = this.text,
-    partOfSpeech = this.partOfSpeech.name,
-    notes = this.notes,
-    translations = this.translations.joinToString(", ") { it.text },
-    examples = this.examples.joinToString(", ") { it.text },
+    partOfSpeech = this.toPartOfSpeech().name,
+    translations = this.translations.joinToString(", ") { it.translation },
+    examples = this.examples.joinToString(", ") { it.example },
 )

@@ -29,5 +29,4 @@ data class WordUiModel(
     val translations: String,
     val examples: String,
     val partOfSpeech: String,
-    val notes: String?,
 )

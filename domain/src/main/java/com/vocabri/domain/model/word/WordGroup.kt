@@ -23,4 +23,7 @@
  */
 package com.vocabri.domain.model.word
 
+/**
+ * Represents a group of words belonging to a particular PartOfSpeech.
+ */
 data class WordGroup(val partOfSpeech: PartOfSpeech, val wordCount: Int)

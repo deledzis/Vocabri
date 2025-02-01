@@ -29,7 +29,7 @@ import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
 import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.data.repository.word.WordRepositoryImpl
-import com.vocabri.data.util.TimeBasedIdGenerator
+import com.vocabri.data.util.UuidIdGenerator
 import com.vocabri.domain.model.kover.ExcludeFromCoverage
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.utils.IdGenerator
@@ -53,5 +53,5 @@ val dataModule = module {
     singleOf(::WordLocalDataSourceImpl) { bind<WordDataSource>() }
     singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
 
-    singleOf(::TimeBasedIdGenerator) { bind<IdGenerator>() }
+    singleOf(::UuidIdGenerator) { bind<IdGenerator>() }
 }

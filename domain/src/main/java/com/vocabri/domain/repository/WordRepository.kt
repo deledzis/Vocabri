@@ -23,11 +23,34 @@
  */
 package com.vocabri.domain.repository
 
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 
+/**
+ * Repository interface for managing Word data.
+ */
 interface WordRepository {
+
+    /**
+     * Retrieves all words from the data source.
+     */
     suspend fun getAllWords(): List<Word>
-    suspend fun getWordById(id: String): Word?
+
+    /**
+     * Retrieves words by a specific part of speech from the data source.
+     *
+     * @param partOfSpeech The part of speech used to filter words.
+     * @return A list of words matching the specified part of speech.
+     */
+    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word>
+
+    /**
+     * Inserts a new word into the data source.
+     */
     suspend fun insertWord(word: Word)
+
+    /**
+     * Deletes a word by its unique identifier.
+     */
     suspend fun deleteWordById(id: String)
 }

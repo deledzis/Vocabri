@@ -1,55 +1,185 @@
--- SQLDelight schema for words and their attributes
-
-CREATE TABLE WordEntity (
-    id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    text TEXT NOT NULL,
-    partOfSpeech TEXT NOT NULL,
-    notes TEXT
+-- Table creation for the base entity that holds the core word information
+CREATE TABLE WordBaseEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- Unique identifier for the base word
+    text TEXT NOT NULL                    -- The actual word text
 );
 
+-- Table creation for nouns
+CREATE TABLE NounEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- The same ID as in the base table (1-to-1 relationship)
+    gender TEXT NOT NULL,                 -- Gender of the noun (der/die/das)
+    pluralForm TEXT NOT NULL,             -- Plural form of the noun
+    FOREIGN KEY (id) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
+);
+
+-- Table creation for verbs
+CREATE TABLE VerbEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- The same ID as in the base table
+    conjugation TEXT NOT NULL,            -- Conjugation details (e.g., verb endings, regular/irregular)
+    tenseForms TEXT NOT NULL,             -- Verb forms in various tenses
+    FOREIGN KEY (id) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
+);
+
+-- Table creation for adjectives
+CREATE TABLE AdjectiveEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- The same ID as in the base table
+    comparative TEXT,                     -- Comparative form of the adjective
+    superlative TEXT,                     -- Superlative form of the adjective
+    FOREIGN KEY (id) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
+);
+
+-- Table creation for adverbs
+CREATE TABLE AdverbEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- The same ID as in the base table
+    comparative TEXT,                     -- Comparative form of the adverb
+    superlative TEXT,                     -- Superlative form of the adverb
+    FOREIGN KEY (id) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
+);
+
+-- Table creation for storing translations
 CREATE TABLE TranslationEntity (
-    id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    wordId TEXT NOT NULL,
-    translation TEXT NOT NULL,
-    FOREIGN KEY (wordId) REFERENCES WordEntity(id) ON DELETE CASCADE
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- Unique identifier for the translation record
+    wordId TEXT NOT NULL,                 -- References the base word
+    translation TEXT NOT NULL,            -- Translation text
+    FOREIGN KEY (wordId) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
 );
 
+-- Table creation for usage examples
 CREATE TABLE ExampleEntity (
-    id TEXT PRIMARY KEY UNIQUE NOT NULL,
-    wordId TEXT NOT NULL,
-    example TEXT NOT NULL,
-    FOREIGN KEY (wordId) REFERENCES WordEntity(id) ON DELETE CASCADE
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- Unique identifier for the example record
+    wordId TEXT NOT NULL,                 -- References the base word
+    example TEXT NOT NULL,                -- Example usage of the word
+    FOREIGN KEY (wordId) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
 );
 
--- Queries for WordEntity
+----------------------------------------------
+-- CRUD QUERIES FOR ALL TABLES
+----------------------------------------------
+
+-- 🔹 Retrieve all words
+selectAllWords:
+SELECT * FROM WordBaseEntity;
+
+-- 🔹 Retrieve a word by its ID
+selectWordById:
+SELECT * FROM WordBaseEntity WHERE id = ?;
+
+-- 🔹 Insert a new word
 insertWord:
-INSERT INTO WordEntity (id, text, partOfSpeech, notes) VALUES (?, ?, ?, ?);
+INSERT INTO WordBaseEntity (id, text) VALUES (?, ?);
 
-getAllWords:
-SELECT * FROM WordEntity;
-
-getWordById:
-SELECT * FROM WordEntity WHERE id = ?;
-
+-- 🔹 Delete a word
 deleteWordById:
-DELETE FROM WordEntity WHERE id = ?;
+DELETE FROM WordBaseEntity WHERE id = ?;
 
--- Queries for TranslationEntity
+----------------------------------------------
+-- CRUD for NounEntity (Nouns)
+----------------------------------------------
+
+-- 🔹 Insert a noun
+insertNoun:
+INSERT INTO NounEntity (id, gender, pluralForm) VALUES (?, ?, ?);
+
+-- 🔹 Retrieve a noun by ID
+selectNounById:
+SELECT * FROM NounEntity WHERE id = ?;
+
+-- 🔹 Update a noun
+updateNoun:
+UPDATE NounEntity SET gender = ?, pluralForm = ? WHERE id = ?;
+
+-- 🔹 Delete a noun
+deleteNounById:
+DELETE FROM NounEntity WHERE id = ?;
+
+----------------------------------------------
+-- CRUD for VerbEntity (Verbs)
+----------------------------------------------
+
+-- 🔹 Insert a verb
+insertVerb:
+INSERT INTO VerbEntity (id, conjugation, tenseForms) VALUES (?, ?, ?);
+
+-- 🔹 Retrieve a verb by ID
+selectVerbById:
+SELECT * FROM VerbEntity WHERE id = ?;
+
+-- 🔹 Update a verb
+updateVerb:
+UPDATE VerbEntity SET conjugation = ?, tenseForms = ? WHERE id = ?;
+
+-- 🔹 Delete a verb
+deleteVerbById:
+DELETE FROM VerbEntity WHERE id = ?;
+
+----------------------------------------------
+-- CRUD for AdjectiveEntity (Adjectives)
+----------------------------------------------
+
+-- 🔹 Insert an adjective
+insertAdjective:
+INSERT INTO AdjectiveEntity (id, comparative, superlative) VALUES (?, ?, ?);
+
+-- 🔹 Retrieve an adjective by ID
+selectAdjectiveById:
+SELECT * FROM AdjectiveEntity WHERE id = ?;
+
+-- 🔹 Update an adjective
+updateAdjective:
+UPDATE AdjectiveEntity SET comparative = ?, superlative = ? WHERE id = ?;
+
+-- 🔹 Delete an adjective
+deleteAdjectiveById:
+DELETE FROM AdjectiveEntity WHERE id = ?;
+
+----------------------------------------------
+-- CRUD for AdverbEntity (Adverbs)
+----------------------------------------------
+
+-- 🔹 Insert an adverb
+insertAdverb:
+INSERT INTO AdverbEntity (id, comparative, superlative) VALUES (?, ?, ?);
+
+-- 🔹 Retrieve an adverb by ID
+selectAdverbById:
+SELECT * FROM AdverbEntity WHERE id = ?;
+
+-- 🔹 Update an adverb
+updateAdverb:
+UPDATE AdverbEntity SET comparative = ?, superlative = ? WHERE id = ?;
+
+-- 🔹 Delete an adverb
+deleteAdverbById:
+DELETE FROM AdverbEntity WHERE id = ?;
+
+----------------------------------------------
+-- CRUD for TranslationEntity (Translations)
+----------------------------------------------
+
+-- 🔹 Insert a translation
 insertTranslation:
 INSERT INTO TranslationEntity (id, wordId, translation) VALUES (?, ?, ?);
 
-getTranslationsByWordId:
+-- 🔹 Retrieve translations for a word
+selectTranslationsByWordId:
 SELECT * FROM TranslationEntity WHERE wordId = ?;
 
+-- 🔹 Delete all translations for a word
 deleteTranslationsByWordId:
 DELETE FROM TranslationEntity WHERE wordId = ?;
 
--- Queries for ExampleEntity
+----------------------------------------------
+-- CRUD for ExampleEntity (Examples)
+----------------------------------------------
+
+-- 🔹 Insert an example
 insertExample:
 INSERT INTO ExampleEntity (id, wordId, example) VALUES (?, ?, ?);
 
-getExamplesByWordId:
+-- 🔹 Retrieve examples for a word
+selectExamplesByWordId:
 SELECT * FROM ExampleEntity WHERE wordId = ?;
 
+-- 🔹 Delete all examples for a word
 deleteExamplesByWordId:
 DELETE FROM ExampleEntity WHERE wordId = ?;

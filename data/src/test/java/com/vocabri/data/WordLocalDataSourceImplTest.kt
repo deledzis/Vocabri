@@ -26,9 +26,13 @@ package com.vocabri.data
 import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
 import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.data.test.FakeVocabriDatabase.createTestJdbcSqlDriver
+import com.vocabri.domain.model.word.Example
+import com.vocabri.domain.model.word.Translation
+import com.vocabri.domain.model.word.Word
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -51,88 +55,90 @@ class WordLocalDataSourceImplTest {
         driver.close()
     }
 
+    private suspend fun WordLocalDataSourceImpl.getWordByIdForTest(id: String): Word? =
+        getWordsByPartOfSpeech(null).find { it.id == id }
+
     @Test
     fun `addWord adds word and its details to database`() = runTest {
-        val word = WordEntity(
+        val word = Word.Verb(
             id = "1",
             text = "lernen",
-            partOfSpeech = "VERB",
-            notes = "Some notes",
-        )
-        val translation = TranslationEntity(
-            id = "1",
-            wordId = "1",
-            translation = "learn",
-        )
-        val example = ExampleEntity(
-            id = "1",
-            wordId = "1",
-            example = "Ich lerne",
+            translations = listOf(Translation("t1", "learn")),
+            examples = listOf(Example("e1", "Ich lerne")),
+            conjugation = "regular",
+            tenseForms = "present",
         )
 
         dataSource.insertWord(word)
-        dataSource.insertTranslation(translation)
-        dataSource.insertExample(example)
 
-        val resultWord = dataSource.getWordById("1")
-        val resultTranslations = dataSource.getTranslationsByWordId("1")
-        val resultExamples = dataSource.getExamplesByWordId("1")
+        val resultWord = dataSource.getWordByIdForTest("1")
+        assertNotNull(resultWord)
 
-        assertEquals(word, resultWord)
-        assertEquals(listOf(translation), resultTranslations)
-        assertEquals(listOf(example), resultExamples)
+        val verbWord = resultWord as Word.Verb
+        assertEquals("lernen", verbWord.text)
+        assertEquals("regular", verbWord.conjugation)
+        assertEquals("present", verbWord.tenseForms)
+
+        assertEquals(1, verbWord.translations.size)
+        assertEquals("learn", verbWord.translations[0].translation)
+
+        assertEquals(1, verbWord.examples.size)
+        assertEquals("Ich lerne", verbWord.examples[0].example)
     }
 
     @Test
     fun `getWords retrieves all words with translations and examples`() = runTest {
-        val word1 = WordEntity(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
-            partOfSpeech = "VERB",
-            notes = null,
+            translations = listOf(Translation("t1", "learn")),
+            examples = listOf(Example("e1", "Ich lerne")),
+            conjugation = "regular",
+            tenseForms = "present",
         )
-        val word2 = WordEntity(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
-            partOfSpeech = "NOUN",
-            notes = "Important",
+            translations = listOf(Translation("t2", "house")),
+            examples = listOf(Example("e2", "Das ist mein Haus")),
+            gender = "das",
+            pluralForm = "Häuser",
         )
-        val translation1 = TranslationEntity(id = "1", wordId = "1", translation = "learn")
-        val translation2 = TranslationEntity(id = "2", wordId = "2", translation = "house")
-        val example1 = ExampleEntity(id = "1", wordId = "1", example = "Ich lerne")
-        val example2 = ExampleEntity(id = "2", wordId = "2", example = "Das ist mein Haus")
 
         dataSource.insertWord(word1)
         dataSource.insertWord(word2)
-        dataSource.insertTranslation(translation1)
-        dataSource.insertTranslation(translation2)
-        dataSource.insertExample(example1)
-        dataSource.insertExample(example2)
 
-        val results = dataSource.getAllWords()
+        val results = dataSource.getWordsByPartOfSpeech(null)
+
         assertEquals(2, results.size)
-        assertEquals(word1, results[0])
-        assertEquals(word2, results[1])
 
-        val translations1 = dataSource.getTranslationsByWordId("1")
-        val translations2 = dataSource.getTranslationsByWordId("2")
-        val examples1 = dataSource.getExamplesByWordId("1")
-        val examples2 = dataSource.getExamplesByWordId("2")
+        val sorted = results.sortedBy { it.id }
 
-        assertEquals(listOf(translation1), translations1)
-        assertEquals(listOf(translation2), translations2)
-        assertEquals(listOf(example1), examples1)
-        assertEquals(listOf(example2), examples2)
+        val verbWord = sorted[0] as Word.Verb
+        assertEquals("1", verbWord.id)
+        assertEquals("lernen", verbWord.text)
+        assertEquals(1, verbWord.translations.size)
+        assertEquals("learn", verbWord.translations[0].translation)
+        assertEquals(1, verbWord.examples.size)
+        assertEquals("Ich lerne", verbWord.examples[0].example)
+
+        val nounWord = sorted[1] as Word.Noun
+        assertEquals("2", nounWord.id)
+        assertEquals("Haus", nounWord.text)
+        assertEquals("das", nounWord.gender)
+        assertEquals("Häuser", nounWord.pluralForm)
+        assertEquals(1, nounWord.translations.size)
+        assertEquals("house", nounWord.translations[0].translation)
+        assertEquals(1, nounWord.examples.size)
+        assertEquals("Das ist mein Haus", nounWord.examples[0].example)
     }
 
     @Test
-    fun `getWordById returns null and empty details for non-existent word`() = runTest {
-        val resultWord = dataSource.getWordById("non-existent-id")
-        val resultTranslations = dataSource.getTranslationsByWordId("non-existent-id")
-        val resultExamples = dataSource.getExamplesByWordId("non-existent-id")
-
+    fun `getWordById returns null for non-existent word`() = runTest {
+        val resultWord = dataSource.getWordByIdForTest("non-existent-id")
         assertNull(resultWord)
-        assertTrue(resultTranslations.isEmpty())
-        assertTrue(resultExamples.isEmpty())
+
+        val allWords = dataSource.getWordsByPartOfSpeech(null)
+        assertTrue(allWords.isEmpty())
     }
 }

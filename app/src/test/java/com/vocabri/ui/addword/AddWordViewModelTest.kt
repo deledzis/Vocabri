@@ -64,7 +64,7 @@ class AddWordViewModelTest {
     @Before
     fun setup() {
         idGenerator = FakeIdGenerator()
-        mockWordRepository = mockk<WordRepository>(relaxed = true)
+        mockWordRepository = mockk(relaxed = true)
         addWordUseCase = AddWordUseCase(mockWordRepository)
         viewModel = AddWordViewModel(
             addWordsUseCase = addWordUseCase,
@@ -101,7 +101,9 @@ class AddWordViewModelTest {
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(listOf("learn"), (state as AddWordState.Editing).translations)
+        assertTrue(state is AddWordState.Editing)
+        state as AddWordState.Editing
+        assertEquals(listOf("learn"), state.translations)
         assertEquals("", state.currentTranslation)
     }
 
@@ -119,7 +121,9 @@ class AddWordViewModelTest {
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(listOf("learn"), (state as AddWordState.Editing).translations)
+        assertTrue(state is AddWordState.Editing)
+        state as AddWordState.Editing
+        assertEquals(listOf("learn"), state.translations)
     }
 
     @Test
@@ -134,11 +138,13 @@ class AddWordViewModelTest {
 
         // Assert
         val state = viewModel.state.first()
-        assertEquals(listOf("learn"), (state as AddWordState.Editing).translations)
+        assertTrue(state is AddWordState.Editing)
+        state as AddWordState.Editing
+        assertEquals(listOf("learn"), state.translations)
     }
 
     @Test
-    fun `saveWord invokes repository with correct data`() = runTest {
+    fun `saveWord invokes repository with correct data when partOfSpeech is VERB`() = runTest {
         // Arrange
         coEvery { addWordUseCase.execute(any()) } returns Unit
 
@@ -153,15 +159,23 @@ class AddWordViewModelTest {
         advanceUntilIdle()
 
         // Assert
-        val expectedWord = Word(
+        val expectedWord = Word.Verb(
             id = idGenerator.generateStringId(),
             text = "lernen",
-            translations = listOf(Translation(idGenerator.generateStringId(), "learn")),
+            translations = listOf(
+                Translation(
+                    id = idGenerator.generateStringId(),
+                    translation = "learn",
+                ),
+            ),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "regular",
+            tenseForms = "present",
         )
-        coVerify { addWordUseCase.execute(expectedWord) }
+
+        coVerify(exactly = 1) {
+            addWordUseCase.execute(expectedWord)
+        }
         assertEquals(AddWordState.Saved, viewModel.state.first())
     }
 
@@ -176,14 +190,13 @@ class AddWordViewModelTest {
         viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
         viewModel.handleEvent(AddWordEvent.AddTranslation)
         viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
-
-        // Act
         viewModel.handleEvent(AddWordEvent.SaveWord)
         advanceUntilIdle()
 
         // Assert
         val state = viewModel.state.first()
         assertTrue(state is AddWordState.Error)
-        assertEquals("Failed to save the word", (state as AddWordState.Error).message)
+        state as AddWordState.Error
+        assertEquals("Failed to save the word", state.message)
     }
 }

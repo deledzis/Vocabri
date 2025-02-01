@@ -25,16 +25,13 @@ package com.vocabri.data
 
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.repository.word.WordRepositoryImpl
-import com.vocabri.data.test.FakeIdGenerator
-import com.vocabri.domain.model.word.Example
-import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifyOrder
+import io.mockk.confirmVerified
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertThrows
 import org.junit.Before
@@ -44,144 +41,119 @@ class WordRepositoryImplTest {
 
     private lateinit var repository: WordRepositoryImpl
     private val localDataSource: WordDataSource = mockk(relaxed = true)
-    private val idGenerator = FakeIdGenerator()
 
     @Before
     fun setup() {
-        repository = WordRepositoryImpl(localDataSource, idGenerator)
+        repository = WordRepositoryImpl(localDataSource)
     }
 
     @Test
-    fun `insertWord saves word to localDataSource`() = runBlocking {
-        val word = Word(
+    fun `insertWord saves word to localDataSource`() = runTest {
+        val testWord = Word.Verb(
             id = "1",
             text = "lernen",
-            translations = listOf(Translation("1", "learn")),
-            examples = listOf(Example("1", "Ich lerne")),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            translations = emptyList(),
+            examples = emptyList(),
+            conjugation = "regular",
+            tenseForms = "present",
         )
 
-        coEvery { localDataSource.insertWord(any()) } returns Unit
-        coEvery { localDataSource.insertTranslation(any()) } returns Unit
-        coEvery { localDataSource.insertExample(any()) } returns Unit
+        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns emptyList()
+        coEvery { localDataSource.insertWord(testWord) } returns Unit
 
-        repository.insertWord(word)
+        // -- When --
+        repository.insertWord(testWord)
 
-        coVerify {
-            localDataSource.insertWord(
-                WordEntity(
-                    id = "1",
-                    text = "lernen",
-                    partOfSpeech = "VERB",
-                    notes = null,
-                ),
-            )
-            localDataSource.insertTranslation(
-                TranslationEntity(
-                    id = idGenerator.id,
-                    wordId = "1",
-                    translation = "learn",
-                ),
-            )
-            localDataSource.insertExample(
-                ExampleEntity(
-                    id = idGenerator.id,
-                    wordId = "1",
-                    example = "Ich lerne",
-                ),
-            )
-        }
+        // -- Then --
+        coVerify(exactly = 1) { localDataSource.insertWord(testWord) }
+        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(null) }
+        confirmVerified(localDataSource)
     }
 
     @Test
-    fun `getWords retrieves words from localDataSource`() = runBlocking {
-        val dbWords = listOf(
-            WordEntity(
+    fun `getWords retrieves words from localDataSource`() = runTest {
+        // -- Given --
+        val storedWords = listOf(
+            Word.Verb(
                 id = "1",
                 text = "lernen",
-                partOfSpeech = "VERB",
-                notes = null,
+                translations = emptyList(),
+                examples = emptyList(),
+                conjugation = "regular",
+                tenseForms = "present",
             ),
-        )
-        val dbTranslations = listOf(
-            TranslationEntity(
-                id = "1",
-                wordId = "1",
-                translation = "learn",
-            ),
-        )
-        val dbExamples = listOf(
-            ExampleEntity(
-                id = "1",
-                wordId = "1",
-                example = "Ich lerne",
+            Word.Noun(
+                id = "2",
+                text = "Haus",
+                translations = emptyList(),
+                examples = emptyList(),
+                gender = "das",
+                pluralForm = "Häuser",
             ),
         )
 
-        coEvery { localDataSource.getAllWords() } returns dbWords
-        coEvery { localDataSource.getTranslationsByWordId(any()) } returns dbTranslations
-        coEvery { localDataSource.getExamplesByWordId(any()) } returns dbExamples
+        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns storedWords
 
-        val expectedDomainWords = listOf(
-            Word(
-                id = "1",
-                text = "lernen",
-                translations = listOf(Translation("1", "learn")),
-                examples = listOf(Example("1", "Ich lerne")),
-                partOfSpeech = PartOfSpeech.VERB,
-                notes = null,
-            ),
-        )
-
+        // -- When --
         val result = repository.getAllWords()
-        assertEquals(expectedDomainWords, result)
+
+        // -- Then --
+        coVerify { localDataSource.getWordsByPartOfSpeech(null) }
+        assertEquals(2, result.size)
+        assertEquals("lernen", result[0].text)
+        assertEquals("Haus", result[1].text)
+        confirmVerified(localDataSource)
     }
 
     @Test
-    fun `deleteWord deletes word and related data from localDataSource`() = runBlocking {
-        val wordId = "1"
+    fun `deleteWord deletes word from localDataSource`() = runTest {
+        // -- Given --
+        val wordId = "123"
+        coEvery { localDataSource.deleteWord(wordId) } returns Unit
 
-        coEvery { localDataSource.deleteWordById(wordId) } returns Unit
-        coEvery { localDataSource.deleteTranslationsByWordId(wordId) } returns Unit
-        coEvery { localDataSource.deleteExamplesByWordId(wordId) } returns Unit
-
+        // -- When --
         repository.deleteWordById(wordId)
 
-        coVerifyOrder {
-            localDataSource.deleteWordById(wordId)
-            localDataSource.deleteTranslationsByWordId(wordId)
-            localDataSource.deleteExamplesByWordId(wordId)
-        }
+        // -- Then --
+        coVerify { localDataSource.deleteWord(wordId) }
+        confirmVerified(localDataSource)
     }
 
     @Test
-    fun `saveWord throws exception for duplicate word`(): Unit = runBlocking {
-        val word = Word(
+    fun `insertWord throws exception for duplicate word`() = runTest {
+        // -- Given --
+        val newWord = Word.Noun(
             id = "1",
             text = "lernen",
-            translations = listOf(Translation("1", "learn")),
-            examples = listOf(Example("1", "Ich lerne")),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = "Irregular verb",
+            translations = emptyList(),
+            examples = emptyList(),
+            gender = "der",
+            pluralForm = "???",
         )
 
-        val existingWordEntity = WordEntity(
+        val existingWord = Word.Verb(
             id = "2",
             text = "lernen",
-            partOfSpeech = "VERB",
-            notes = null,
+            translations = emptyList(),
+            examples = emptyList(),
+            conjugation = "regular",
+            tenseForms = "present",
         )
+        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns listOf(existingWord)
 
-        coEvery { localDataSource.getAllWords() } returns listOf(existingWordEntity)
-
+        // -- When & Then --
         assertThrows(
             "Word with text 'lernen' already exists",
             IllegalArgumentException::class.java,
         ) {
             runBlocking {
-                repository.insertWord(word)
+                repository.insertWord(newWord)
             }
         }
+        coVerify(exactly = 0) {
+            localDataSource.insertWord(newWord)
+        }
+        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(null) }
+        confirmVerified(localDataSource)
     }
 }

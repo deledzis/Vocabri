@@ -23,7 +23,9 @@
  */
 package com.vocabri.domain.fake
 
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 
 class FakeWordRepository : WordRepository {
@@ -31,7 +33,8 @@ class FakeWordRepository : WordRepository {
 
     override suspend fun getAllWords(): List<Word> = words
 
-    override suspend fun getWordById(id: String): Word = words.first { it.id == id }
+    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> =
+        words.filter { it.toPartOfSpeech() == partOfSpeech }
 
     override suspend fun insertWord(word: Word) {
         require(words.none { it.text.equals(word.text, ignoreCase = true) }) {

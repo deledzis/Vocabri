@@ -24,7 +24,6 @@
 package com.vocabri.domain
 
 import com.vocabri.domain.fake.FakeWordRepository
-import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import kotlinx.coroutines.runBlocking
@@ -45,21 +44,21 @@ class DeleteWordUseCaseTest {
 
     @Test
     fun `deleteWord removes the word from repository`() = runBlocking {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = "das",
+            pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
@@ -75,13 +74,13 @@ class DeleteWordUseCaseTest {
 
     @Test
     fun `deleteWord does nothing if word does not exist`() = runBlocking {
-        val word = Word(
+        val word = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
         fakeRepository.insertWord(word)
 
@@ -96,21 +95,21 @@ class DeleteWordUseCaseTest {
 
     @Test
     fun `deleteWord allows deleting multiple words`() = runBlocking {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = "das",
+            pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)

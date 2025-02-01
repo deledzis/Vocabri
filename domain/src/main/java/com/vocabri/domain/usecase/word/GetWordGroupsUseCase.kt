@@ -24,13 +24,18 @@
 package com.vocabri.domain.usecase.word
 
 import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGroup
 import com.vocabri.domain.model.word.WordGroups
+import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
 
 /**
  * Use case for fetching word groups based on part of speech.
+ *
+ * This class retrieves all words from the repository, groups them by their part-of-speech type,
+ * and constructs a WordGroups object containing the total count and grouped counts.
  */
 class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
 
@@ -39,20 +44,31 @@ class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
     /**
      * Fetches groups of words and their counts grouped by part of speech.
      *
-     * @return List of WordGroup objects containing the part of speech and word count.
+     * @return [WordGroups] containing the total words and a list of [WordGroup].
      * @throws Exception If an error occurs during the fetch process.
      */
     suspend fun execute(): WordGroups {
         log.i { "Executing GetWordGroupsUseCase" }
-        val words = wordRepository.getAllWords()
-        val groups = words.groupBy { it.partOfSpeech }.map { (partOfSpeech, words) ->
+
+        // 1. Get all words from the repository
+        val words: List<Word> = wordRepository.getAllWords()
+
+        // 2. Group them by the result of word.toPartOfSpeech()
+        val groupedMap = words.groupBy { it.toPartOfSpeech() }
+
+        // 3. Transform the groups into a list of WordGroup
+        val groups = groupedMap.map { (pos, groupedWords) ->
             WordGroup(
-                partOfSpeech = partOfSpeech,
-                wordCount = words.size,
+                partOfSpeech = pos,
+                wordCount = groupedWords.size,
             )
-        }.also {
-            log.i { "Successfully fetched ${it.size} word groups" }
         }
+
+        log.i { "Successfully fetched ${groups.size} word groups" }
+
+        // 4. Construct the WordGroups object
+        //    - 'allWords' has partOfSpeech = PartOfSpeech.ALL (if you use it in your enum),
+        //      and the total count of words.
         return WordGroups(
             allWords = WordGroup(
                 partOfSpeech = PartOfSpeech.ALL,

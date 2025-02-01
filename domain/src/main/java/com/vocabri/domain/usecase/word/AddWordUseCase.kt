@@ -48,14 +48,8 @@ class AddWordUseCase(private val wordRepository: WordRepository) {
      * @throws Exception If an error occurs during the insertion process.
      */
     suspend fun execute(word: Word) {
-        log.i { "Executing AddWordUseCase with word: $word" }
-
-        try {
-            wordRepository.insertWord(word)
-            log.i { "Word successfully inserted: ${word.text}" }
-        } catch (e: IllegalArgumentException) {
-            log.e(e) { "Error inserting word: ${word.text}" }
-            throw e
-        }
+        log.i { "Executing AddWordUseCase with word ID = ${word.id}, text = ${word.text}" }
+        wordRepository.insertWord(word)
+        log.i { "Word successfully inserted: ${word.text}" }
     }
 }

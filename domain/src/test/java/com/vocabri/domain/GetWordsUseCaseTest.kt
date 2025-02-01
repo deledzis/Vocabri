@@ -24,7 +24,6 @@
 package com.vocabri.domain
 
 import com.vocabri.domain.fake.FakeWordRepository
-import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
@@ -47,27 +46,28 @@ class GetWordsUseCaseTest {
 
     @Test
     fun `execute retrieves words from repository`() = runTest {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present, past, perfect",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = listOf(Translation("2", "house")),
             examples = listOf(),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = "das",
+            pluralForm = "Häuser",
         )
 
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
 
         val words = getWordsUseCase.execute()
+
         assertEquals(2, words.size)
         assertEquals("lernen", words[0].text)
         assertEquals("Haus", words[1].text)
