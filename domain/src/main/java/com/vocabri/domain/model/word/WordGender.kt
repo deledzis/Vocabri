@@ -23,7 +23,16 @@
  */
 package com.vocabri.domain.model.word
 
-/**
- * Domain model for translation.
- */
-data class Translation(val id: String, val translation: String)
+// TODO: it binds the app logic to German.
+enum class WordGender(val article: String) {
+    MASCULINE("Der"),
+    FEMININE("Die"),
+    NEUTER("Das"),
+    ;
+
+    override fun toString(): String = article
+
+    companion object {
+        fun fromString(value: String): WordGender? = entries.find { it.article.equals(value, ignoreCase = true) }
+    }
+}

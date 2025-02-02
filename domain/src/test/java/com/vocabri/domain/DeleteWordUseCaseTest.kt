@@ -23,9 +23,9 @@
  */
 package com.vocabri.domain
 
-import com.vocabri.domain.fake.FakeWordRepository
-import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.fake.FakeWordRepositoryImpl
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -35,31 +35,31 @@ import org.junit.Test
 class DeleteWordUseCaseTest {
 
     private lateinit var useCase: DeleteWordUseCase
-    private lateinit var fakeRepository: FakeWordRepository
+    private lateinit var fakeRepository: FakeWordRepositoryImpl
 
     @Before
     fun setup() {
-        fakeRepository = FakeWordRepository()
+        fakeRepository = FakeWordRepositoryImpl()
         useCase = DeleteWordUseCase(fakeRepository)
     }
 
     @Test
     fun `deleteWord removes the word from repository`() = runBlocking {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = WordGender.NEUTER,
+            pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
@@ -75,13 +75,13 @@ class DeleteWordUseCaseTest {
 
     @Test
     fun `deleteWord does nothing if word does not exist`() = runBlocking {
-        val word = Word(
+        val word = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
         fakeRepository.insertWord(word)
 
@@ -96,21 +96,21 @@ class DeleteWordUseCaseTest {
 
     @Test
     fun `deleteWord allows deleting multiple words`() = runBlocking {
-        val word1 = Word(
+        val word1 = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.VERB,
-            notes = null,
+            conjugation = "irregular",
+            tenseForms = "present",
         )
-        val word2 = Word(
+        val word2 = Word.Noun(
             id = "2",
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            partOfSpeech = PartOfSpeech.NOUN,
-            notes = null,
+            gender = WordGender.NEUTER,
+            pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)

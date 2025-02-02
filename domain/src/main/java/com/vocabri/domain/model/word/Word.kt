@@ -23,11 +23,59 @@
  */
 package com.vocabri.domain.model.word
 
-data class Word(
-    val id: String,
-    val text: String,
-    val translations: List<Translation>,
-    val examples: List<Example>,
-    val partOfSpeech: PartOfSpeech,
-    val notes: String? = null,
-)
+/**
+ * A sealed class representing the base domain model for words.
+ * Each part of speech extends this class with its own properties.
+ */
+sealed class Word {
+    abstract val id: String
+    abstract val text: String
+    abstract val translations: List<Translation>
+    abstract val examples: List<Example>
+
+    data class Noun(
+        override val id: String,
+        override val text: String,
+        override val translations: List<Translation>,
+        override val examples: List<Example>,
+        val gender: WordGender?,
+        val pluralForm: String?,
+    ) : Word()
+
+    data class Verb(
+        override val id: String,
+        override val text: String,
+        override val translations: List<Translation>,
+        override val examples: List<Example>,
+        val conjugation: String?,
+        val tenseForms: String?,
+    ) : Word()
+
+    data class Adjective(
+        override val id: String,
+        override val text: String,
+        override val translations: List<Translation>,
+        override val examples: List<Example>,
+        val comparative: String?,
+        val superlative: String?,
+    ) : Word()
+
+    data class Adverb(
+        override val id: String,
+        override val text: String,
+        override val translations: List<Translation>,
+        override val examples: List<Example>,
+        val comparative: String?,
+        val superlative: String?,
+    ) : Word()
+}
+
+/**
+ * Extension function that maps a sealed class Word to a PartOfSpeech enum.
+ */
+fun Word.toPartOfSpeech(): PartOfSpeech = when (this) {
+    is Word.Noun -> PartOfSpeech.NOUN
+    is Word.Verb -> PartOfSpeech.VERB
+    is Word.Adjective -> PartOfSpeech.ADJECTIVE
+    is Word.Adverb -> PartOfSpeech.ADVERB
+}

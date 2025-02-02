@@ -58,15 +58,14 @@ fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (D
                     true
                 }
 
-                SwipeToDismissBoxValue.StartToEnd -> return@rememberSwipeToDismissBoxState false
-                SwipeToDismissBoxValue.Settled -> return@rememberSwipeToDismissBoxState false
+                else -> false
             }
         },
     )
 
     SwipeToDismissBox(
-        state = dismissState,
         modifier = modifier,
+        state = dismissState,
         enableDismissFromStartToEnd = false,
         backgroundContent = { DeleteBackground() },
     ) {
@@ -113,7 +112,6 @@ private fun PreviewWordListItem() {
         translations = "learn, study",
         examples = "Ich lerne Deutsch.",
         partOfSpeech = PartOfSpeech.VERB.toString(),
-        notes = "Irregular verb",
     )
     VocabriTheme {
         WordListItem(uiItem = sampleWord) {}

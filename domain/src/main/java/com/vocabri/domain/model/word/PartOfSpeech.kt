@@ -30,7 +30,8 @@ enum class PartOfSpeech {
     VERB, // Represents a verb in the language
     ADJECTIVE, // Represents an adjective in the language
     ADVERB, // Represents an adverb in the language
-    PHRASE, // Represents a phrase or idiomatic expression
+    // TODO: add back later
+//    PHRASE, // Represents a phrase or idiomatic expression
     ;
 
     companion object {

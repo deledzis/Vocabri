@@ -35,6 +35,7 @@ import com.vocabri.ui.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -60,14 +61,15 @@ open class DictionaryDetailsViewModel(
 
     protected open var currentPartOfSpeech: PartOfSpeech? = null
 
-    private var loadJob: Job? = null
+    private var fetchJob: Job? = null
+    private var delayJob: Job? = null
 
     // Handles UI events triggered by the Dictionary screen.
     fun handleEvent(event: DictionaryDetailsEvent) {
         log.i { "Handling event: $event" }
         when (event) {
             is DictionaryDetailsEvent.LoadWords -> loadWordsGroup(event.wordGroup)
-            is DictionaryDetailsEvent.DeleteWordClicked -> deleteWord(event.id)
+            is DictionaryDetailsEvent.DeleteWordClicked -> handleDeleteWord(event.id)
             is DictionaryDetailsEvent.AddWordClicked -> log.i { "AddWordClicked event received" }
             DictionaryDetailsEvent.OnBackClicked -> Unit
         }
@@ -77,7 +79,7 @@ open class DictionaryDetailsViewModel(
         log.i { "loading $wordGroup words requested" }
         val partOfSpeech = try {
             PartOfSpeech.valueOf(wordGroup)
-        } catch (e: IllegalArgumentException) {
+        } catch (e: IllegalStateException) {
             log.e(e) { "Invalid word group: $wordGroup" }
             return
         }
@@ -86,47 +88,75 @@ open class DictionaryDetailsViewModel(
     }
 
     private fun refreshData(partOfSpeech: PartOfSpeech) {
-        log.i { "Starting to load $partOfSpeech words, is previous job active: ${loadJob?.isActive}" }
-        loadJob?.cancel()
-        loadJob = viewModelScope.launch(ioScope.coroutineContext) {
-            _state.update { DictionaryDetailsState.Loading(partOfSpeech.toTitleResId) }
+        log.i { "Starting to load $partOfSpeech words" }
+
+        fetchJob?.cancel()
+        delayJob?.cancel()
+
+        fetchJob = viewModelScope.launch(ioScope.coroutineContext) {
             try {
+                delayJob = launch {
+                    delay(TRIGGER_LOADING_DELAY_MS)
+                    log.d { "Showing loading state after ${TRIGGER_LOADING_DELAY_MS}ms delay" }
+                    _state.update { DictionaryDetailsState.Loading(partOfSpeech.toTitleResId) }
+                }
+
                 val words = when (partOfSpeech) {
                     PartOfSpeech.ALL -> getWordsUseCase.execute()
                     else -> getWordsUseCase.executeByPartOfSpeech(partOfSpeech)
                 }
-                log.d { "Fetched ${words.size} $partOfSpeech words" }
+
+                delayJob?.cancel()
+
                 val uiWords = words.map { it.toUiModel() }
+                log.d { "Fetched ${uiWords.size} $partOfSpeech words" }
+
                 _state.update {
                     if (uiWords.isEmpty()) {
-                        log.i { "No words found, setting state to Empty" }
+                        log.i { "No words found => Empty state" }
                         DictionaryDetailsState.Empty(partOfSpeech.toTitleResId)
                     } else {
-                        log.i { "Loaded ${uiWords.size} words, setting state to WordsLoaded" }
-                        DictionaryDetailsState.WordsLoaded(titleId = partOfSpeech.toTitleResId, words = uiWords)
+                        log.i { "Loaded ${uiWords.size} words => WordsLoaded state" }
+                        DictionaryDetailsState.WordsLoaded(
+                            titleId = partOfSpeech.toTitleResId,
+                            words = uiWords,
+                        )
                     }
                 }
             } catch (e: CancellationException) {
-                log.w(e) { "loadWords was cancelled $e" }
+                log.w(e) { "fetchJob was cancelled: $e" }
             } catch (e: Exception) {
-                log.e(e) { "Error while loading words $e" }
+                log.e(e) { "Error while loading words: $e" }
                 _state.update {
                     DictionaryDetailsState.Error(
                         titleId = partOfSpeech.toTitleResId,
                         message = e.message ?: "Failed to load $partOfSpeech words",
                     )
                 }
+            } finally {
+                fetchJob?.cancel()
+                delayJob?.cancel()
             }
         }
     }
 
+    private fun handleDeleteWord(wordId: String) {
+        val currentState = _state.value
+        if (currentState is DictionaryDetailsState.WordsLoaded) {
+            val newList = currentState.words.filterNot { it.id == wordId }
+            _state.update { currentState.copy(words = newList) }
+        }
+
+        deleteWordInternally(wordId)
+    }
+
     // Deletes a word using the DeleteWordUseCase and reloads the word list.
-    private fun deleteWord(id: String) {
-        log.i { "Starting to delete word with id: $id" }
+    private fun deleteWordInternally(wordId: String) {
+        log.i { "Starting to delete word with id: $wordId" }
         viewModelScope.launch(ioScope.coroutineContext) {
             try {
-                deleteWordUseCase.execute(id)
-                log.i { "Word with id: $id deleted successfully" }
+                deleteWordUseCase.execute(wordId)
+                log.i { "Word with id: $wordId deleted successfully" }
                 currentPartOfSpeech?.let {
                     refreshData(it)
                 } ?: run {
@@ -139,7 +169,7 @@ open class DictionaryDetailsViewModel(
                     }
                 }
             } catch (e: Exception) {
-                log.e(e) { "Failed to delete word with id: $id" }
+                log.e(e) { "Failed to delete word with id: $wordId" }
                 _state.update {
                     DictionaryDetailsState.Error(
                         titleId = it.titleId,
@@ -148,5 +178,9 @@ open class DictionaryDetailsViewModel(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TRIGGER_LOADING_DELAY_MS = 500L
     }
 }

@@ -24,6 +24,7 @@
 package com.vocabri.ui.dictionarydetails
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -32,6 +33,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -46,6 +48,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -221,9 +224,23 @@ fun WordListScreen(
     state: DictionaryDetailsState.WordsLoaded,
     onEvent: (DictionaryDetailsEvent) -> Unit,
 ) {
-    LazyColumn(modifier = modifier.fillMaxSize()) {
-        items(state.words.size) { index ->
-            WordListItem(uiItem = state.words[index], onEvent = onEvent)
+    val words = remember(state.words) {
+        state.words
+    }
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .animateContentSize(),
+    ) {
+        items(
+            items = words,
+            key = { it.id },
+        ) { item ->
+            Box(
+                modifier = Modifier.animateItem(),
+            ) {
+                WordListItem(uiItem = item, onEvent = onEvent)
+            }
         }
     }
 }
@@ -267,7 +284,6 @@ private fun PreviewWordListScreen() {
             translations = "learn",
             examples = "Ich lerne Deutsch.",
             partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null,
         ),
         WordUiModel(
             id = "2",
@@ -275,7 +291,6 @@ private fun PreviewWordListScreen() {
             translations = "house, home",
             examples = "Das ist mein Haus.",
             partOfSpeech = PartOfSpeech.NOUN.toString(),
-            notes = null,
         ),
         WordUiModel(
             id = "3",
@@ -283,7 +298,6 @@ private fun PreviewWordListScreen() {
             translations = "learn",
             examples = "Ich lerne Deutsch.",
             partOfSpeech = PartOfSpeech.VERB.toString(),
-            notes = null,
         ),
         WordUiModel(
             id = "4",
@@ -291,7 +305,6 @@ private fun PreviewWordListScreen() {
             translations = "house, home",
             examples = "Das ist mein Haus.",
             partOfSpeech = PartOfSpeech.NOUN.toString(),
-            notes = null,
         ),
     )
     VocabriTheme {

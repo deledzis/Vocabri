@@ -23,4 +23,9 @@
  */
 package com.vocabri.domain.model.word
 
+/**
+ * Represents the result of grouping words:
+ * - allWords: the total count of all words
+ * - groups: list of WordGroup for each part of speech
+ */
 data class WordGroups(val allWords: WordGroup, val groups: List<WordGroup>)

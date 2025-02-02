@@ -21,9 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.model.word
+package com.vocabri.domain.fake
 
-/**
- * Domain model for translation.
- */
-data class Translation(val id: String, val translation: String)
+import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.toPartOfSpeech
+import com.vocabri.domain.repository.WordRepository
+
+class FakeWordRepositoryImpl : WordRepository {
+    private val words = mutableListOf<Word>()
+
+    override suspend fun getAllWords(): List<Word> = words
+
+    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> =
+        words.filter { it.toPartOfSpeech() == partOfSpeech }
+
+    override suspend fun insertWord(word: Word) {
+        val wordExists = words
+            .filter { it.toPartOfSpeech() == word.toPartOfSpeech() }
+            .any { it.text.equals(word.text, ignoreCase = true) }
+        if (wordExists) {
+            error("Word with text '${word.text}' already exists")
+        }
+        words.add(word)
+    }
+
+    override suspend fun deleteWordById(id: String) {
+        words.removeIf { it.id == id }
+    }
+}

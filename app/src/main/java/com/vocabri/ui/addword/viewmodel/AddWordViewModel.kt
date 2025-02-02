@@ -26,9 +26,11 @@ package com.vocabri.ui.addword.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vocabri.R
+import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.utils.IdGenerator
@@ -128,6 +130,8 @@ class AddWordViewModel(
 
     private fun saveWord() = stateAsEditing()?.let { currentState ->
         log.i { "Initiating saveWord process" }
+
+        // Collect final translations (adding the unsaved one if it exists)
         val finalTranslations = if (currentState.currentTranslation.isNotBlank()) {
             log.d { "Saving unsaved translation: ${currentState.currentTranslation.trim()}" }
             currentState.translations + currentState.currentTranslation.trim()
@@ -135,25 +139,72 @@ class AddWordViewModel(
             currentState.translations
         }
 
+        // Basic validation
         if (currentState.text.isBlank() || finalTranslations.isEmpty()) {
             log.w { "Cannot save word: Empty text or translations" }
             _state.update { currentState.copy(errorMessageId = R.string.add_word_empty_field) }
             return@let
         }
 
-        val word = Word(
-            id = idGenerator.generateStringId(),
-            text = currentState.text.trim(),
-            translations = finalTranslations.map {
-                Translation(
-                    id = idGenerator.generateStringId(),
-                    text = it,
+        val id = idGenerator.generateStringId()
+        val text = currentState.text.trim()
+        val translations = finalTranslations.map {
+            Translation(
+                id = idGenerator.generateStringId(),
+                translation = it,
+            )
+        }
+        val examples = emptyList<Example>()
+
+        val word = when (currentState.partOfSpeech) {
+            PartOfSpeech.NOUN -> {
+                // TODO: For now, we use dummy values for gender and pluralForm,
+                //  or retrieve them from currentState if your UI collects them.
+                Word.Noun(
+                    id = id,
+                    text = text,
+                    translations = translations,
+                    examples = examples,
+                    gender = WordGender.NEUTER,
+                    pluralForm = "???",
                 )
-            },
-            examples = emptyList(),
-            partOfSpeech = currentState.partOfSpeech,
-            notes = null,
-        )
+            }
+
+            PartOfSpeech.VERB -> {
+                Word.Verb(
+                    id = id,
+                    text = text,
+                    translations = translations,
+                    examples = examples,
+                    conjugation = "regular",
+                    tenseForms = "present",
+                )
+            }
+
+            PartOfSpeech.ADJECTIVE -> {
+                Word.Adjective(
+                    id = id,
+                    text = text,
+                    translations = translations,
+                    examples = examples,
+                    comparative = null,
+                    superlative = null,
+                )
+            }
+
+            PartOfSpeech.ADVERB -> {
+                Word.Adverb(
+                    id = id,
+                    text = text,
+                    translations = translations,
+                    examples = examples,
+                    comparative = null,
+                    superlative = null,
+                )
+            }
+
+            else -> error("Unsupported part of speech: ${currentState.partOfSpeech}")
+        }
 
         log.d { "Word to save: $word" }
         viewModelScope.launch(ioScope.coroutineContext) {

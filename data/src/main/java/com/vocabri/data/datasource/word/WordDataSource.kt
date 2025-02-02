@@ -23,19 +23,27 @@
  */
 package com.vocabri.data.datasource.word
 
-import com.vocabri.data.ExampleEntity
-import com.vocabri.data.TranslationEntity
-import com.vocabri.data.WordEntity
+import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.model.word.Word
 
+/**
+ * Data layer interface for local word data operations.
+ */
 interface WordDataSource {
-    suspend fun insertWord(word: WordEntity)
-    suspend fun insertTranslation(translation: TranslationEntity)
-    suspend fun insertExample(example: ExampleEntity)
-    suspend fun getAllWords(): List<WordEntity>
-    suspend fun getWordById(wordId: String): WordEntity?
-    suspend fun getTranslationsByWordId(wordId: String): List<TranslationEntity>
-    suspend fun getExamplesByWordId(wordId: String): List<ExampleEntity>
-    suspend fun deleteWordById(wordId: String)
-    suspend fun deleteTranslationsByWordId(wordId: String)
-    suspend fun deleteExamplesByWordId(wordId: String)
+
+    /**
+     * Retrieves a list of words filtered by the given part of speech.
+     * If partOfSpeech is null, then all words should be returned.
+     */
+    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech?): List<Word>
+
+    /**
+     * Inserts a new word (and related entities) into the database.
+     */
+    suspend fun insertWord(word: Word)
+
+    /**
+     * Deletes a word by its ID.
+     */
+    suspend fun deleteWord(wordId: String)
 }

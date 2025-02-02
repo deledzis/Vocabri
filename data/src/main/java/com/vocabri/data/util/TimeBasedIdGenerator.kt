@@ -37,5 +37,5 @@ class TimeBasedIdGenerator : IdGenerator {
      *
      * @return A string representation of the current system time in milliseconds.
      */
-    override fun generateStringId(): String = System.currentTimeMillis().toString()
+    override fun generateStringId(): String = System.nanoTime().toString()
 }

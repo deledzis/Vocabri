@@ -21,26 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.fake
+package com.vocabri.data.util
 
-import com.vocabri.domain.model.word.Word
-import com.vocabri.domain.repository.WordRepository
+import com.vocabri.utils.IdGenerator
+import java.util.UUID
 
-class FakeWordRepository : WordRepository {
-    private val words = mutableListOf<Word>()
-
-    override suspend fun getAllWords(): List<Word> = words
-
-    override suspend fun getWordById(id: String): Word = words.first { it.id == id }
-
-    override suspend fun insertWord(word: Word) {
-        require(words.none { it.text.equals(word.text, ignoreCase = true) }) {
-            "Word with text '${word.text}' already exists"
-        }
-        words.add(word)
-    }
-
-    override suspend fun deleteWordById(id: String) {
-        words.removeIf { it.id == id }
-    }
+/**
+ * ID generator that creates unique string IDs based on the [UUID.randomUUID].
+ *
+ * This implementation is simple and ensures IDs are unique.
+ */
+class UuidIdGenerator : IdGenerator {
+    /**
+     * Generates a unique string ID based on the [UUID.randomUUID] results.
+     *
+     * @return A string representation of UUID
+     */
+    override fun generateStringId(): String = UUID.randomUUID().toString()
 }
