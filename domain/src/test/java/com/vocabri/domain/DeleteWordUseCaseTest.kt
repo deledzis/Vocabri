@@ -23,8 +23,9 @@
  */
 package com.vocabri.domain
 
-import com.vocabri.domain.fake.FakeWordRepository
+import com.vocabri.domain.fake.FakeWordRepositoryImpl
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -34,11 +35,11 @@ import org.junit.Test
 class DeleteWordUseCaseTest {
 
     private lateinit var useCase: DeleteWordUseCase
-    private lateinit var fakeRepository: FakeWordRepository
+    private lateinit var fakeRepository: FakeWordRepositoryImpl
 
     @Before
     fun setup() {
-        fakeRepository = FakeWordRepository()
+        fakeRepository = FakeWordRepositoryImpl()
         useCase = DeleteWordUseCase(fakeRepository)
     }
 
@@ -57,7 +58,7 @@ class DeleteWordUseCaseTest {
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            gender = "das",
+            gender = WordGender.NEUTER,
             pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)
@@ -108,7 +109,7 @@ class DeleteWordUseCaseTest {
             text = "Haus",
             translations = emptyList(),
             examples = emptyList(),
-            gender = "das",
+            gender = WordGender.NEUTER,
             pluralForm = "Häuser",
         )
         fakeRepository.insertWord(word1)

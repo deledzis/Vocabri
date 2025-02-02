@@ -30,6 +30,7 @@ import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.utils.IdGenerator
@@ -164,7 +165,7 @@ class AddWordViewModel(
                     text = text,
                     translations = translations,
                     examples = examples,
-                    gender = "das",
+                    gender = WordGender.NEUTER,
                     pluralForm = "???",
                 )
             }
@@ -202,7 +203,7 @@ class AddWordViewModel(
                 )
             }
 
-            else -> throw IllegalArgumentException("Unsupported part of speech: ${currentState.partOfSpeech}")
+            else -> error("Unsupported part of speech: ${currentState.partOfSpeech}")
         }
 
         log.d { "Word to save: $word" }

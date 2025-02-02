@@ -86,9 +86,6 @@ import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
 import java.util.Locale
 
-private const val BUTTON_ENABLED_ALPHA = 0.7f
-private const val BUTTON_DISABLED_ALPHA = 1.0f
-
 @Composable
 fun AddWordScreen(
     modifier: Modifier = Modifier,

@@ -79,7 +79,7 @@ open class DictionaryDetailsViewModel(
         log.i { "loading $wordGroup words requested" }
         val partOfSpeech = try {
             PartOfSpeech.valueOf(wordGroup)
-        } catch (e: IllegalArgumentException) {
+        } catch (e: IllegalStateException) {
             log.e(e) { "Invalid word group: $wordGroup" }
             return
         }
@@ -96,8 +96,8 @@ open class DictionaryDetailsViewModel(
         fetchJob = viewModelScope.launch(ioScope.coroutineContext) {
             try {
                 delayJob = launch {
-                    delay(500)
-                    log.d { "Showing loading state after 500ms delay" }
+                    delay(TRIGGER_LOADING_DELAY_MS)
+                    log.d { "Showing loading state after ${TRIGGER_LOADING_DELAY_MS}ms delay" }
                     _state.update { DictionaryDetailsState.Loading(partOfSpeech.toTitleResId) }
                 }
 
@@ -178,5 +178,9 @@ open class DictionaryDetailsViewModel(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val TRIGGER_LOADING_DELAY_MS = 500L
     }
 }

@@ -26,6 +26,7 @@ package com.vocabri.ui.dictionarydetails
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.GetWordsUseCase
@@ -103,7 +104,7 @@ class DictionaryDetailsViewModelTest {
                     Translation(id = "3", translation = "house"),
                 ),
                 examples = emptyList(),
-                gender = "das",
+                gender = WordGender.NEUTER,
                 pluralForm = "Häuser",
             ),
         )
@@ -178,7 +179,7 @@ class DictionaryDetailsViewModelTest {
                 text = "Haus",
                 translations = emptyList(),
                 examples = emptyList(),
-                gender = "das",
+                gender = WordGender.NEUTER,
                 pluralForm = "Häuser",
             ),
         )

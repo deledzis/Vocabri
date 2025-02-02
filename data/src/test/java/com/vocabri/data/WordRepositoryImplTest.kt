@@ -25,7 +25,9 @@ package com.vocabri.data
 
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.repository.word.WordRepositoryImpl
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.confirmVerified
@@ -58,7 +60,7 @@ class WordRepositoryImplTest {
             tenseForms = "present",
         )
 
-        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns emptyList()
+        coEvery { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) } returns emptyList()
         coEvery { localDataSource.insertWord(testWord) } returns Unit
 
         // -- When --
@@ -66,7 +68,7 @@ class WordRepositoryImplTest {
 
         // -- Then --
         coVerify(exactly = 1) { localDataSource.insertWord(testWord) }
-        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(null) }
+        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) }
         confirmVerified(localDataSource)
     }
 
@@ -87,7 +89,7 @@ class WordRepositoryImplTest {
                 text = "Haus",
                 translations = emptyList(),
                 examples = emptyList(),
-                gender = "das",
+                gender = WordGender.NEUTER,
                 pluralForm = "Häuser",
             ),
         )
@@ -122,13 +124,13 @@ class WordRepositoryImplTest {
     @Test
     fun `insertWord throws exception for duplicate word`() = runTest {
         // -- Given --
-        val newWord = Word.Noun(
+        val newWord = Word.Verb(
             id = "1",
             text = "lernen",
             translations = emptyList(),
             examples = emptyList(),
-            gender = "der",
-            pluralForm = "???",
+            conjugation = "regular",
+            tenseForms = "present",
         )
 
         val existingWord = Word.Verb(
@@ -139,12 +141,12 @@ class WordRepositoryImplTest {
             conjugation = "regular",
             tenseForms = "present",
         )
-        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns listOf(existingWord)
+        coEvery { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) } returns listOf(existingWord)
 
         // -- When & Then --
         assertThrows(
             "Word with text 'lernen' already exists",
-            IllegalArgumentException::class.java,
+            IllegalStateException::class.java,
         ) {
             runBlocking {
                 repository.insertWord(newWord)
@@ -153,7 +155,7 @@ class WordRepositoryImplTest {
         coVerify(exactly = 0) {
             localDataSource.insertWord(newWord)
         }
-        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(null) }
+        coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) }
         confirmVerified(localDataSource)
     }
 }

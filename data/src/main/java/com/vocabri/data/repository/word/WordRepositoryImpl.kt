@@ -26,6 +26,7 @@ package com.vocabri.data.repository.word
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
 
@@ -63,11 +64,10 @@ class WordRepositoryImpl(private val wordDataSource: WordDataSource) : WordRepos
     override suspend fun insertWord(word: Word) {
         log.i { "insertWord called with ID = ${word.id}, text = ${word.text}" }
 
-        // Passing null to getWordsByPartOfSpeech means "fetch all words".
-        val existingWords = wordDataSource.getWordsByPartOfSpeech(null).filter { it.text == word.text }
+        val existingWords = wordDataSource.getWordsByPartOfSpeech(word.toPartOfSpeech()).filter { it.text == word.text }
         if (existingWords.isNotEmpty()) {
             log.w { "Word with text '${word.text}' already exists" }
-            throw IllegalArgumentException("Word with text '${word.text}' already exists")
+            error("Word with text '${word.text}' already exists")
         }
 
         wordDataSource.insertWord(word)

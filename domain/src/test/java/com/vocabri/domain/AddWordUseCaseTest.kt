@@ -23,11 +23,12 @@
  */
 package com.vocabri.domain
 
-import com.vocabri.domain.fake.FakeWordRepository
+import com.vocabri.domain.fake.FakeWordRepositoryImpl
 import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
@@ -45,7 +46,7 @@ class AddWordUseCaseTest {
 
     @Before
     fun setup() {
-        fakeRepository = FakeWordRepository()
+        fakeRepository = FakeWordRepositoryImpl()
         addWordUseCase = AddWordUseCase(fakeRepository)
     }
 
@@ -87,7 +88,7 @@ class AddWordUseCaseTest {
             text = "Haus",
             translations = listOf(Translation("2", "house")),
             examples = listOf(Example("2", "Das ist mein Haus")),
-            gender = "das",
+            gender = WordGender.NEUTER,
             pluralForm = "Häuser",
         )
 
@@ -129,7 +130,7 @@ class AddWordUseCaseTest {
 
         assertThrows(
             "Word with text 'lernen' already exists",
-            IllegalArgumentException::class.java,
+            IllegalStateException::class.java,
         ) {
             runBlocking { addWordUseCase.execute(word) }
         }

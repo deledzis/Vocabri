@@ -38,8 +38,8 @@ sealed class Word {
         override val text: String,
         override val translations: List<Translation>,
         override val examples: List<Example>,
-        val gender: String, // TODO: use enum
-        val pluralForm: String,
+        val gender: WordGender?,
+        val pluralForm: String?,
     ) : Word()
 
     data class Verb(
@@ -47,8 +47,8 @@ sealed class Word {
         override val text: String,
         override val translations: List<Translation>,
         override val examples: List<Example>,
-        val conjugation: String,
-        val tenseForms: String,
+        val conjugation: String?,
+        val tenseForms: String?,
     ) : Word()
 
     data class Adjective(

@@ -23,9 +23,10 @@
  */
 package com.vocabri.domain
 
-import com.vocabri.domain.fake.FakeWordRepository
+import com.vocabri.domain.fake.FakeWordRepositoryImpl
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.GetWordsUseCase
 import kotlinx.coroutines.test.runTest
@@ -40,7 +41,7 @@ class GetWordsUseCaseTest {
 
     @Before
     fun setup() {
-        fakeRepository = FakeWordRepository()
+        fakeRepository = FakeWordRepositoryImpl()
         getWordsUseCase = GetWordsUseCase(fakeRepository)
     }
 
@@ -59,7 +60,7 @@ class GetWordsUseCaseTest {
             text = "Haus",
             translations = listOf(Translation("2", "house")),
             examples = listOf(),
-            gender = "das",
+            gender = WordGender.NEUTER,
             pluralForm = "Häuser",
         )
 

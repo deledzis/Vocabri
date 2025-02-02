@@ -21,29 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.fake
+package com.vocabri.domain.model.word
 
-import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.domain.model.word.Word
-import com.vocabri.domain.model.word.toPartOfSpeech
-import com.vocabri.domain.repository.WordRepository
+// TODO: it binds the app logic to German.
+enum class WordGender(val article: String) {
+    MASCULINE("Der"),
+    FEMININE("Die"),
+    NEUTER("Das"),
+    ;
 
-class FakeWordRepository : WordRepository {
-    private val words = mutableListOf<Word>()
+    override fun toString(): String = article
 
-    override suspend fun getAllWords(): List<Word> = words
-
-    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> =
-        words.filter { it.toPartOfSpeech() == partOfSpeech }
-
-    override suspend fun insertWord(word: Word) {
-        require(words.none { it.text.equals(word.text, ignoreCase = true) }) {
-            "Word with text '${word.text}' already exists"
-        }
-        words.add(word)
-    }
-
-    override suspend fun deleteWordById(id: String) {
-        words.removeIf { it.id == id }
+    companion object {
+        fun fromString(value: String): WordGender? = entries.find { it.article.equals(value, ignoreCase = true) }
     }
 }

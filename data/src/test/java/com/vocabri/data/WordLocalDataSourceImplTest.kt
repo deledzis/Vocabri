@@ -29,6 +29,7 @@ import com.vocabri.data.test.FakeVocabriDatabase.createTestJdbcSqlDriver
 import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -101,7 +102,7 @@ class WordLocalDataSourceImplTest {
             text = "Haus",
             translations = listOf(Translation("t2", "house")),
             examples = listOf(Example("e2", "Das ist mein Haus")),
-            gender = "das",
+            gender = WordGender.NEUTER,
             pluralForm = "Häuser",
         )
 
@@ -125,7 +126,7 @@ class WordLocalDataSourceImplTest {
         val nounWord = sorted[1] as Word.Noun
         assertEquals("2", nounWord.id)
         assertEquals("Haus", nounWord.text)
-        assertEquals("das", nounWord.gender)
+        assertEquals(WordGender.NEUTER, nounWord.gender)
         assertEquals("Häuser", nounWord.pluralForm)
         assertEquals(1, nounWord.translations.size)
         assertEquals("house", nounWord.translations[0].translation)

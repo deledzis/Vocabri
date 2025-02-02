@@ -28,6 +28,7 @@ import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
+import com.vocabri.domain.model.word.WordGender
 import com.vocabri.logger.logger
 
 /**
@@ -62,8 +63,8 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                 try {
                     database.wordQueries.insertNoun(
                         id = word.id,
-                        gender = word.gender,
-                        pluralForm = word.pluralForm,
+                        gender = word.gender.toString(),
+                        pluralForm = word.pluralForm.orEmpty(),
                     )
                     log.i { "Inserted noun entity for Word ID = ${word.id}" }
                 } catch (e: Exception) {
@@ -76,8 +77,8 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                 try {
                     database.wordQueries.insertVerb(
                         id = word.id,
-                        conjugation = word.conjugation,
-                        tenseForms = word.tenseForms,
+                        conjugation = word.conjugation.orEmpty(),
+                        tenseForms = word.tenseForms.orEmpty(),
                     )
                     log.i { "Inserted verb entity for Word ID = ${word.id}" }
                 } catch (e: Exception) {
@@ -182,7 +183,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                     text = wordBase.text,
                     translations = translations,
                     examples = examples,
-                    gender = nounEntity.gender,
+                    gender = WordGender.fromString(nounEntity.gender),
                     pluralForm = nounEntity.pluralForm,
                 )
             }
@@ -222,13 +223,13 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                     superlative = advEntity.superlative,
                 )
             } else {
-                throw IllegalStateException("Unknown part of speech for word with ID = ${wordBase.id}")
+                error("Unknown part of speech for word with ID = ${wordBase.id}")
             }
         }
 
         // Filter by partOfSpeech if needed
         if (partOfSpeech == null) {
-            log.i { "Returning all words, total count = ${domainWords.size}" }
+            log.i { "Returning all words, total count = $domainWords" }
             return domainWords
         }
 
