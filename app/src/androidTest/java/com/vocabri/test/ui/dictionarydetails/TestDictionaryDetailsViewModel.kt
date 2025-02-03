@@ -25,8 +25,8 @@ package com.vocabri.test.ui.dictionarydetails
 
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsState
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsViewModel
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import io.mockk.mockk
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,8 +35,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
-class TestDictionaryDetailsViewModel :
+class TestDictionaryDetailsViewModel(partOfSpeech: PartOfSpeech) :
     DictionaryDetailsViewModel(
+        partOfSpeech = partOfSpeech,
         getWordsUseCase = mockk(),
         deleteWordUseCase = mockk(),
         ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
@@ -48,9 +49,5 @@ class TestDictionaryDetailsViewModel :
 
     fun setState(newState: DictionaryDetailsState) {
         _state.update { newState }
-    }
-
-    fun setCurrentPartOfSpeechForTest(partOfSpeech: PartOfSpeech) {
-        currentPartOfSpeech = partOfSpeech
     }
 }

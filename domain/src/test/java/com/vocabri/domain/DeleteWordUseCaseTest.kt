@@ -51,7 +51,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "irregular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",
@@ -81,7 +81,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "irregular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         fakeRepository.insertWord(word)
 
@@ -102,7 +102,7 @@ class DeleteWordUseCaseTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "irregular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",

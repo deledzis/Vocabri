@@ -55,7 +55,7 @@ class GetWordGroupsUseCaseTest {
             translations = listOf(Translation("t1", "learn")),
             examples = emptyList(),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",

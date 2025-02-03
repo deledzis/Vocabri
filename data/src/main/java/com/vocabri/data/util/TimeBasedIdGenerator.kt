@@ -26,7 +26,7 @@ package com.vocabri.data.util
 import com.vocabri.utils.IdGenerator
 
 /**
- * ID generator that creates unique string IDs based on the current system time in milliseconds.
+ * ID generator that creates unique string IDs based on the current system time in nanoseconds.
  *
  * This implementation is simple and ensures IDs are unique as long as they are generated
  * in distinct milliseconds.

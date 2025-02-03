@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?><!--
+    MIT License
+
+    Copyright (c) 2025 Aleksandr Stiagov
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="#000000"
+        android:pathData="M20.975,9.025L14.925,2.975L15.35,2.55C15.733,2.167 16.208,1.979 16.775,1.987C17.342,1.996 17.817,2.192 18.2,2.575L21.425,5.8C21.808,6.183 22,6.654 22,7.212C22,7.771 21.808,8.242 21.425,8.625L20.975,9.025ZM8.65,21.4C8.267,21.783 7.796,21.975 7.238,21.975C6.679,21.975 6.208,21.783 5.825,21.4L2.6,18.175C2.217,17.792 2.025,17.321 2.025,16.762C2.025,16.204 2.217,15.733 2.6,15.35L3,14.95L9.05,21L8.65,21.4ZM12.275,20.7C12.075,20.9 11.842,21 11.575,21C11.308,21 11.075,20.9 10.875,20.7L3.3,13.125C3.1,12.925 3,12.692 3,12.425C3,12.158 3.1,11.925 3.3,11.725L4.725,10.275C4.925,10.075 5.163,9.975 5.438,9.975C5.713,9.975 5.95,10.075 6.15,10.275L7.725,11.85L11.875,7.7L10.3,6.125C10.1,5.925 10,5.692 10,5.425C10,5.158 10.1,4.925 10.3,4.725L11.725,3.275C11.925,3.075 12.163,2.975 12.438,2.975C12.712,2.975 12.95,3.075 13.15,3.275L20.725,10.85C20.925,11.05 21.025,11.287 21.025,11.562C21.025,11.837 20.925,12.075 20.725,12.275L19.275,13.7C19.075,13.9 18.842,14 18.575,14C18.308,14 18.075,13.9 17.875,13.7L16.3,12.125L12.15,16.275L13.725,17.85C13.925,18.05 14.025,18.287 14.025,18.562C14.025,18.837 13.925,19.075 13.725,19.275L12.275,20.7Z" />
+</vector>

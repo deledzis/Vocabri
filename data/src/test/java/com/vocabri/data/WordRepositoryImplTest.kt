@@ -57,7 +57,7 @@ class WordRepositoryImplTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
 
         coEvery { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) } returns emptyList()
@@ -82,7 +82,7 @@ class WordRepositoryImplTest {
                 translations = emptyList(),
                 examples = emptyList(),
                 conjugation = "regular",
-                tenseForms = "present",
+                management = "auf + Akk.",
             ),
             Word.Noun(
                 id = "2",
@@ -130,7 +130,7 @@ class WordRepositoryImplTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
 
         val existingWord = Word.Verb(
@@ -139,7 +139,7 @@ class WordRepositoryImplTest {
             translations = emptyList(),
             examples = emptyList(),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         coEvery { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) } returns listOf(existingWord)
 

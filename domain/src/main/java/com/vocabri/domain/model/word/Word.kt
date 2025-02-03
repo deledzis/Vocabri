@@ -48,7 +48,7 @@ sealed class Word {
         override val translations: List<Translation>,
         override val examples: List<Example>,
         val conjugation: String?,
-        val tenseForms: String?,
+        val management: String?,
     ) : Word()
 
     data class Adjective(
