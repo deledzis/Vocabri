@@ -24,41 +24,77 @@
 package com.vocabri.ui.main
 
 import android.annotation.SuppressLint
-import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.vocabri.logger.logger
+import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.navigation.AppNavigation
 import com.vocabri.ui.navigation.MainBottomNavigation
 import com.vocabri.ui.navigation.NavigationRoute
-import com.vocabri.ui.theme.VocabriTheme
+import com.vocabri.ui.screens.addword.components.AddWordScreenTopAppBar
+import com.vocabri.ui.screens.dictionary.components.DictionaryScreenTopAppBar
+import com.vocabri.ui.screens.dictionarydetails.components.DictionaryDetailsScreenTopAppBar
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
+import com.vocabri.ui.screens.discovermore.components.DiscoverMoreScreenTopAppBar
+import com.vocabri.ui.screens.settings.components.SettingsScreenTopAppBar
+import com.vocabri.ui.screens.training.components.TrainingScreenTopAppBar
+import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
-    val log = logger("MainScreen")
+fun MainScreen(modifier: Modifier = Modifier, routes: List<NavigationRoute>) {
     val navController = rememberNavController()
-    val bottomNavigationScreens = listOf(
-        NavigationRoute.Start.Dictionary,
-        NavigationRoute.Start.Training,
-        NavigationRoute.Empty,
-        NavigationRoute.Start.DiscoverMore,
-        NavigationRoute.Start.Settings,
-    )
+    val focusManager = LocalFocusManager.current
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val currentRoute = currentDestination?.route
 
     Scaffold(
         modifier = modifier,
+        topBar = {
+            when (currentRoute) {
+                NavigationRoute.Start.Dictionary.route -> DictionaryScreenTopAppBar()
+                NavigationRoute.Start.Training.route -> TrainingScreenTopAppBar()
+                NavigationRoute.Start.DiscoverMore.route -> DiscoverMoreScreenTopAppBar()
+                NavigationRoute.Start.Settings.route -> SettingsScreenTopAppBar()
+                NavigationRoute.Secondary.AddWord.route -> {
+                    AddWordScreenTopAppBar(
+                        focusManager = focusManager,
+                        navController = navController,
+                    )
+                }
+
+                NavigationRoute.Secondary.DictionaryDetails.route -> {
+                    val partOfSpeech = navBackStackEntry!!.arguments?.getString("partOfSpeech").orEmpty()
+                    val viewModel: DictionaryDetailsViewModel = koinViewModel(
+                        qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(PartOfSpeech.valueOf(partOfSpeech)),
+                        viewModelStoreOwner = navBackStackEntry!!,
+                    )
+                    val uiState by viewModel.state.collectAsState()
+                    DictionaryDetailsScreenTopAppBar(state = uiState, navController = navController)
+                }
+            }
+        },
         bottomBar = {
-            val currentRoute = navController.currentDestination?.route
-            log.e { "Current route: $currentRoute" }
-            if (currentRoute == null || currentRoute in bottomNavigationScreens.map { it.route }) {
+            AnimatedVisibility(
+                visible = currentRoute in routes.map { it.route },
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 MainBottomNavigation(
                     navController = navController,
-                    navigationRoutes = bottomNavigationScreens,
+                    navigationRoutes = routes,
                 ) {
                     if (navController.currentDestination?.route != NavigationRoute.Secondary.AddWord.route) {
                         navController.navigate(NavigationRoute.Secondary.AddWord.route) {
@@ -68,33 +104,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 }
             }
         },
-    ) {
-        Box(modifier = Modifier) {
-            AppNavigation(navController = navController)
+    ) { paddingValues ->
+        Box(modifier = Modifier.padding(paddingValues)) {
+            AppNavigation(navController = navController, focusManager = focusManager)
         }
-    }
-}
-
-@Preview(
-    name = "Night Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-)
-@Preview(
-    name = "Day Mode",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-)
-@Preview(
-    name = "Landscape",
-    showBackground = true,
-    uiMode = Configuration.UI_MODE_NIGHT_NO,
-    widthDp = 640,
-    heightDp = 360,
-)
-@Composable
-private fun PreviewShimmerEffectRounded() {
-    VocabriTheme {
-        MainScreen()
     }
 }

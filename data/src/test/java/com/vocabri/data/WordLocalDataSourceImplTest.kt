@@ -67,18 +67,19 @@ class WordLocalDataSourceImplTest {
             translations = listOf(Translation("t1", "learn")),
             examples = listOf(Example("e1", "Ich lerne")),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
 
         dataSource.insertWord(word)
 
         val resultWord = dataSource.getWordByIdForTest("1")
         assertNotNull(resultWord)
+        assertTrue(resultWord is Word.Verb)
 
         val verbWord = resultWord as Word.Verb
         assertEquals("lernen", verbWord.text)
         assertEquals("regular", verbWord.conjugation)
-        assertEquals("present", verbWord.tenseForms)
+        assertEquals("auf + Akk.", verbWord.management)
 
         assertEquals(1, verbWord.translations.size)
         assertEquals("learn", verbWord.translations[0].translation)
@@ -95,7 +96,7 @@ class WordLocalDataSourceImplTest {
             translations = listOf(Translation("t1", "learn")),
             examples = listOf(Example("e1", "Ich lerne")),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",

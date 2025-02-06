@@ -78,7 +78,7 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                     database.wordQueries.insertVerb(
                         id = word.id,
                         conjugation = word.conjugation.orEmpty(),
-                        tenseForms = word.tenseForms.orEmpty(),
+                        management = word.management.orEmpty(),
                     )
                     log.i { "Inserted verb entity for Word ID = ${word.id}" }
                 } catch (e: Exception) {
@@ -195,8 +195,9 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
                     text = wordBase.text,
                     translations = translations,
                     examples = examples,
+                    //  TODO: split into list?
                     conjugation = verbEntity.conjugation,
-                    tenseForms = verbEntity.tenseForms,
+                    management = verbEntity.management,
                 )
             }
 

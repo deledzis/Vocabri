@@ -35,12 +35,35 @@
     <!-- Add word screen -->
     <string name="add_word">Add Word</string>
     <string name="word_text">Word</string>
-    <string name="enter_translation">Enter translation</string>
+    <string name="part_of_speech">Part of Speech</string>
+    <string name="noun_label">Noun</string>
+    <string name="verb_label">Verb</string>
+    <string name="adjective_label">Adjective</string>
+    <string name="adverb_label">Adverb</string>
+
+    <string name="add_translation_placeholder">Enter translation</string>
     <string name="add_translation">Add Translation</string>
     <string name="remove_translation">Remove translation</string>
-    <string name="part_of_speech">Part of Speech</string>
-    <string name="select_part_of_speech">Select part of speech</string>
-    <string name="add_word_empty_field">Please fill all the fields</string>
+
+    <string name="add_example_placeholder">Enter usage example</string>
+    <string name="add_example">Add usage example</string>
+    <string name="remove_example">Remove usage example</string>
+
+    <string name="add_conjugation_placeholder">Conjugation</string>
+    <string name="add_conjugation">Add conjugation</string>
+    <string name="remove_conjugation">Remove conjugation</string>
+
+    <string name="add_management_placeholder">Management</string>
+    <string name="add_management">Add management</string>
+    <string name="remove_management">Remove management</string>
+
+    <string name="article_label">Article</string>
+    <string name="plural_form_placeholder">Plural form</string>
+
+    <string name="comparative_placeholder">Comparative</string>
+    <string name="superlative_placeholder">Superlative</string>
+
+    <string name="add_word_empty_field">Please fill all the required fields</string>
 
     <!-- Parts of speech -->
     <string name="all_words">All Words</string>

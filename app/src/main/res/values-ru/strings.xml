@@ -33,12 +33,35 @@
     <!-- Add word screen -->
     <string name="add_word">Добавить слово</string>
     <string name="word_text">Слово</string>
-    <string name="enter_translation">Введите перевод</string>
+    <string name="part_of_speech">Часть речи</string>
+    <string name="noun_label">Существительное</string>
+    <string name="verb_label">Глагол</string>
+    <string name="adjective_label">Прилагательное</string>
+    <string name="adverb_label">Наречие</string>
+
+    <string name="add_translation_placeholder">Введите перевод</string>
     <string name="add_translation">Добавить перевод</string>
     <string name="remove_translation">Удалить перевод</string>
-    <string name="part_of_speech">Часть речи</string>
-    <string name="select_part_of_speech">Укажите часть речи</string>
-    <string name="add_word_empty_field">Пожалуйста, заполните все поля</string>
+
+    <string name="add_example_placeholder">Введите пример использования</string>
+    <string name="add_example">Добавить пример использования</string>
+    <string name="remove_example">Удалить пример использования</string>
+
+    <string name="add_conjugation_placeholder">Спряжение</string>
+    <string name="add_conjugation">Добавить спряжение</string>
+    <string name="remove_conjugation">Удалить спряжение</string>
+
+    <string name="add_management_placeholder">Управление</string>
+    <string name="add_management">Добавить управление</string>
+    <string name="remove_management">Удалить управление</string>
+
+    <string name="article_label">Род</string>
+    <string name="plural_form_placeholder">Форма множественного числа</string>
+
+    <string name="comparative_placeholder">Сравнительная степень</string>
+    <string name="superlative_placeholder">Превосходная степень</string>
+
+    <string name="add_word_empty_field">Пожалуйста, заполните все обязательные поля</string>
 
     <!-- Parts of speech -->
     <string name="all_words">Все слова</string>

@@ -26,23 +26,28 @@ package com.vocabri.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
-import com.vocabri.ui.addword.AddWordScreen
-import com.vocabri.ui.dictionary.DictionaryScreen
-import com.vocabri.ui.dictionarydetails.DictionaryDetailsScreen
-import com.vocabri.ui.discovermore.DiscoverMoreScreen
-import com.vocabri.ui.settings.SettingsScreen
-import com.vocabri.ui.training.TrainingScreen
+import com.vocabri.ui.screens.addword.AddWordScreen
+import com.vocabri.ui.screens.dictionary.DictionaryScreen
+import com.vocabri.ui.screens.dictionarydetails.DictionaryDetailsScreen
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
+import com.vocabri.ui.screens.discovermore.DiscoverMoreScreen
+import com.vocabri.ui.screens.settings.SettingsScreen
+import com.vocabri.ui.screens.training.TrainingScreen
+import org.koin.androidx.compose.koinViewModel
 
 val log = logger("AppNavigation")
 
 @Composable
-fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController) {
+fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostController, focusManager: FocusManager) {
     NavHost(
         modifier = modifier,
         navController = navController,
@@ -76,19 +81,23 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
         /* Secondary Screens */
         composable(
             NavigationRoute.Secondary.DictionaryDetails.route,
-            arguments = listOf(navArgument("groupType") { type = NavType.StringType }),
+            arguments = listOf(navArgument("partOfSpeech") { type = NavType.StringType }),
         ) { backStackEntry ->
-            val wordGroup = backStackEntry.arguments?.getString("groupType").orEmpty()
+            val partOfSpeech = backStackEntry.arguments?.getString("partOfSpeech").orEmpty()
             LaunchedEffect(navController.currentDestination) {
-                log.i { "Navigating to DictionaryDetailsScreen for group $wordGroup" }
+                log.i { "Navigating to DictionaryDetailsScreen for $partOfSpeech" }
             }
-            DictionaryDetailsScreen(navController = navController, wordGroup = wordGroup)
+            val viewModel: DictionaryDetailsViewModel = koinViewModel(
+                qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(PartOfSpeech.valueOf(partOfSpeech)),
+                viewModelStoreOwner = backStackEntry,
+            )
+            DictionaryDetailsScreen(navController = navController, viewModel = viewModel)
         }
         composable(NavigationRoute.Secondary.AddWord.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to AddWordScreen" }
             }
-            AddWordScreen(navController = navController)
+            AddWordScreen(navController = navController, focusManager = focusManager)
         }
     }
 }

@@ -34,12 +34,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vocabri.ui.theme.VocabriTheme
 
@@ -54,19 +56,30 @@ fun RowScope.ContentBottomNavigationItem(
     navigationRoute: NavigationRoute.Start,
     navController: NavController,
 ) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+    val currentRoute = currentDestination?.route
+    val isSelected = currentRoute == navigationRoute.route
+
     NavigationBarItem(
         modifier = modifier
             .height(64.dp),
         icon = {
             Icon(
-                painter = painterResource(id = navigationRoute.iconSelectedResId),
+                painter = painterResource(
+                    id = if (isSelected) {
+                        navigationRoute.iconSelectedResId
+                    } else {
+                        navigationRoute.iconUnselectedResId
+                    },
+                ),
                 contentDescription = stringResource(navigationRoute.titleResId),
                 tint = MaterialTheme.colorScheme.tertiary,
             )
         },
-        selected = navController.currentDestination?.route == navigationRoute.route,
+        selected = isSelected,
         onClick = {
-            if (navController.currentDestination?.route != navigationRoute.route) {
+            if (isSelected.not()) {
                 navController.navigate(navigationRoute.route) {
                     popUpTo(navController.graph.startDestinationId) { inclusive = false }
                     launchSingleTop = true

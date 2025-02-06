@@ -58,7 +58,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             conjugation = "irregular",
-            tenseForms = "present, past, perfect",
+            management = "auf + Akk.",
         )
 
         addWordUseCase.execute(word)
@@ -81,7 +81,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(Example("1", "Ich lerne")),
             conjugation = "irregular",
-            tenseForms = "present, past, perfect",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",
@@ -123,7 +123,7 @@ class AddWordUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             conjugation = "irregular",
-            tenseForms = "present, past, perfect",
+            management = "auf + Akk.",
         )
 
         addWordUseCase.execute(word)

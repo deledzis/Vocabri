@@ -28,8 +28,8 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.fake.TestApplication
-import com.vocabri.ui.dictionarydetails.components.WordListItem
-import com.vocabri.ui.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
+import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

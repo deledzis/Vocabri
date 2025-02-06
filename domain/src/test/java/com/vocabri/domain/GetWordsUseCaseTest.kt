@@ -53,7 +53,7 @@ class GetWordsUseCaseTest {
             translations = listOf(Translation("1", "learn")),
             examples = listOf(),
             conjugation = "irregular",
-            tenseForms = "present, past, perfect",
+            management = "auf + Akk.",
         )
         val word2 = Word.Noun(
             id = "2",

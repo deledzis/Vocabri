@@ -31,10 +31,10 @@ import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.GetWordsUseCase
 import com.vocabri.rules.MainDispatcherRule
-import com.vocabri.ui.dictionary.model.toTitleResId
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsEvent
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsState
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsViewModel
+import com.vocabri.ui.screens.dictionary.model.toTitleResId
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -72,6 +72,7 @@ class DictionaryDetailsViewModelTest {
         getWordsUseCase = GetWordsUseCase(mockWordRepository)
         deleteWordUseCase = DeleteWordUseCase(mockWordRepository)
         viewModel = DictionaryDetailsViewModel(
+            partOfSpeech = samplePartOfSpeech,
             getWordsUseCase = getWordsUseCase,
             deleteWordUseCase = deleteWordUseCase,
             ioScope = TestScope(dispatcherRule.testDispatcher),
@@ -95,7 +96,7 @@ class DictionaryDetailsViewModelTest {
                 ),
                 examples = emptyList(),
                 conjugation = "regular",
-                tenseForms = "present",
+                management = "auf + Akk.",
             ),
             Word.Noun(
                 id = "2",
@@ -111,7 +112,7 @@ class DictionaryDetailsViewModelTest {
 
         coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns sampleWords.take(1)
 
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
         advanceUntilIdle()
 
         // Assert
@@ -130,7 +131,7 @@ class DictionaryDetailsViewModelTest {
         val errorMessage = "Error loading words"
         coEvery { getWordsUseCase.executeByPartOfSpeech(samplePartOfSpeech) } throws Exception(errorMessage)
 
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
         advanceUntilIdle()
 
         // Assert
@@ -149,7 +150,7 @@ class DictionaryDetailsViewModelTest {
     fun `LoadWordsByGroup handles empty list gracefully`() = runTest {
         coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns emptyList()
 
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
         advanceUntilIdle()
 
         // Assert
@@ -172,7 +173,7 @@ class DictionaryDetailsViewModelTest {
                 ),
                 examples = emptyList(),
                 conjugation = "regular",
-                tenseForms = "present",
+                management = "auf + Akk.",
             ),
             Word.Noun(
                 id = "2",
@@ -187,7 +188,7 @@ class DictionaryDetailsViewModelTest {
         coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns sampleWords.take(1)
         coEvery { mockWordRepository.deleteWordById("1") } just Runs
 
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
         viewModel.handleEvent(DictionaryDetailsEvent.DeleteWordClicked("1"))
         advanceUntilIdle()
 
@@ -202,8 +203,8 @@ class DictionaryDetailsViewModelTest {
     fun `LoadWordsByGroup prevents duplicate calls`() = runTest {
         coEvery { mockWordRepository.getWordsByPartOfSpeech(samplePartOfSpeech) } returns emptyList()
 
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords(wordGroup = samplePartOfSpeech.name))
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
+        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
         advanceUntilIdle()
 
         // Assert

@@ -16,7 +16,7 @@ CREATE TABLE NounEntity (
 CREATE TABLE VerbEntity (
     id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- The same ID as in the base table
     conjugation TEXT NOT NULL,            -- Conjugation details (e.g., verb endings, regular/irregular)
-    tenseForms TEXT NOT NULL,             -- Verb forms in various tenses
+    management TEXT NOT NULL,             -- Verb management details
     FOREIGN KEY (id) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
 );
 
@@ -98,7 +98,7 @@ DELETE FROM NounEntity WHERE id = ?;
 
 -- 🔹 Insert a verb
 insertVerb:
-INSERT INTO VerbEntity (id, conjugation, tenseForms) VALUES (?, ?, ?);
+INSERT INTO VerbEntity (id, conjugation, management) VALUES (?, ?, ?);
 
 -- 🔹 Retrieve a verb by ID
 selectVerbById:
@@ -106,7 +106,7 @@ SELECT * FROM VerbEntity WHERE id = ?;
 
 -- 🔹 Update a verb
 updateVerb:
-UPDATE VerbEntity SET conjugation = ?, tenseForms = ? WHERE id = ?;
+UPDATE VerbEntity SET conjugation = ?, management = ? WHERE id = ?;
 
 -- 🔹 Delete a verb
 deleteVerbById:

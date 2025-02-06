@@ -33,9 +33,9 @@ import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.test.di.testModule
 import com.vocabri.test.rule.KoinTestRule
-import com.vocabri.ui.dictionarydetails.DictionaryDetailsScreen
-import com.vocabri.ui.dictionarydetails.model.WordUiModel
-import com.vocabri.ui.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.DictionaryDetailsScreen
+import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.theme.VocabriTheme
 import io.mockk.mockk
 import io.mockk.verify
@@ -60,15 +60,13 @@ class DictionaryDetailsNavigationRouteTest {
 
     @Test
     fun testInLoadingStateNoPatOfSpeechInTitleShown() {
-        val viewModel = TestDictionaryDetailsViewModel()
-        viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.NOUN)
+        val viewModel = TestDictionaryDetailsViewModel(PartOfSpeech.NOUN)
 
         composeTestRule.setContent {
             VocabriTheme {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
                     navController = navController,
-                    wordGroup = PartOfSpeech.NOUN.name,
                 )
             }
         }
@@ -78,8 +76,7 @@ class DictionaryDetailsNavigationRouteTest {
 
     @Test
     fun testBackButtonInWordsLoadedState() {
-        val viewModel = TestDictionaryDetailsViewModel()
-        viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.VERB)
+        val viewModel = TestDictionaryDetailsViewModel(PartOfSpeech.VERB)
 
         viewModel.setState(
             DictionaryDetailsState.WordsLoaded(
@@ -101,7 +98,6 @@ class DictionaryDetailsNavigationRouteTest {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
                     navController = navController,
-                    wordGroup = PartOfSpeech.VERB.name,
                 )
             }
         }
@@ -113,8 +109,7 @@ class DictionaryDetailsNavigationRouteTest {
 
     @Test
     fun testWordsDisplayedInWordsLoadedState() {
-        val viewModel = TestDictionaryDetailsViewModel()
-        viewModel.setCurrentPartOfSpeechForTest(PartOfSpeech.NOUN)
+        val viewModel = TestDictionaryDetailsViewModel(PartOfSpeech.NOUN)
 
         viewModel.setState(
             DictionaryDetailsState.WordsLoaded(
@@ -136,7 +131,6 @@ class DictionaryDetailsNavigationRouteTest {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
                     navController = navController,
-                    wordGroup = PartOfSpeech.NOUN.name,
                 )
             }
         }

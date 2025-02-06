@@ -28,6 +28,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.vocabri.logger.logger
+import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.KoinAndroidContext
 
@@ -43,7 +44,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             VocabriTheme {
                 KoinAndroidContext {
-                    MainScreen()
+                    MainScreen(routes = bottomNavigationScreens)
                 }
             }
         }
@@ -72,5 +73,15 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         log.i { "onDestroy called" }
         super.onDestroy()
+    }
+
+    companion object {
+        private val bottomNavigationScreens = listOf(
+            NavigationRoute.Start.Dictionary,
+            NavigationRoute.Start.Training,
+            NavigationRoute.Empty,
+            NavigationRoute.Start.DiscoverMore,
+            NavigationRoute.Start.Settings,
+        )
     }
 }

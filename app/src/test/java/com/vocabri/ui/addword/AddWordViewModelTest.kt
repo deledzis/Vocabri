@@ -30,9 +30,9 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.rules.MainDispatcherRule
-import com.vocabri.ui.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.addword.viewmodel.AddWordState
-import com.vocabri.ui.addword.viewmodel.AddWordViewModel
+import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
+import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.utils.IdGenerator
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -153,6 +153,10 @@ class AddWordViewModelTest {
         viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
         viewModel.handleEvent(AddWordEvent.AddTranslation)
         viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
+        viewModel.handleEvent(AddWordEvent.UpdateCurrentConjugation("regular"))
+        viewModel.handleEvent(AddWordEvent.AddConjugation)
+        viewModel.handleEvent(AddWordEvent.UpdateCurrentManagement("auf + Akk."))
+        viewModel.handleEvent(AddWordEvent.AddManagement)
 
         // Act
         viewModel.handleEvent(AddWordEvent.SaveWord)
@@ -170,7 +174,7 @@ class AddWordViewModelTest {
             ),
             examples = emptyList(),
             conjugation = "regular",
-            tenseForms = "present",
+            management = "auf + Akk.",
         )
 
         coVerify(exactly = 1) {
@@ -198,5 +202,26 @@ class AddWordViewModelTest {
         assertTrue(state is AddWordState.Error)
         state as AddWordState.Error
         assertEquals("Failed to save the word", state.message)
+    }
+
+    @Test
+    fun `saveWord sets saved state when repository throws word is already saved error`() = runTest {
+        // Arrange
+        val errorMessage = "Failed to save the word"
+        coEvery { addWordUseCase.execute(any()) } throws IllegalStateException(errorMessage)
+
+        // Act
+        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
+        viewModel.handleEvent(AddWordEvent.AddTranslation)
+        viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
+        viewModel.handleEvent(AddWordEvent.SaveWord)
+        advanceUntilIdle()
+
+        // Assert
+        coVerify(exactly = 1) {
+            addWordUseCase.execute(any())
+        }
+        assertEquals(AddWordState.Saved, viewModel.state.first())
     }
 }
