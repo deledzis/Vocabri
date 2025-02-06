@@ -62,25 +62,26 @@ import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun TextFieldWithButton(
+    modifier: Modifier = Modifier,
     value: String,
     @StringRes placeholderResId: Int,
     @StringRes buttonContentDescriptionResId: Int,
     buttonVisible: Boolean,
     onValueChange: (String) -> Unit,
-    onFocusChanged: (Boolean) -> Unit,
-    onAddValueClicked: () -> Unit,
+    onFocusChange: (Boolean) -> Unit,
+    onAddValueClick: () -> Unit,
 ) {
     Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(IntrinsicSize.Min),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         TextField(
             modifier = Modifier
                 .weight(1.0f)
                 .onFocusChanged { focusState ->
-                    onFocusChanged(focusState.isFocused)
+                    onFocusChange(focusState.isFocused)
                 },
             value = value,
             onValueChange = onValueChange,
@@ -96,7 +97,7 @@ fun TextFieldWithButton(
                 imeAction = ImeAction.Done,
             ),
             keyboardActions = KeyboardActions(
-                onDone = { onAddValueClicked() },
+                onDone = { onAddValueClick() },
             ),
             colors = TextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
@@ -109,7 +110,7 @@ fun TextFieldWithButton(
 
         AnimatedVisibility(visible = buttonVisible) {
             IconButton(
-                onClick = { onAddValueClicked() },
+                onClick = { onAddValueClick() },
                 modifier = Modifier
                     .padding(start = 4.dp)
                     .fillMaxHeight()
@@ -162,8 +163,8 @@ private fun PreviewTextFieldWithButton() {
                     buttonContentDescriptionResId = R.string.add_translation,
                     buttonVisible = true,
                     onValueChange = {},
-                    onFocusChanged = {},
-                    onAddValueClicked = {},
+                    onFocusChange = {},
+                    onAddValueClick = {},
                 )
             }
             item {
@@ -173,8 +174,8 @@ private fun PreviewTextFieldWithButton() {
                     buttonContentDescriptionResId = R.string.add_example,
                     buttonVisible = true,
                     onValueChange = {},
-                    onFocusChanged = {},
-                    onAddValueClicked = {},
+                    onFocusChange = {},
+                    onAddValueClick = {},
                 )
             }
         }

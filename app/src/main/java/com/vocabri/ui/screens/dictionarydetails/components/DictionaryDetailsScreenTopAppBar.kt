@@ -42,8 +42,13 @@ import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DictionaryDetailsScreenTopAppBar(state: DictionaryDetailsState, navController: NavController) {
+fun DictionaryDetailsScreenTopAppBar(
+    modifier: Modifier = Modifier,
+    state: DictionaryDetailsState,
+    navController: NavController,
+) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 text = stringResource(state.titleId),

@@ -28,13 +28,15 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.vocabri.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DiscoverMoreScreenTopAppBar() {
+fun DiscoverMoreScreenTopAppBar(modifier: Modifier = Modifier) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 text = stringResource(R.string.navigation_screen_title_discover_more),

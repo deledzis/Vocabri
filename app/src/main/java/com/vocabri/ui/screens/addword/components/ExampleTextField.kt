@@ -45,21 +45,20 @@ import com.vocabri.ui.theme.VocabriTheme
 @Composable
 fun ExampleTextField(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         TextFieldWithButton(
             value = state.currentExample,
             placeholderResId = R.string.add_example_placeholder,
             buttonContentDescriptionResId = R.string.add_example,
             buttonVisible = state.showAddExampleButton,
-            onFocusChanged = { onEvent(AddWordEvent.OnExampleFieldFocusChange(it)) },
+            onFocusChange = { onEvent(AddWordEvent.OnExampleFieldFocusChange(it)) },
             onValueChange = { onEvent(AddWordEvent.UpdateCurrentExample(it)) },
-            onAddValueClicked = { onEvent(AddWordEvent.AddExample) },
+            onAddValueClick = { onEvent(AddWordEvent.AddExample) },
         )
         if (state.examples.isNotEmpty()) {
             ChipsFlowRow(
-                modifier = modifier,
                 items = state.examples,
                 removable = true,
                 removeButtonContentDescriptionResId = R.string.remove_example,

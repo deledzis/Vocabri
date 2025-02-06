@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+    <ManuallySuppressedIssues />
+    <CurrentIssues>
+        <ID>CyclomaticComplexMethod:AddWordViewModel.kt$AddWordViewModel$fun handleEvent(event: AddWordEvent)</ID>
+        <ID>TooManyFunctions:AddWordViewModel.kt$AddWordViewModel : ViewModel</ID>
+    </CurrentIssues>
+</SmellBaseline>

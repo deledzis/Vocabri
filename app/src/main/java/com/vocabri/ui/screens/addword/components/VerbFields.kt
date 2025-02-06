@@ -50,12 +50,11 @@ fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEve
             buttonContentDescriptionResId = R.string.add_conjugation,
             buttonVisible = state.showAddConjugationButton,
             onValueChange = { onEvent(AddWordEvent.UpdateCurrentConjugation(it)) },
-            onFocusChanged = { onEvent(AddWordEvent.OnConjugationFieldFocusChange(it)) },
-            onAddValueClicked = { onEvent(AddWordEvent.AddConjugation) },
+            onFocusChange = { onEvent(AddWordEvent.OnConjugationFieldFocusChange(it)) },
+            onAddValueClick = { onEvent(AddWordEvent.AddConjugation) },
         )
         if (state.conjugations.isNotEmpty()) {
             ChipsFlowRow(
-                modifier = modifier,
                 items = state.conjugations,
                 removable = true,
                 removeButtonContentDescriptionResId = R.string.remove_conjugation,
@@ -71,12 +70,11 @@ fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEve
             buttonContentDescriptionResId = R.string.add_management,
             buttonVisible = state.showAddManagementButton,
             onValueChange = { onEvent(AddWordEvent.UpdateCurrentManagement(it)) },
-            onFocusChanged = { onEvent(AddWordEvent.OnManagementFieldFocusChange(it)) },
-            onAddValueClicked = { onEvent(AddWordEvent.AddManagement) },
+            onFocusChange = { onEvent(AddWordEvent.OnManagementFieldFocusChange(it)) },
+            onAddValueClick = { onEvent(AddWordEvent.AddManagement) },
         )
         if (state.managements.isNotEmpty()) {
             ChipsFlowRow(
-                modifier = modifier,
                 items = state.managements,
                 removable = true,
                 removeButtonContentDescriptionResId = R.string.remove_management,

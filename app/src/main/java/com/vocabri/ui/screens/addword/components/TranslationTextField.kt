@@ -45,22 +45,21 @@ import com.vocabri.ui.theme.VocabriTheme
 @Composable
 fun TranslationTextField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         TextFieldWithButton(
             value = state.currentTranslation,
             placeholderResId = R.string.add_translation_placeholder,
             buttonContentDescriptionResId = R.string.add_translation,
             buttonVisible = state.showAddTranslationButton,
-            onFocusChanged = { onEvent(AddWordEvent.OnTranslationFieldFocusChange(it)) },
+            onFocusChange = { onEvent(AddWordEvent.OnTranslationFieldFocusChange(it)) },
             onValueChange = { onEvent(AddWordEvent.UpdateCurrentTranslation(it)) },
-            onAddValueClicked = { onEvent(AddWordEvent.AddTranslation) },
+            onAddValueClick = { onEvent(AddWordEvent.AddTranslation) },
         )
 
         if (state.translations.isNotEmpty()) {
             ChipsFlowRow(
-                modifier = modifier,
                 items = state.translations,
                 removable = true,
                 removeButtonContentDescriptionResId = R.string.remove_translation,

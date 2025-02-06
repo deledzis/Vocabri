@@ -39,8 +39,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.logger.logger
-import com.vocabri.ui.main.NavigationRoutes.bottomNavigationScreens
 import com.vocabri.ui.navigation.AppNavigation
 import com.vocabri.ui.navigation.MainBottomNavigation
 import com.vocabri.ui.navigation.NavigationRoute
@@ -53,21 +51,9 @@ import com.vocabri.ui.screens.settings.components.SettingsScreenTopAppBar
 import com.vocabri.ui.screens.training.components.TrainingScreenTopAppBar
 import org.koin.androidx.compose.koinViewModel
 
-object NavigationRoutes {
-    val bottomNavigationScreens = listOf(
-        NavigationRoute.Start.Dictionary,
-        NavigationRoute.Start.Training,
-        NavigationRoute.Empty,
-        NavigationRoute.Start.DiscoverMore,
-        NavigationRoute.Start.Settings,
-    )
-}
-
-val log = logger("MainScreen")
-
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(modifier: Modifier = Modifier, routes: List<NavigationRoute>) {
     val navController = rememberNavController()
     val focusManager = LocalFocusManager.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -77,7 +63,6 @@ fun MainScreen(modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            log.i { "CURRENT ROUTE $currentRoute" }
             when (currentRoute) {
                 NavigationRoute.Start.Dictionary.route -> DictionaryScreenTopAppBar()
                 NavigationRoute.Start.Training.route -> TrainingScreenTopAppBar()
@@ -103,13 +88,13 @@ fun MainScreen(modifier: Modifier = Modifier) {
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = currentRoute in bottomNavigationScreens.map { it.route },
+                visible = currentRoute in routes.map { it.route },
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
                 MainBottomNavigation(
                     navController = navController,
-                    navigationRoutes = bottomNavigationScreens,
+                    navigationRoutes = routes,
                 ) {
                     if (navController.currentDestination?.route != NavigationRoute.Secondary.AddWord.route) {
                         navController.navigate(NavigationRoute.Secondary.AddWord.route) {

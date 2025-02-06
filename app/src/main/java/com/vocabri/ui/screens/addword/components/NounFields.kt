@@ -52,7 +52,6 @@ import com.vocabri.ui.theme.VocabriTheme
 fun NounFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         ChipsFlowRow(
-            modifier = modifier,
             items = WordGender.entries,
             removable = false,
             itemPrintableName = { it.article },

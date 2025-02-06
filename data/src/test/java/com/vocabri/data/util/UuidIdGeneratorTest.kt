@@ -52,7 +52,7 @@ class UuidIdGeneratorTest {
         try {
             UUID.fromString(id)
         } catch (e: IllegalArgumentException) {
-            fail("Generated ID should be a valid UUID. Received: $id")
+            fail("Generated ID should be a valid UUID. Received: $id, e: $e")
         }
     }
 
@@ -61,7 +61,7 @@ class UuidIdGeneratorTest {
         val generatedIds = mutableSetOf<String>()
         val iterations = 1000
 
-        for (i in 0 until iterations) {
+        repeat(iterations) {
             val id = generator.generateStringId()
             assertFalse("Duplicate ID detected: $id", generatedIds.contains(id))
             generatedIds.add(id)

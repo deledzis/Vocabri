@@ -42,8 +42,9 @@ import com.vocabri.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddWordScreenTopAppBar(focusManager: FocusManager, navController: NavController) {
+fun AddWordScreenTopAppBar(modifier: Modifier = Modifier, focusManager: FocusManager, navController: NavController) {
     TopAppBar(
+        modifier = modifier,
         title = {
             Text(
                 text = stringResource(R.string.add_word),

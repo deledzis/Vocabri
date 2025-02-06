@@ -60,7 +60,7 @@ class TimeBasedIdGeneratorTest {
         val generatedIds = mutableSetOf<String>()
         val iterations = 1000
 
-        for (i in 0 until iterations) {
+        repeat(iterations) {
             val id = generator.generateStringId()
             assertFalse("Duplicate ID detected: $id", generatedIds.contains(id))
             generatedIds.add(id)
