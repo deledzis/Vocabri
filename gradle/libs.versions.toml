@@ -15,7 +15,7 @@ compose-rules = "0.4.22"
 koin = "4.0.2"
 sqldelight = "2.0.2"
 kermit = "2.0.5"
-crashlytics = "3.0.2"
+crashlytics = "3.0.3"
 
 # android libs
 appcompat = "1.7.0"
