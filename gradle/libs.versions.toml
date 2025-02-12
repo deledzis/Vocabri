@@ -25,7 +25,7 @@ viewmodel = "2.8.7"
 compose-bom = "2025.01.01"
 compose-navigation = "2.8.6"
 flowlayout = "0.36.0"
-google-fonts = "1.7.7"
+google-fonts = "1.7.8"
 firebase-bom = "33.9.0"
 
 # testing
