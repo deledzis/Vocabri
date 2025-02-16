@@ -80,11 +80,8 @@ fun DictionaryScreen(
     val log = logger("DictionaryScreen")
     val state by viewModel.state.collectAsState()
 
-    log.i { "DictionaryScreen is displayed" }
-
     LaunchedEffect(viewModel) {
-        log.i { "Triggering initial load of words" }
-        viewModel.handleEvent(DictionaryEvent.LoadWords)
+        log.i { "DictionaryScreen is displayed" }
     }
 
     DictionaryScreenRoot(modifier = modifier, state = state) { event ->
@@ -92,10 +89,6 @@ fun DictionaryScreen(
         when (event) {
             is DictionaryEvent.AddWordClicked -> {
                 navController.navigate(NavigationRoute.Secondary.AddWord.route)
-            }
-
-            is DictionaryEvent.LoadWords -> {
-                viewModel.handleEvent(event)
             }
 
             is DictionaryEvent.OnGroupCardClicked -> {

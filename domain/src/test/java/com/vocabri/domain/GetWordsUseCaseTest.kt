@@ -24,6 +24,7 @@
 package com.vocabri.domain
 
 import com.vocabri.domain.fake.FakeWordRepositoryImpl
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
@@ -67,7 +68,7 @@ class GetWordsUseCaseTest {
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
 
-        val words = getWordsUseCase.execute()
+        val words = getWordsUseCase.execute(partOfSpeech = PartOfSpeech.ALL)
 
         assertEquals(2, words.size)
         assertEquals("lernen", words[0].text)

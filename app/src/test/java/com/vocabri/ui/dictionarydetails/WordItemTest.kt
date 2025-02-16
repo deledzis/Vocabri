@@ -49,7 +49,7 @@ class WordItemTest {
             text = "lernen",
             translations = "learn",
             examples = "Ich lerne",
-            partOfSpeech = PartOfSpeech.VERB.toString(),
+            partOfSpeech = PartOfSpeech.VERB,
         )
 
         composeRule.setContent {
@@ -66,7 +66,7 @@ class WordItemTest {
             text = "lernen",
             translations = "learn, study",
             examples = "Ich lerne",
-            partOfSpeech = PartOfSpeech.VERB.toString(),
+            partOfSpeech = PartOfSpeech.VERB,
         )
 
         composeRule.setContent {

@@ -29,6 +29,7 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Implementation of the WordsRepository interface that delegates to WordDataSource.
@@ -37,15 +38,9 @@ class WordRepositoryImpl(private val wordDataSource: WordDataSource) : WordRepos
 
     private val log = logger()
 
-    /**
-     * Retrieves all words from the data source.
-     */
-    override suspend fun getAllWords(): List<Word> {
-        log.i { "getAllWords called" }
-        // Passing null to getWordsByPartOfSpeech means "fetch all words".
-        val words = wordDataSource.getWordsByPartOfSpeech(partOfSpeech = null)
-        log.i { "Fetched ${words.size} words in total" }
-        return words
+    override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> {
+        log.i { "observeWordsByPartOfSpeech called for $partOfSpeech" }
+        return wordDataSource.observeWordsByPartOfSpeech(partOfSpeech)
     }
 
     /**

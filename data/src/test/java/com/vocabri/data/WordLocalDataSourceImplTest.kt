@@ -27,6 +27,7 @@ import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
 import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.data.test.FakeVocabriDatabase.createTestJdbcSqlDriver
 import com.vocabri.domain.model.word.Example
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
@@ -57,7 +58,7 @@ class WordLocalDataSourceImplTest {
     }
 
     private suspend fun WordLocalDataSourceImpl.getWordByIdForTest(id: String): Word? =
-        getWordsByPartOfSpeech(null).find { it.id == id }
+        getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL).find { it.id == id }
 
     @Test
     fun `addWord adds word and its details to database`() = runTest {
@@ -110,7 +111,7 @@ class WordLocalDataSourceImplTest {
         dataSource.insertWord(word1)
         dataSource.insertWord(word2)
 
-        val results = dataSource.getWordsByPartOfSpeech(null)
+        val results = dataSource.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
 
         assertEquals(2, results.size)
 
@@ -140,7 +141,7 @@ class WordLocalDataSourceImplTest {
         val resultWord = dataSource.getWordByIdForTest("non-existent-id")
         assertNull(resultWord)
 
-        val allWords = dataSource.getWordsByPartOfSpeech(null)
+        val allWords = dataSource.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertTrue(allWords.isEmpty())
     }
 }

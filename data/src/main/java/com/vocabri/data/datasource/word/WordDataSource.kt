@@ -25,6 +25,7 @@ package com.vocabri.data.datasource.word
 
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Data layer interface for local word data operations.
@@ -35,7 +36,9 @@ interface WordDataSource {
      * Retrieves a list of words filtered by the given part of speech.
      * If partOfSpeech is null, then all words should be returned.
      */
-    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech?): List<Word>
+    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word>
+
+    fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>>
 
     /**
      * Inserts a new word (and related entities) into the database.

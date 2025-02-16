@@ -39,6 +39,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
 import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.ui.main.viewmodel.MainEvent
+import com.vocabri.ui.main.viewmodel.MainViewModel
 import com.vocabri.ui.navigation.AppNavigation
 import com.vocabri.ui.navigation.MainBottomNavigation
 import com.vocabri.ui.navigation.NavigationRoute
@@ -53,7 +55,8 @@ import org.koin.androidx.compose.koinViewModel
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, routes: List<NavigationRoute>) {
+fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinViewModel()) {
+    val state by viewModel.state.collectAsState()
     val navController = rememberNavController()
     val focusManager = LocalFocusManager.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -77,24 +80,25 @@ fun MainScreen(modifier: Modifier = Modifier, routes: List<NavigationRoute>) {
 
                 NavigationRoute.Secondary.DictionaryDetails.route -> {
                     val partOfSpeech = navBackStackEntry!!.arguments?.getString("partOfSpeech").orEmpty()
-                    val viewModel: DictionaryDetailsViewModel = koinViewModel(
+                    val dictionaryDetailsViewModel: DictionaryDetailsViewModel = koinViewModel(
                         qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(PartOfSpeech.valueOf(partOfSpeech)),
                         viewModelStoreOwner = navBackStackEntry!!,
                     )
-                    val uiState by viewModel.state.collectAsState()
+                    val uiState by dictionaryDetailsViewModel.state.collectAsState()
                     DictionaryDetailsScreenTopAppBar(state = uiState, navController = navController)
                 }
             }
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = currentRoute in routes.map { it.route },
+                visible = currentRoute in state.routes.map { it.route },
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
                 MainBottomNavigation(
                     navController = navController,
-                    navigationRoutes = routes,
+                    navigationRoutes = state.routes,
+                    onPlusButtonLongClick = { viewModel.handleEvent(MainEvent.OnPlusButtonLongClick) },
                 ) {
                     if (navController.currentDestination?.route != NavigationRoute.Secondary.AddWord.route) {
                         navController.navigate(NavigationRoute.Secondary.AddWord.route) {

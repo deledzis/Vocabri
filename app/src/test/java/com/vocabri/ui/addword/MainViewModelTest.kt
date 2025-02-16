@@ -51,7 +51,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class AddWordViewModelTest {
+class MainViewModelTest {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()

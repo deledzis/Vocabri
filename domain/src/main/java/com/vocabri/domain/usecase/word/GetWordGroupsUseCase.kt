@@ -51,7 +51,7 @@ class GetWordGroupsUseCase(private val wordRepository: WordRepository) {
         log.i { "Executing GetWordGroupsUseCase" }
 
         // 1. Get all words from the repository
-        val words: List<Word> = wordRepository.getAllWords()
+        val words: List<Word> = wordRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
 
         // 2. Group them by the result of word.toPartOfSpeech()
         val groupedMap = words.groupBy { it.toPartOfSpeech() }

@@ -94,13 +94,13 @@ class WordRepositoryImplTest {
             ),
         )
 
-        coEvery { localDataSource.getWordsByPartOfSpeech(null) } returns storedWords
+        coEvery { localDataSource.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL) } returns storedWords
 
         // -- When --
-        val result = repository.getAllWords()
+        val result = repository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
 
         // -- Then --
-        coVerify { localDataSource.getWordsByPartOfSpeech(null) }
+        coVerify { localDataSource.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL) }
         assertEquals(2, result.size)
         assertEquals("lernen", result[0].text)
         assertEquals("Haus", result[1].text)

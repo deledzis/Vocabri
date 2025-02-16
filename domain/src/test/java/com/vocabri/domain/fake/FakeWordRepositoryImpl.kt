@@ -27,14 +27,16 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class FakeWordRepositoryImpl : WordRepository {
     private val words = mutableListOf<Word>()
 
-    override suspend fun getAllWords(): List<Word> = words
+    override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> = flowOf(words)
 
     override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> =
-        words.filter { it.toPartOfSpeech() == partOfSpeech }
+        if (partOfSpeech == PartOfSpeech.ALL) words else words.filter { it.toPartOfSpeech() == partOfSpeech }
 
     override suspend fun insertWord(word: Word) {
         val wordExists = words

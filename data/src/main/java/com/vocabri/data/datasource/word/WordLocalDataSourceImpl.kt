@@ -23,6 +23,8 @@
  */
 package com.vocabri.data.datasource.word
 
+import app.cash.sqldelight.coroutines.asFlow
+import app.cash.sqldelight.coroutines.mapToList
 import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.domain.model.word.Example
 import com.vocabri.domain.model.word.PartOfSpeech
@@ -30,6 +32,10 @@ import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
 import com.vocabri.logger.logger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 /**
  * Implementation of the WordDataSource interface using SQLDelight for local storage.
@@ -150,102 +156,106 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
     }
 
     /**
-     * Retrieves words by part of speech (or all if null).
+     * Retrieves words by part of speech.
      */
-    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech?): List<Word> {
+    override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> {
         log.i { "getWordsByPartOfSpeech invoked with partOfSpeech = $partOfSpeech" }
+        return observeWordsByPartOfSpeech(partOfSpeech).first()
+    }
 
-        val baseWords = try {
-            database.wordQueries.selectAllWords().executeAsList()
-        } catch (e: Exception) {
-            log.e { "Error querying WordBaseEntity: ${e.message}" }
-            throw e
-        }
+    /**
+     * Returns a reactive flow of words filtered by partOfSpeech.
+     */
+    override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> = database.wordQueries
+        .selectAllWords()
+        .asFlow()
+        .mapToList(context = Dispatchers.IO)
+        .map { baseWords ->
+            log.i { "Base words updated. Count = ${baseWords.size}" }
 
-        log.i { "Fetched base words count: ${baseWords.size}" }
+            val domainWords = baseWords.map { wordBase ->
+                // 1) Fetch translations
+                val translations = database.wordQueries
+                    .selectTranslationsByWordId(wordBase.id)
+                    .executeAsList()
+                    .map { Translation(id = it.id, translation = it.translation) }
 
-        val domainWords = baseWords.map { wordBase ->
-            // Fetch translations
-            val translations = database.wordQueries.selectTranslationsByWordId(wordBase.id)
-                .executeAsList()
-                .map { Translation(id = it.id, translation = it.translation) }
+                // 2) Fetch examples
+                val examples = database.wordQueries
+                    .selectExamplesByWordId(wordBase.id)
+                    .executeAsList()
+                    .map { Example(id = it.id, example = it.example) }
 
-            // Fetch examples
-            val examples = database.wordQueries.selectExamplesByWordId(wordBase.id)
-                .executeAsList()
-                .map { Example(id = it.id, example = it.example) }
+                // 3) Check which specialized entity exists
+                val nounEntity = database.wordQueries.selectNounById(wordBase.id).executeAsOneOrNull()
+                if (nounEntity != null) {
+                    return@map Word.Noun(
+                        id = wordBase.id,
+                        text = wordBase.text,
+                        translations = translations,
+                        examples = examples,
+                        gender = WordGender.fromString(nounEntity.gender),
+                        pluralForm = nounEntity.pluralForm,
+                    )
+                }
 
-            // Determine part of speech by trying to fetch from each specialized entity
-            val nounEntity = database.wordQueries.selectNounById(wordBase.id).executeAsOneOrNull()
-            if (nounEntity != null) {
-                return@map Word.Noun(
-                    id = wordBase.id,
-                    text = wordBase.text,
-                    translations = translations,
-                    examples = examples,
-                    gender = WordGender.fromString(nounEntity.gender),
-                    pluralForm = nounEntity.pluralForm,
-                )
-            }
+                val verbEntity = database.wordQueries.selectVerbById(wordBase.id).executeAsOneOrNull()
+                if (verbEntity != null) {
+                    return@map Word.Verb(
+                        id = wordBase.id,
+                        text = wordBase.text,
+                        translations = translations,
+                        examples = examples,
+                        conjugation = verbEntity.conjugation,
+                        management = verbEntity.management,
+                    )
+                }
 
-            val verbEntity = database.wordQueries.selectVerbById(wordBase.id).executeAsOneOrNull()
-            if (verbEntity != null) {
-                return@map Word.Verb(
-                    id = wordBase.id,
-                    text = wordBase.text,
-                    translations = translations,
-                    examples = examples,
-                    //  TODO: split into list?
-                    conjugation = verbEntity.conjugation,
-                    management = verbEntity.management,
-                )
-            }
+                val adjEntity = database.wordQueries.selectAdjectiveById(wordBase.id).executeAsOneOrNull()
+                if (adjEntity != null) {
+                    return@map Word.Adjective(
+                        id = wordBase.id,
+                        text = wordBase.text,
+                        translations = translations,
+                        examples = examples,
+                        comparative = adjEntity.comparative,
+                        superlative = adjEntity.superlative,
+                    )
+                }
 
-            val adjEntity = database.wordQueries.selectAdjectiveById(wordBase.id).executeAsOneOrNull()
-            if (adjEntity != null) {
-                return@map Word.Adjective(
-                    id = wordBase.id,
-                    text = wordBase.text,
-                    translations = translations,
-                    examples = examples,
-                    comparative = adjEntity.comparative,
-                    superlative = adjEntity.superlative,
-                )
-            }
+                val advEntity = database.wordQueries.selectAdverbById(wordBase.id).executeAsOneOrNull()
+                if (advEntity != null) {
+                    return@map Word.Adverb(
+                        id = wordBase.id,
+                        text = wordBase.text,
+                        translations = translations,
+                        examples = examples,
+                        comparative = advEntity.comparative,
+                        superlative = advEntity.superlative,
+                    )
+                }
 
-            val advEntity = database.wordQueries.selectAdverbById(wordBase.id).executeAsOneOrNull()
-            if (advEntity != null) {
-                return@map Word.Adverb(
-                    id = wordBase.id,
-                    text = wordBase.text,
-                    translations = translations,
-                    examples = examples,
-                    comparative = advEntity.comparative,
-                    superlative = advEntity.superlative,
-                )
-            } else {
+                // If we get here, we have an unknown POS
                 error("Unknown part of speech for word with ID = ${wordBase.id}")
             }
-        }
 
-        // Filter by partOfSpeech if needed
-        if (partOfSpeech == null) {
-            log.i { "Returning all words, total count = $domainWords" }
-            return domainWords
-        }
-
-        val filtered = domainWords.filter { word ->
-            when (word) {
-                is Word.Noun -> partOfSpeech == PartOfSpeech.NOUN
-                is Word.Verb -> partOfSpeech == PartOfSpeech.VERB
-                is Word.Adjective -> partOfSpeech == PartOfSpeech.ADJECTIVE
-                is Word.Adverb -> partOfSpeech == PartOfSpeech.ADVERB
+            // 4) Filter by partOfSpeech if needed
+            if (partOfSpeech == PartOfSpeech.ALL) {
+                log.i { "Returning ALL domain words. Count = ${domainWords.size}" }
+                domainWords
+            } else {
+                val filtered = domainWords.filter { word ->
+                    when (word) {
+                        is Word.Noun -> partOfSpeech == PartOfSpeech.NOUN
+                        is Word.Verb -> partOfSpeech == PartOfSpeech.VERB
+                        is Word.Adjective -> partOfSpeech == PartOfSpeech.ADJECTIVE
+                        is Word.Adverb -> partOfSpeech == PartOfSpeech.ADVERB
+                    }
+                }
+                log.i { "Returning FILTERED words. Count = ${filtered.size}" }
+                filtered
             }
         }
-
-        log.i { "Returning filtered words, total count = ${filtered.size}" }
-        return filtered
-    }
 
     /**
      * Deletes a word and all related records from the database.

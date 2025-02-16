@@ -25,16 +25,14 @@ package com.vocabri.domain.repository
 
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
+import kotlinx.coroutines.flow.Flow
 
 /**
  * Repository interface for managing Word data.
  */
 interface WordRepository {
 
-    /**
-     * Retrieves all words from the data source.
-     */
-    suspend fun getAllWords(): List<Word>
+    fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>>
 
     /**
      * Retrieves words by a specific part of speech from the data source.

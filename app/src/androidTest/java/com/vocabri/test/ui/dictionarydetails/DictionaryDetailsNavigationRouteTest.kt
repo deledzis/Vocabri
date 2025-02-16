@@ -24,7 +24,6 @@
 package com.vocabri.test.ui.dictionarydetails
 
 import androidx.compose.ui.test.junit4.createComposeRule
-import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
@@ -71,7 +70,7 @@ class DictionaryDetailsNavigationRouteTest {
             }
         }
 
-        composeTestRule.onNodeWithText("Loading").assertExists()
+        composeTestRule.onNodeWithText("Loading").assertDoesNotExist()
     }
 
     @Test
@@ -87,7 +86,7 @@ class DictionaryDetailsNavigationRouteTest {
                         text = "lernen",
                         translations = "learn",
                         examples = "Ich lerne",
-                        partOfSpeech = PartOfSpeech.VERB.toString(),
+                        partOfSpeech = PartOfSpeech.VERB,
                     ),
                 ),
             ),
@@ -102,7 +101,7 @@ class DictionaryDetailsNavigationRouteTest {
             }
         }
 
-        composeTestRule.onNodeWithContentDescription("Back").assertExists().performClick()
+        composeTestRule.onNodeWithText("lernen").assertExists().performClick()
 
         verify { navController.popBackStack() }
     }
@@ -120,7 +119,7 @@ class DictionaryDetailsNavigationRouteTest {
                         text = "Haus",
                         translations = "house",
                         examples = "Das ist ein Haus",
-                        partOfSpeech = PartOfSpeech.NOUN.toString(),
+                        partOfSpeech = PartOfSpeech.NOUN,
                     ),
                 ),
             ),

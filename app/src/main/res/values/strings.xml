@@ -31,6 +31,7 @@
 
     <!-- Dictionary details screen -->
     <string name="dictionary_details_delete_word">Delete word</string>
+    <string name="dictionary_details_search_words">Search words</string>
 
     <!-- Add word screen -->
     <string name="add_word">Add Word</string>
