@@ -53,3 +53,4 @@ include(":core:logger")
 include(":core:utils")
 
 gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
+include(":shared")

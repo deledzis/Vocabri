@@ -74,7 +74,8 @@ class GetWordGroupsUseCaseTest {
             superlative = null,
         )
 
-        coEvery { repository.getAllWords() } returns listOf(word1, word2, word3)
+        coEvery { repository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL) } returns
+            listOf(word1, word2, word3)
 
         val result = getWordGroupsUseCase.execute()
 
@@ -96,7 +97,7 @@ class GetWordGroupsUseCaseTest {
 
     @Test
     fun `execute returns empty group if no words exist`() = runTest {
-        coEvery { repository.getAllWords() } returns emptyList()
+        coEvery { repository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL) } returns emptyList()
 
         val result = getWordGroupsUseCase.execute()
 

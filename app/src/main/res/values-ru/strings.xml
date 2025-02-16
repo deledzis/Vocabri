@@ -29,6 +29,7 @@
 
     <!-- Dictionary details screen -->
     <string name="dictionary_details_delete_word">Удалить слово</string>
+    <string name="dictionary_details_search_words">Search words</string>
 
     <!-- Add word screen -->
     <string name="add_word">Добавить слово</string>

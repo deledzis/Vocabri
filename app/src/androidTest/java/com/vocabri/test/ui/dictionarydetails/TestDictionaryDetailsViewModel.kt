@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.update
 class TestDictionaryDetailsViewModel(partOfSpeech: PartOfSpeech) :
     DictionaryDetailsViewModel(
         partOfSpeech = partOfSpeech,
-        getWordsUseCase = mockk(),
+        observeWordsUseCase = mockk(),
         deleteWordUseCase = mockk(),
         ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
     ) {

@@ -24,62 +24,68 @@
 package com.vocabri.ui.screens.dictionary.viewmodel
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.vocabri.R
 import com.vocabri.domain.model.word.WordGroup
 import com.vocabri.domain.repository.ResourcesRepository
-import com.vocabri.domain.usecase.word.GetWordGroupsUseCase
+import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
 open class DictionaryViewModel(
-    private val getWordGroupsUseCase: GetWordGroupsUseCase,
+    private val observeWordGroupsUseCase: ObserveWordGroupsUseCase,
     private val resourcesRepository: ResourcesRepository,
     private val ioScope: CoroutineScope,
 ) : ViewModel() {
 
     private val log = logger()
 
-    private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Empty)
+    private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Loading)
     open val state: StateFlow<DictionaryState> = _state
 
-    private var loadJob: Job? = null
-
-    // Handles UI events triggered by the Dictionary screen.
-    fun handleEvent(event: DictionaryEvent) {
-        when (event) {
-            is DictionaryEvent.LoadWords -> loadWordGroups()
-            is DictionaryEvent.OnGroupCardClicked -> Unit // No action needed
-            is DictionaryEvent.AddWordClicked -> Unit // No action needed
-        }
+    init {
+        observeWordGroups()
     }
 
-    // Loads groups of words by part of speech.
-    private fun loadWordGroups() {
-        loadJob?.cancel()
-        loadJob = ioScope.launch {
-            _state.value = DictionaryState.Loading
-            try {
-                val wordGroups = getWordGroupsUseCase.execute()
-                val allWordsGroupUiModel = wordGroups.allWords.toUiModel()
-                val groupsUiModel = wordGroups.groups.map { it.toUiModel() }
-                _state.value = if (groupsUiModel.isEmpty()) {
-                    DictionaryState.Empty
-                } else {
-                    DictionaryState.GroupsLoaded(allWords = allWordsGroupUiModel, groups = groupsUiModel)
+    private fun observeWordGroups() {
+        viewModelScope.launch(ioScope.coroutineContext) {
+            observeWordGroupsUseCase.execute()
+                .onStart {
+                    _state.value = DictionaryState.Loading
                 }
-            } catch (e: CancellationException) {
-                log.w(e) { "loadWordGroups was cancelled" }
-            } catch (e: Exception) {
-                log.w(e) { "loadWordGroups failed due to exception: $e" }
-                _state.value = DictionaryState.Error("Failed to load word groups, please try again later.")
-            }
+                .catch { throwable ->
+                    when (throwable) {
+                        is CancellationException -> {
+                            log.w(throwable) { "observeWordGroups was cancelled: $throwable" }
+                        }
+
+                        else -> {
+                            log.w(throwable) { "observeWordGroups failed due to exception: $throwable" }
+                            _state.value = DictionaryState.Error("Failed to load data, please try again later.")
+                        }
+                    }
+                }
+                .collect { wordGroups ->
+                    val allWordsGroupUiModel = wordGroups.allWords.toUiModel()
+                    val groupsUiModel = wordGroups.groups.map { it.toUiModel() }
+
+                    _state.value = if (groupsUiModel.isEmpty()) {
+                        DictionaryState.Empty
+                    } else {
+                        DictionaryState.GroupsLoaded(
+                            allWords = allWordsGroupUiModel,
+                            groups = groupsUiModel,
+                        )
+                    }
+                }
         }
     }
 

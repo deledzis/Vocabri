@@ -48,6 +48,7 @@ fun MainBottomNavigation(
     modifier: Modifier = Modifier,
     navController: NavController,
     navigationRoutes: List<NavigationRoute>,
+    onPlusButtonLongClick: () -> Unit,
     onPlusButtonClick: () -> Unit,
 ) {
     Box(
@@ -61,6 +62,7 @@ fun MainBottomNavigation(
             modifier = Modifier
                 .padding(top = 16.dp),
             onPlusButtonClick = onPlusButtonClick,
+            onPlusButtonLongClick = onPlusButtonLongClick,
         )
     }
 }
@@ -92,11 +94,12 @@ private fun NavigationPlate(
 }
 
 @Composable
-private fun PlusItem(modifier: Modifier = Modifier, onPlusButtonClick: () -> Unit) {
+private fun PlusItem(modifier: Modifier = Modifier, onPlusButtonClick: () -> Unit, onPlusButtonLongClick: () -> Unit) {
     Buttons.Filled.IconOnly(
         modifier = modifier,
         iconResId = R.drawable.ic_plus,
         contentDescriptionResId = R.string.navigation_description_plus_button,
+        onLongClick = onPlusButtonLongClick,
     ) { onPlusButtonClick() }
 }
 
@@ -137,6 +140,7 @@ private fun PreviewMainBottomNavigation() {
                 navController = navController,
                 navigationRoutes = bottomNavigationRoutes,
                 modifier = Modifier.align(Alignment.Center),
+                onPlusButtonLongClick = {},
             ) { }
         }
     }

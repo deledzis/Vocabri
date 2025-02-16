@@ -32,7 +32,7 @@ import com.vocabri.domain.model.word.toPartOfSpeech
 fun Word.toUiModel(): WordUiModel = WordUiModel(
     id = this.id,
     text = this.text,
-    partOfSpeech = this.toPartOfSpeech().name,
+    partOfSpeech = this.toPartOfSpeech(),
     translations = this.translations.joinToString(", ") { it.translation },
     examples = this.examples.joinToString(", ") { it.example },
 )

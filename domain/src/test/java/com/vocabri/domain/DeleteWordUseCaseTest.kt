@@ -24,6 +24,7 @@
 package com.vocabri.domain
 
 import com.vocabri.domain.fake.FakeWordRepositoryImpl
+import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.DeleteWordUseCase
@@ -68,7 +69,7 @@ class DeleteWordUseCaseTest {
         useCase.execute(word1.id)
 
         // Assert
-        val remainingWords = fakeRepository.getAllWords()
+        val remainingWords = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(1, remainingWords.size)
         assertEquals(word2, remainingWords.first())
     }
@@ -89,7 +90,7 @@ class DeleteWordUseCaseTest {
         useCase.execute("non-existent-id")
 
         // Assert
-        val remainingWords = fakeRepository.getAllWords()
+        val remainingWords = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(1, remainingWords.size)
         assertEquals(word, remainingWords.first())
     }
@@ -120,7 +121,7 @@ class DeleteWordUseCaseTest {
         useCase.execute(word2.id)
 
         // Assert
-        val remainingWords = fakeRepository.getAllWords()
+        val remainingWords = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(0, remainingWords.size)
     }
 }

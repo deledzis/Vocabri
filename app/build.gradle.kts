@@ -34,13 +34,13 @@ plugins {
 
 android {
     namespace = "com.vocabri"
-    compileSdk = 35
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
         applicationId = "com.vocabri"
         testApplicationId = "com.vocabri.test"
-        minSdk = 24
-        targetSdk = 35
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
         versionName = "1.0"
 
@@ -100,6 +100,7 @@ android {
 }
 
 dependencies {
+    implementation(projects.shared)
     implementation(projects.domain)
     implementation(projects.data)
     implementation(projects.core.logger)

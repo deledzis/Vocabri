@@ -26,8 +26,9 @@ package com.vocabri.ui.components
 import android.content.res.Configuration
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -133,6 +134,23 @@ object Buttons {
         }
 
         @Composable
+        fun IconOnly(
+            modifier: Modifier = Modifier,
+            enabled: Boolean = true,
+            @DrawableRes iconResId: Int,
+            @StringRes contentDescriptionResId: Int,
+            onClick: () -> Unit,
+        ) {
+            TransparentButtonIcon(
+                modifier = modifier,
+                enabled = enabled,
+                iconResId = iconResId,
+                contentDescriptionResId = contentDescriptionResId,
+                onClick = onClick,
+            )
+        }
+
+        @Composable
         private fun TransparentButtonDefault(
             modifier: Modifier = Modifier,
             enabled: Boolean = true,
@@ -165,6 +183,54 @@ object Buttons {
                     textDecoration = textDecoration,
                     maxLines = 1,
                 )
+            }
+        }
+
+        @OptIn(ExperimentalFoundationApi::class)
+        @Composable
+        private fun TransparentButtonIcon(
+            modifier: Modifier = Modifier,
+            enabled: Boolean = true,
+            size: Dp = 48.dp,
+            rippleColor: Color = Color.Gray,
+            rippleRadius: Dp = 32.dp,
+            onLongClick: () -> Unit = {},
+            @DrawableRes iconResId: Int,
+            @StringRes contentDescriptionResId: Int,
+            onClick: () -> Unit,
+        ) {
+            Box(
+                modifier = modifier
+                    .width(IntrinsicSize.Max)
+                    .height(IntrinsicSize.Max),
+            ) {
+                val interactionSource = remember { MutableInteractionSource() }
+                Box(
+                    modifier = Modifier
+                        .size(size)
+                        .clip(CircleShape)
+                        .combinedClickable(
+                            enabled = enabled,
+                            interactionSource = interactionSource,
+                            indication = ripple(color = rippleColor, radius = rippleRadius),
+                            onLongClick = onLongClick,
+                            onClick = onClick,
+                        ),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Row(
+                        modifier = Modifier,
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Icon(
+                            painter = painterResource(id = iconResId),
+                            contentDescription = stringResource(contentDescriptionResId),
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurface,
+                        )
+                    }
+                }
             }
         }
     }
@@ -342,6 +408,7 @@ object Buttons {
         fun IconOnly(
             modifier: Modifier = Modifier,
             enabled: Boolean = true,
+            onLongClick: () -> Unit = {},
             @DrawableRes iconResId: Int,
             @StringRes contentDescriptionResId: Int,
             onClick: () -> Unit,
@@ -351,6 +418,7 @@ object Buttons {
                 enabled = enabled,
                 iconResId = iconResId,
                 contentDescriptionResId = contentDescriptionResId,
+                onLongClick = onLongClick,
                 onClick = onClick,
             )
         }
@@ -451,6 +519,7 @@ object Buttons {
             }
         }
 
+        @OptIn(ExperimentalFoundationApi::class)
         @Composable
         private fun FilledButtonIcon(
             modifier: Modifier = Modifier,
@@ -460,6 +529,7 @@ object Buttons {
             @StringRes contentDescriptionResId: Int,
             rippleColor: Color = Color.Gray,
             rippleRadius: Dp = 32.dp,
+            onLongClick: () -> Unit = {},
             onClick: () -> Unit,
         ) {
             Box(
@@ -495,10 +565,12 @@ object Buttons {
                                 Modifier.background(MaterialTheme.colorScheme.tertiary.copy(alpha = 0.5f))
                             },
                         )
-                        .clickable(
+                        .combinedClickable(
                             interactionSource = interactionSource,
                             indication = ripple(color = rippleColor, radius = rippleRadius),
-                        ) { onClick() },
+                            onLongClick = onLongClick,
+                            onClick = onClick,
+                        ),
                     contentAlignment = Alignment.Center,
                 ) {
                     Row(
@@ -550,6 +622,13 @@ private fun PreviewTransparentButtons() {
                 modifier = Modifier.fillMaxWidth(),
                 enabled = false,
                 text = "Удалить данные",
+                iconResId = R.drawable.ic_chevron_right,
+            ) {}
+            Spacer(modifier = Modifier.height(16.dp))
+            Buttons.Transparent.IconOnly(
+                modifier = Modifier.fillMaxWidth(),
+                enabled = false,
+                contentDescriptionResId = R.string.navigation_description_plus_button,
                 iconResId = R.drawable.ic_chevron_right,
             ) {}
         }

@@ -63,7 +63,7 @@ class AddWordUseCaseTest {
 
         addWordUseCase.execute(word)
 
-        val words = fakeRepository.getAllWords()
+        val words = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(1, words.size)
 
         val addedWord = words[0]
@@ -95,7 +95,7 @@ class AddWordUseCaseTest {
         fakeRepository.insertWord(word1)
         fakeRepository.insertWord(word2)
 
-        val words = fakeRepository.getAllWords()
+        val words = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(2, words.size)
 
         val retrievedWord1 = words[0]
@@ -135,7 +135,7 @@ class AddWordUseCaseTest {
             runBlocking { addWordUseCase.execute(word) }
         }
 
-        val words = fakeRepository.getAllWords()
+        val words = fakeRepository.getWordsByPartOfSpeech(partOfSpeech = PartOfSpeech.ALL)
         assertEquals(1, words.size)
     }
 }

@@ -76,11 +76,8 @@ fun DictionaryDetailsScreen(
     val log = logger("DictionaryDetailsScreen")
     val state by viewModel.state.collectAsState()
 
-    log.i { "DictionaryDetailsScreen is displayed" }
-
     LaunchedEffect(viewModel) {
-        log.i { "Triggering initial load of words" }
-        viewModel.handleEvent(DictionaryDetailsEvent.LoadWords)
+        log.i { "DictionaryDetailsScreen is displayed" }
     }
 
     DictionaryDetailsScreenRoot(modifier = modifier, state = state) { event ->
@@ -90,15 +87,16 @@ fun DictionaryDetailsScreen(
                 navController.navigate(NavigationRoute.Secondary.AddWord.route)
             }
 
-            is DictionaryDetailsEvent.LoadWords -> {
-                viewModel.handleEvent(event)
-            }
-
             is DictionaryDetailsEvent.DeleteWordClicked -> {
                 viewModel.handleEvent(event)
             }
 
             DictionaryDetailsEvent.OnBackClicked -> {
+                navController.popBackStack()
+            }
+
+            is DictionaryDetailsEvent.OnWordClicked -> {
+                // TODO: navigate to edit word screen
                 navController.popBackStack()
             }
         }
@@ -246,28 +244,28 @@ private fun PreviewWordListScreen() {
             text = "lernen",
             translations = "learn",
             examples = "Ich lerne Deutsch.",
-            partOfSpeech = PartOfSpeech.VERB.toString(),
+            partOfSpeech = PartOfSpeech.VERB,
         ),
         WordUiModel(
             id = "2",
             text = "Haus",
             translations = "house, home",
             examples = "Das ist mein Haus.",
-            partOfSpeech = PartOfSpeech.NOUN.toString(),
+            partOfSpeech = PartOfSpeech.NOUN,
         ),
         WordUiModel(
             id = "3",
             text = "lernen",
             translations = "learn",
             examples = "Ich lerne Deutsch.",
-            partOfSpeech = PartOfSpeech.VERB.toString(),
+            partOfSpeech = PartOfSpeech.VERB,
         ),
         WordUiModel(
             id = "4",
             text = "Haus",
             translations = "house, home",
             examples = "Das ist mein Haus.",
-            partOfSpeech = PartOfSpeech.NOUN.toString(),
+            partOfSpeech = PartOfSpeech.NOUN,
         ),
     )
     VocabriTheme {

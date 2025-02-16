@@ -23,10 +23,12 @@
  */
 package com.vocabri.ui.screens.dictionarydetails.model
 
+import com.vocabri.domain.model.word.PartOfSpeech
+
 data class WordUiModel(
     val id: String,
     val text: String,
     val translations: String,
     val examples: String,
-    val partOfSpeech: String,
+    val partOfSpeech: PartOfSpeech,
 )

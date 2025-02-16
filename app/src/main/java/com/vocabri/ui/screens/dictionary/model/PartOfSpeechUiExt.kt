@@ -24,6 +24,7 @@
 package com.vocabri.ui.screens.dictionary.model
 
 import androidx.annotation.StringRes
+import androidx.compose.ui.graphics.Color
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 
@@ -45,4 +46,13 @@ internal val PartOfSpeech.toLabelResId: Int
         PartOfSpeech.ADJECTIVE -> R.string.adjective_label
         PartOfSpeech.ADVERB -> R.string.adverb_label
         PartOfSpeech.ALL -> error("PartOfSpeech.ALL must not be used as a label!")
+    }
+
+internal val PartOfSpeech.toSmallCircleColor: Color
+    get() = when (this) {
+        PartOfSpeech.ALL -> Color.Transparent
+        PartOfSpeech.NOUN -> Color(0xFFD91656)
+        PartOfSpeech.VERB -> Color(0xFF093C72)
+        PartOfSpeech.ADJECTIVE -> Color(0xFFFFB200)
+        PartOfSpeech.ADVERB -> Color(0xFF16D957)
     }

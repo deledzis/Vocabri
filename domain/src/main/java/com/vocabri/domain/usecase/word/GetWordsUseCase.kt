@@ -36,24 +36,12 @@ open class GetWordsUseCase(private val wordRepository: WordRepository) {
     private val log = logger()
 
     /**
-     * Fetches all words.
-     *
-     * @return List of all words.
-     */
-    open suspend fun execute(): List<Word> {
-        log.i { "Executing GetWordsUseCase to fetch all words" }
-        val words = wordRepository.getAllWords()
-        log.i { "Fetched ${words.size} words in total" }
-        return words
-    }
-
-    /**
      * Fetches words by part of speech.
      *
      * @param partOfSpeech The part of speech to filter words by.
      * @return List of words for the specified part of speech.
      */
-    open suspend fun executeByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> {
+    open suspend fun execute(partOfSpeech: PartOfSpeech): List<Word> {
         log.i { "Executing GetWordsUseCase to fetch words by partOfSpeech: $partOfSpeech" }
         return wordRepository.getWordsByPartOfSpeech(partOfSpeech).also {
             log.i { "Found ${it.size} words with partOfSpeech = $partOfSpeech" }

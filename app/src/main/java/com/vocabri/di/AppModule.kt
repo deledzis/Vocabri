@@ -27,6 +27,7 @@ import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
 import com.vocabri.domain.model.kover.ExcludeFromCoverage
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.repository.ResourcesRepository
+import com.vocabri.ui.main.viewmodel.MainViewModel
 import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
@@ -41,6 +42,7 @@ import org.koin.dsl.module
 
 @ExcludeFromCoverage
 val appModule = module {
+    viewModelOf(::MainViewModel)
     viewModelOf(::DictionaryViewModel)
     viewModelOf(::AddWordViewModel)
 
@@ -49,7 +51,7 @@ val appModule = module {
         viewModel(qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(partOfSpeech)) {
             DictionaryDetailsViewModel(
                 partOfSpeech = partOfSpeech,
-                getWordsUseCase = get(),
+                observeWordsUseCase = get(),
                 deleteWordUseCase = get(),
                 ioScope = get(),
             )
