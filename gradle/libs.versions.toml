@@ -12,7 +12,7 @@ android-tools = "31.8.1"
 android-gradle-plugin = "8.8.1"
 kover = "0.9.1"
 spotless = "7.0.2"
-detekt = "1.23.7"
+detekt = "1.23.8"
 compose-rules = "0.4.22"
 
 koin = "4.0.2"
