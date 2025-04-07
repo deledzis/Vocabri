@@ -15,7 +15,7 @@ spotless = "7.0.2"
 detekt = "1.23.8"
 compose-rules = "0.4.22"
 
-koin = "4.0.2"
+koin = "4.0.4"
 sqldelight = "2.0.2"
 kermit = "2.0.5"
 crashlytics = "3.0.3"
