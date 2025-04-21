@@ -11,7 +11,7 @@ android-tools = "31.9.1"
 
 android-gradle-plugin = "8.9.1"
 kover = "0.9.1"
-spotless = "7.0.2"
+spotless = "7.0.3"
 detekt = "1.23.8"
 compose-rules = "0.4.22"
 
