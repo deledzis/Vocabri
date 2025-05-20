@@ -30,7 +30,7 @@ compose-navigation = "2.9.0"
 compose-plugin = "1.8.0"
 flowlayout = "0.36.0"
 google-fonts = "1.8.1"
-firebase-bom = "33.13.0"
+firebase-bom = "33.14.0"
 
 # testing
 junit = "4.13.2"
