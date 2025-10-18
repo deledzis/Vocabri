@@ -66,8 +66,7 @@ sealed interface AddWordState {
 
         // UI hints
         val isSaveButtonEnabled: Boolean = false,
-        @StringRes
-        val errorMessageId: Int? = null,
+        @param:StringRes val errorMessageId: Int? = null,
     ) : AddWordState
 
     data object Saved : AddWordState
