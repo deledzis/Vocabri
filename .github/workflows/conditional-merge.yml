@@ -9,6 +9,7 @@ on:
       - opened
       - reopened
       - labeled
+      - unlabeled
       - synchronize
   pull_request_review:
     types:
@@ -16,108 +17,191 @@ on:
   issue_comment:
     types:
       - created
+  workflow_run:
+    workflows:
+      - PR Checks
+    types:
+      - completed
+
+permissions:
+  pull-requests: write
+  contents: write
+  actions: write
+  checks: read
 
 jobs:
-  check:
-    uses: ./.github/workflows/check.yml
-    secrets: inherit
-
-  lint:
-    uses: ./.github/workflows/lint.yml
-    secrets: inherit
-
-  merge:
+  auto-merge:
     name: Auto Merge
-    needs: [ check, lint ]
     runs-on: ubuntu-latest
 
-    permissions:
-      pull-requests: write
-      contents: write
-
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Check PR Details
-        id: check_pr
+      - name: Auto merge logic
+        id: merge
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
+            async function getPrFromContext() {
+              if (context.eventName === 'pull_request' || context.eventName === 'pull_request_review') {
+                return context.payload.pull_request;
+              }
+              if (context.eventName === 'issue_comment') {
+                const issue = context.payload.issue;
+                if (!issue.pull_request) {
+                  core.info('Comment is not on a pull request. Exiting.');
+                  return null;
+                }
+                const { data: pr } = await github.rest.pulls.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: issue.number
+                });
+                return pr;
+              }
+              if (context.eventName === 'workflow_run') {
+                const run = context.payload.workflow_run;
+                if (run.event !== 'pull_request') {
+                  core.info('Workflow run not for PR. Exiting.');
+                  return null;
+                }
+                const { data: pulls } = await github.rest.repos.listPullRequestsAssociatedWithCommit({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  commit_sha: run.head_sha,
+                });
+                const pr = pulls.find(p => p.head.sha === run.head_sha) || pulls[0];
+                return pr || null;
+              }
+              return null;
+            }
+
+            async function hasAdminApproval(pr) {
+              const { data: reviews } = await github.rest.pulls.listReviews({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number
+              });
+              const approvals = reviews.filter(r => r.state === 'APPROVED');
+              for (const rev of approvals) {
+                const login = rev.user.login;
+                if (login === 'deledzis') {
+                  return true;
+                }
+                try {
+                  const perm = await github.rest.repos.getCollaboratorPermissionLevel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    username: login
+                  });
+                  if (perm.data && perm.data.permission === 'admin') {
+                    return true;
+                  }
+                } catch (e) {
+                  // ignore if user is not a collaborator
+                }
+              }
+              return false;
+            }
+
+            function requiredChecksPassed(checkRuns) {
+              const required = ['Build and Test', 'Code Style'];
+              const latestByName = {};
+              for (const run of checkRuns) {
+                // only consider check runs for the required names
+                for (const name of required) {
+                  if (run.name === name || run.name.endsWith(` / ${name}`) || run.name.includes(` / ${name}`)) {
+                    const key = name;
+                    const ts = new Date(run.started_at || run.created_at).getTime();
+                    if (!latestByName[key] || ts > latestByName[key].ts) {
+                      latestByName[key] = { run, ts };
+                    }
+                  }
+                }
+              }
+              return required.every(name => {
+                const item = latestByName[name];
+                return item && item.run.status === 'completed' && item.run.conclusion === 'success';
+              });
+            }
+
+            async function waitForChecks(pr, timeoutSec = 1800, pollIntervalSec = 10) {
+              const started = Date.now();
+              while ((Date.now() - started) / 1000 < timeoutSec) {
+                const { data: checks } = await github.rest.checks.listForRef({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  ref: pr.head.sha
+                });
+                if (requiredChecksPassed(checks.check_runs)) {
+                  return true;
+                }
+                await new Promise(r => setTimeout(r, pollIntervalSec * 1000));
+              }
+              return false;
+            }
+
+            const pr = await getPrFromContext();
             if (!pr) {
-              console.log('No pull request associated with this workflow. Exiting.');
+              core.info('No PR found in context. Exiting.');
               return;
             }
-            
-            const eventName = context.eventName;
-            // Check if special comment has been added
-            if (eventName === 'issue_comment') {
-              const comment = context.payload.comment.body;
-              const pr = context.payload.issue;
 
-              if (!pr.pull_request) {
-                console.log('This is not a pull request. Exiting.');
+            const isRecheck = context.eventName === 'issue_comment'
+              && context.payload.comment
+              && context.payload.comment.body
+              && context.payload.comment.body.trim().toLowerCase() === 'recheck';
+
+            if (isRecheck) {
+              core.info('Recheck requested. Dispatching PR Checks workflow and waiting for completion...');
+              try {
+                await github.rest.actions.createWorkflowDispatch({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  workflow_id: 'pr-checks.yml',
+                  ref: pr.head.ref
+                });
+              } catch (e) {
+                core.warning(`Failed to dispatch PR Checks workflow: ${e.message}`);
+              }
+              const ok = await waitForChecks(pr);
+              if (!ok) {
+                core.info('Checks did not complete successfully within timeout. Exiting.');
                 return;
               }
-
-              if (comment.trim() !== 'recheck') {
-                console.log(`Ignoring comment: "${comment}". Exiting.`);
-                return;
-              }
-              console.log('Triggered by comment: recheck');
             }
-            
-            // check if special "merge" label has been set
-            const hasMergeLabel = pr.labels.some(label => label.name === 'merge');
+
+            const hasMergeLabel = (pr.labels || []).some(l => l.name === 'merge');
             if (!hasMergeLabel) {
-              console.log('No "merge" label found. Exiting.');
+              core.info('No "merge" label found. Exiting.');
               return;
             }
 
-            const { data: reviews } = await github.rest.pulls.listReviews({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number
-            });
-
-            const isAuthorOwner = pr.user.login === context.repo.owner;
-            const hasApprovedReview = reviews.some(review => review.state === 'APPROVED');
-
-            if (!hasApprovedReview && !isAuthorOwner) {
-              console.log('Conditions not met for auto-merge. Exiting.');
+            const adminApproved = await hasAdminApproval(pr);
+            if (!adminApproved) {
+              core.info('PR is not approved by an administrator. Exiting.');
               return;
             }
 
-            const requiredChecks = ['Auto Merge / check / Build and Test', 'Auto Merge / lint / Code Style'];
-
-            const statusChecks = await github.rest.checks.listForRef({
+            // Ensure required checks are green on the current head
+            const { data: statusChecks } = await github.rest.checks.listForRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: pr.head.sha
             });
-            console.log(statusChecks.data.check_runs.map(check => check.name));
 
-            const allChecksPassed = statusChecks.data.check_runs
-              .filter(check => requiredChecks.includes(check.name))
-              .every(check => check.conclusion === 'success');
-
-            if (!allChecksPassed) {
-              console.log('Not all required status checks passed. Exiting.');
+            if (!requiredChecksPassed(statusChecks.check_runs)) {
+              core.info('Not all required status checks have passed. Exiting.');
               return;
             }
 
-            core.setOutput('ready_to_merge', 'true');
-
-      - name: Auto Merge PR
-        if: steps.check_pr.outputs.ready_to_merge == 'true'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const pr = context.payload.pull_request;
-            await github.rest.pulls.merge({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-              merge_method: 'squash'
-            });
+            // Try to merge
+            try {
+              await github.rest.pulls.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                merge_method: 'squash'
+              });
+              core.info('Pull request merged successfully.');
+            } catch (e) {
+              core.warning(`Merge attempt failed: ${e.message}`);
+            }
