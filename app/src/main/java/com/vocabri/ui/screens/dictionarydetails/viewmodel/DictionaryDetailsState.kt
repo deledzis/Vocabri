@@ -29,17 +29,12 @@ import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
 sealed interface DictionaryDetailsState {
     val titleId: Int
 
-    data class WordsLoaded(
-        @param:StringRes override val titleId: Int,
-        val words: List<WordUiModel>,
-    ) : DictionaryDetailsState
+    data class WordsLoaded(@param:StringRes override val titleId: Int, val words: List<WordUiModel>) :
+        DictionaryDetailsState
 
     data class Empty(@param:StringRes override val titleId: Int) : DictionaryDetailsState
 
     data class Loading(@param:StringRes override val titleId: Int) : DictionaryDetailsState
 
-    data class Error(
-        @param:StringRes override val titleId: Int,
-        val message: String,
-    ) : DictionaryDetailsState
+    data class Error(@param:StringRes override val titleId: Int, val message: String) : DictionaryDetailsState
 }
