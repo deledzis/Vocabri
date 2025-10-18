@@ -96,6 +96,10 @@ fun DictionaryScreen(
                     NavigationRoute.Secondary.DictionaryDetails.fromGroup(event.partOfSpeech),
                 )
             }
+
+            DictionaryEvent.RetryClicked -> {
+                viewModel.retry()
+            }
         }
     }
 }
@@ -120,7 +124,7 @@ fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, 
             }
 
             is DictionaryState.Error -> {
-                ErrorScreen(state = state)
+                ErrorScreen(state = state, onEvent = onEvent)
             }
         }
     }
@@ -267,13 +271,29 @@ internal fun WordListScreen(
  * Displays an error message.
  */
 @Composable
-internal fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error) {
-    Text(
+internal fun ErrorScreen(
+    modifier: Modifier = Modifier,
+    state: DictionaryState.Error,
+    onEvent: (DictionaryEvent) -> Unit,
+) {
+    Column(
         modifier = modifier
-            .padding(16.dp),
-        text = stringResource(R.string.error_message, state.message),
-        style = MaterialTheme.typography.labelLarge,
-    )
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(16.dp),
+            text = stringResource(R.string.error_message, state.message),
+            style = MaterialTheme.typography.labelLarge,
+        )
+        Buttons.Filled(
+            modifier = Modifier.padding(top = 8.dp),
+            text = stringResource(R.string.retry),
+            contentDescriptionResId = R.string.retry,
+        ) { onEvent(DictionaryEvent.RetryClicked) }
+    }
 }
 
 @Preview(

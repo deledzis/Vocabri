@@ -25,6 +25,7 @@ package com.vocabri.ui.screens.dictionarydetails
 
 import android.content.res.Configuration
 import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +35,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +53,7 @@ import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
+import com.vocabri.ui.components.Buttons
 import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
@@ -99,6 +103,10 @@ fun DictionaryDetailsScreen(
                 // TODO: navigate to edit word screen
                 navController.popBackStack()
             }
+
+            DictionaryDetailsEvent.RetryClicked -> {
+                viewModel.retry()
+            }
         }
     }
 }
@@ -114,7 +122,7 @@ fun DictionaryDetailsScreenRoot(
     ) {
         when (state) {
             is DictionaryDetailsState.Empty -> {
-                onEvent(DictionaryDetailsEvent.OnBackClicked)
+                EmptyScreen(onEvent = onEvent)
             }
 
             is DictionaryDetailsState.Loading -> {
@@ -129,7 +137,7 @@ fun DictionaryDetailsScreenRoot(
             }
 
             is DictionaryDetailsState.Error -> {
-                ErrorScreen(state = state)
+                ErrorScreen(state = state, onEvent = onEvent)
             }
         }
     }
@@ -210,13 +218,56 @@ fun WordListScreen(
  * Displays an error message.
  */
 @Composable
-fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryDetailsState.Error) {
-    Text(
+fun ErrorScreen(
+    modifier: Modifier = Modifier,
+    state: DictionaryDetailsState.Error,
+    onEvent: (DictionaryDetailsEvent) -> Unit,
+) {
+    Column(
         modifier = modifier
-            .padding(16.dp),
-        text = stringResource(R.string.error_message, state.message),
-        style = MaterialTheme.typography.labelLarge,
-    )
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            modifier = Modifier
+                .padding(16.dp),
+            text = stringResource(R.string.error_message, state.message),
+            style = MaterialTheme.typography.labelLarge,
+        )
+        Buttons.Filled(
+            modifier = Modifier.padding(top = 8.dp),
+            text = stringResource(R.string.retry),
+            contentDescriptionResId = R.string.retry,
+        ) { onEvent(DictionaryDetailsEvent.RetryClicked) }
+    }
+}
+
+/**
+ * Displays a message when the dictionary is empty.
+ */
+@Composable
+fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryDetailsEvent) -> Unit) {
+    Box(
+        modifier = modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.TopCenter,
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Text(
+                modifier = Modifier
+                    .padding(32.dp),
+                text = stringResource(R.string.dictionary_empty_message),
+                style = MaterialTheme.typography.displaySmall,
+            )
+            Buttons.Filled(
+                modifier = Modifier,
+                text = stringResource(R.string.add_word),
+                icon = Icons.Default.Create,
+                contentDescriptionResId = R.string.add_word,
+            ) { onEvent(DictionaryDetailsEvent.AddWordClicked) }
+        }
+    }
 }
 
 @Preview(
