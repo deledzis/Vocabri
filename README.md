@@ -6,50 +6,103 @@
 
 [![Auto Merge](https://github.com/deledzis/Vocabri/actions/workflows/conditional-merge.yml/badge.svg)](https://github.com/deledzis/Vocabri/actions/workflows/conditional-merge.yml)
 
-Vocabri is a modern and intuitive Android app designed to help you create, manage, and learn from
-your personalized vocabulary lists.
-Other platforms are planned in the future too!
+Vocabri is a modern, offline‑first Android app for building your personal vocabulary. Add words with
+translations and examples, browse by parts of speech, and prepare for future training flows. A Kotlin
+Multiplatform shared module is already in place for future iOS support.
 
 ## Features
 
-### Core Functionality
+- Add words with:
+  - Multiple translations
+  - Usage examples
+  - Part‑of‑speech specific metadata (noun gender/plural, verb forms/management, adjective/adverb degrees)
+- Browse grouped dictionary summaries (including "All words")
+- Per‑category detailed lists with deletion
+- Offline‑first local database (SQLDelight)
+- Debug helper: long‑press the + button on the main screen to generate and save a random word
 
-- **Add Words:** Quickly add words to your dictionary with translations, part of speech, and
-  examples.
-- **Edit Words:** Modify any details of your added words.
-- **Delete Words:** Remove entries with a simple action.
-- **Categorization:** Organize words by parts of speech for better learning.
+Planned/roadmap:
+- Training mode (quizzes/flashcards, spaced repetition)
+- Discover and search/filter experiences
+- Edit existing words
+- Optional cloud sync
+- iOS app using the existing shared module
 
-### Advanced Features
+## Tech stack
 
-- **Translation Management:** Add multiple translations for each word and manage them efficiently.
-- **Examples:** Include usage examples for context.
-- **Offline First:** Works seamlessly offline, with future support for cloud sync.
-- **Keyboard Optimization:** Smart keyboard actions for improved user experience.
+- Language: Kotlin (JDK 21)
+- UI: Jetpack Compose, Material 3, Compose Navigation
+- DI: Koin
+- Concurrency: Kotlin Coroutines
+- Persistence: SQLDelight 2.x (type‑safe SQL, reactive flows)
+- Logging: Kermit
+- Analytics & Stability: Firebase Analytics and Crashlytics
+- Multiplatform: Kotlin Multiplatform shared module (Android + iOS targets)
+- Quality: Spotless (ktlint + Compose rules), Detekt, Kover code coverage
 
-### Future Plans
+## Project structure
 
-- **Training Mode:** Practice words with quizzes, flashcards, and spaced repetition.
-- **Search & Filter:** Quickly find words or categories.
-- **Cloud Sync:** Backup and sync your data across devices.
+- app: Android app, Compose UI, navigation, ViewModels, Koin appModule
+- domain: Domain models, repository contracts, use cases (add/observe/delete/generate random), Koin domainModule
+- data: SQLDelight database, data sources, repository implementations, ID generator, Koin dataModule
+- core:
+  - core/logger: Kermit logger abstractions
+  - core/utils: common utilities (ID generator abstraction, Android resources bridge, etc.)
+- shared: Kotlin Multiplatform module prepared for iOS frameworks
+- build-logic: Custom Gradle convention plugins (Android app/library, Spotless, Detekt, Kover)
 
-## Technologies Used
+## Requirements
 
-### Architecture
+- Android Studio (latest stable recommended)
+- JDK 21
+- Android SDK 35 (minSdk 24)
 
-- **Kotlin Multiplatform Ready:** Designed to support future multiplatform development.
-- **Modern Android Architecture:**
-    - **MVVM + MVI:** Ensures a clear separation of concerns and predictable UI behavior.
-    - **SQLDelight:** Handles database operations with type-safe SQL.
-    - **Koin:** Dependency injection for testable and modular architecture.
+## Getting started
 
-### Testing
+1) Clone the repo and open it in Android Studio. Gradle sync should configure everything.
+2) Run the app:
+   - Android Studio: select the app configuration and Run
+   - CLI: `./gradlew :app:installDebug` (or `./gradlew :app:assembleDebug` to build only)
+3) Try it out:
+   - Use the bottom navigation to go to Dictionary, Training, Discover, Settings
+   - Tap the + to add a word, or long‑press the + to auto‑add a random word (debug)
 
-- **Unit Tests:** Comprehensive testing for ViewModels and Use Cases.
-- **Integration Tests:** Verifying end-to-end behavior of screens.
-- **Mocking Framework:** MockK for repository and service mocking.
+Notes:
+- A google-services.json is included for convenience. To use your own Firebase project, replace app/google-services.json.
+- The local database file is created automatically (SQLDelight + AndroidSqliteDriver).
 
-### UI
+## Build, test, and quality
 
-- **Jetpack Compose:** A declarative approach to building user interfaces.
-- **Material Design 3:** Modern design principles for a sleek and consistent experience.
+Common tasks (run from project root):
+- Format code: `./gradlew spotlessApply`
+- Static analysis: `./gradlew detekt`
+- Unit tests (JVM): `./gradlew test`
+- UI tests (instrumented): start an emulator/device, then `./gradlew :app:connectedAndroidTest`
+- Code coverage (Kover): `./gradlew koverHtmlReport` (aggregated at the root), `./gradlew koverXmlReport`
+
+Testing libraries and approach:
+- JUnit 4, Kotlin Coroutines Test, MockK
+- Robolectric for Android unit tests where needed
+- Compose UI testing for instrumented tests
+
+## Database
+
+- SQLDelight schema and queries live in data/src/main/sqldelight
+- Database name: vocabri.db
+- Migrations and schema are generated/configured by the Gradle SQLDelight plugin
+
+## Contributing
+
+Contributions are welcome!
+
+- Fork the repo and create a feature branch from main
+- Keep changes focused and incremental
+- Before opening a PR, please run locally:
+  - `./gradlew spotlessApply detekt test koverXmlReport`
+- Open a PR and ensure CI checks pass
+
+If you plan a larger change, consider opening an issue first to discuss the approach.
+
+## License
+
+This project is licensed under the MIT License. See the LICENSE file for details.
