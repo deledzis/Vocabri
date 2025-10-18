@@ -133,7 +133,6 @@ dependencies {
     implementation(libs.accompanist.flowlayout)
     implementation(libs.compose.navigation)
     implementation(libs.compose.tooling.preview)
-    implementation("androidx.compose.material:material-icons-extended")
     implementation(libs.androidx.ui.text.google.fonts)
     debugImplementation(libs.compose.tooling)
 
