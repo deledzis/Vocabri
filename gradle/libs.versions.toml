@@ -10,7 +10,7 @@ coreKtx = "1.16.0"
 android-tools = "31.10.1"
 
 android-gradle-plugin = "8.10.1"
-kover = "0.9.1"
+kover = "0.9.3"
 spotless = "7.0.4"
 detekt = "1.23.8"
 compose-rules = "0.4.27"
