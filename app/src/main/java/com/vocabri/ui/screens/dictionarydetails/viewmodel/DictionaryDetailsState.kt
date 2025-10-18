@@ -30,18 +30,16 @@ sealed interface DictionaryDetailsState {
     val titleId: Int
 
     data class WordsLoaded(
-        @StringRes
-        override val titleId: Int,
+        @param:StringRes override val titleId: Int,
         val words: List<WordUiModel>,
     ) : DictionaryDetailsState
 
-    data class Empty(@StringRes override val titleId: Int) : DictionaryDetailsState
+    data class Empty(@param:StringRes override val titleId: Int) : DictionaryDetailsState
 
-    data class Loading(@StringRes override val titleId: Int) : DictionaryDetailsState
+    data class Loading(@param:StringRes override val titleId: Int) : DictionaryDetailsState
 
     data class Error(
-        @StringRes
-        override val titleId: Int,
+        @param:StringRes override val titleId: Int,
         val message: String,
     ) : DictionaryDetailsState
 }

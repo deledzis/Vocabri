@@ -36,9 +36,9 @@ sealed interface NavigationRoute {
 
     sealed class Start(
         override val route: String,
-        @StringRes val titleResId: Int,
-        @DrawableRes val iconSelectedResId: Int,
-        @DrawableRes val iconUnselectedResId: Int,
+        @param:StringRes val titleResId: Int,
+        @param:DrawableRes val iconSelectedResId: Int,
+        @param:DrawableRes val iconUnselectedResId: Int,
     ) : NavigationRoute {
 
         data object Dictionary : Start(
@@ -74,7 +74,7 @@ sealed interface NavigationRoute {
         data object DictionaryDetails : Secondary(
             route = "group_details/{partOfSpeech}",
         ) {
-            fun fromGroup(partOfSpeech: String) = DictionaryDetails.route
+            fun fromGroup(partOfSpeech: String) = route
                 .replace("{partOfSpeech}", partOfSpeech)
         }
 

@@ -127,6 +127,7 @@ dependencies {
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.material3)
     implementation(libs.compose.foundation)
+    implementation(libs.compose.icons.extended)
     implementation(libs.compose.activity)
     implementation(libs.compose.viewmodel)
     implementation(libs.accompanist.flowlayout)
