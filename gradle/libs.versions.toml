@@ -29,7 +29,7 @@ compose-bom = "2025.10.00"
 compose-navigation = "2.9.5"
 compose-plugin = "1.9.1"
 flowlayout = "0.36.0"
-google-fonts = "1.9.3"
+google-fonts = "1.9.4"
 firebase-bom = "34.4.0"
 
 # testing
