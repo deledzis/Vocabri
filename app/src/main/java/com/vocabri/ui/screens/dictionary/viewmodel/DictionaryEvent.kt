@@ -26,5 +26,7 @@ package com.vocabri.ui.screens.dictionary.viewmodel
 sealed interface DictionaryEvent {
     data object AddWordClicked : DictionaryEvent
 
+    data object RetryClicked : DictionaryEvent
+
     data class OnGroupCardClicked(val partOfSpeech: String) : DictionaryEvent
 }

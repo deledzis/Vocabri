@@ -33,6 +33,7 @@ import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import com.vocabri.ui.screens.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -59,7 +60,14 @@ open class DictionaryDetailsViewModel(
     )
     open val state: StateFlow<DictionaryDetailsState> = _state
 
+    private var observeJob: Job? = null
+
     init {
+        observeWords()
+    }
+
+    fun retry() {
+        log.i { "Retry requested from UI for $partOfSpeech" }
         observeWords()
     }
 
@@ -71,6 +79,7 @@ open class DictionaryDetailsViewModel(
             is DictionaryDetailsEvent.AddWordClicked -> log.i { "AddWordClicked event received" }
             DictionaryDetailsEvent.OnBackClicked -> Unit // Nothing, handled by View
             is DictionaryDetailsEvent.OnWordClicked -> Unit // Nothing, handled by View
+            DictionaryDetailsEvent.RetryClicked -> Unit // Handled by View
         }
     }
 
@@ -81,7 +90,8 @@ open class DictionaryDetailsViewModel(
      */
     private fun observeWords() {
         log.i { "Starting to observe $partOfSpeech words" }
-        viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob?.cancel()
+        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
             try {
                 observeWordsUseCase.executeByPartOfSpeech(partOfSpeech)
                     .onStart {
