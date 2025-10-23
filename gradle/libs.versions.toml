@@ -4,7 +4,7 @@ android-minSdk = "24"
 android-targetSdk = "36"
 
 google-services = "4.4.4"
-kotlin = "2.2.20"
+kotlin = "2.2.21"
 kotlin-coroutines = "1.10.2"
 coreKtx = "1.17.0"
 android-tools = "31.13.0"
