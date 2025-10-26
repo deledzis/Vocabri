@@ -23,8 +23,8 @@
  */
 package com.vocabri.data.repository.word
 
+import com.vocabri.data.datasource.word.LocalWordDataSource
 import com.vocabri.data.datasource.word.RemoteWordDataSource
-import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.Flow
  * Implementation of [WordRepository] that orchestrates remote and local data sources.
  */
 class WordRepositoryImpl(
-    private val localWordDataSource: WordDataSource,
+    private val localWordDataSource: LocalWordDataSource,
     private val remoteWordDataSource: RemoteWordDataSource,
 ) : WordRepository {
 

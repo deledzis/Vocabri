@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.Flow
 /**
  * Data layer interface for local word data operations.
  */
-interface WordDataSource {
+interface LocalWordDataSource {
 
     /**
      * Retrieves a list of words filtered by the given part of speech.

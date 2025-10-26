@@ -23,8 +23,8 @@
  */
 package com.vocabri.data
 
+import com.vocabri.data.datasource.word.LocalWordDataSource
 import com.vocabri.data.datasource.word.RemoteWordDataSource
-import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.repository.word.WordRepositoryImpl
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
@@ -43,7 +43,7 @@ import org.junit.Test
 class WordRepositoryImplTest {
 
     private lateinit var repository: WordRepositoryImpl
-    private val localDataSource: WordDataSource = mockk(relaxed = true)
+    private val localDataSource: LocalWordDataSource = mockk(relaxed = true)
     private val remoteDataSource: RemoteWordDataSource = mockk(relaxed = true)
 
     @Before

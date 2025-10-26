@@ -68,6 +68,4 @@ sealed interface AddWordState {
         val isSaveButtonEnabled: Boolean = false,
         @param:StringRes val errorMessageId: Int? = null,
     ) : AddWordState
-
-    data class Error(val message: String) : AddWordState
 }

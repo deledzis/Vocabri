@@ -32,7 +32,7 @@ import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -48,7 +48,6 @@ import kotlin.coroutines.cancellation.CancellationException
 open class DictionaryViewModel(
     private val observeWordGroupsUseCase: ObserveWordGroupsUseCase,
     private val resourcesRepository: ResourcesRepository,
-    private val ioScope: CoroutineScope,
 ) : ViewModel() {
 
     private val log = logger()
@@ -87,7 +86,7 @@ open class DictionaryViewModel(
 
     private fun observeWordGroups() {
         observeJob?.cancel()
-        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob = viewModelScope.launch(Dispatchers.IO) {
             observeWordGroupsUseCase.execute()
                 .onStart {
                     _state.value = DictionaryState.Loading

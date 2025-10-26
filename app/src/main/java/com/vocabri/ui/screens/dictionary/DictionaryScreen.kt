@@ -223,7 +223,7 @@ internal fun WordListScreen(
         val isLandscape = screenWidth > screenHeight
 
         val columnCount = screenWidth / CATEGORY_GRID_WIDTH_DP
-        log.e { "columnCount: $columnCount" }
+        log.v { "columnCount: $columnCount" }
 
         when (isLandscape) {
             true -> {

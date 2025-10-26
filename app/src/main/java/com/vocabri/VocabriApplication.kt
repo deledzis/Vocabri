@@ -28,12 +28,23 @@ import com.vocabri.data.di.dataModule
 import com.vocabri.di.appModule
 import com.vocabri.domain.di.domainModule
 import com.vocabri.logger.logger
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
 
 class VocabriApplication : Application() {
     private val log = logger()
+
+    private val appDataScope = CoroutineScope(
+        SupervisorJob() +
+            Dispatchers.IO +
+            CoroutineName("AppDataScope"),
+    )
 
     override fun onCreate() {
         super.onCreate()
@@ -48,9 +59,15 @@ class VocabriApplication : Application() {
             modules(
                 dataModule,
                 domainModule,
-                appModule,
+                appModule(appDataScope),
             )
         }
         log.i { "Koin initialization completed" }
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        log.i { "App is terminating, cancelling AppDataScope" }
+        appDataScope.cancel("Application terminating")
     }
 }

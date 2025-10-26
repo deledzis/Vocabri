@@ -30,15 +30,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
 import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.logger.logger
+import com.vocabri.ui.main.viewmodel.MainEffect
 import com.vocabri.ui.main.viewmodel.MainEvent
 import com.vocabri.ui.main.viewmodel.MainViewModel
 import com.vocabri.ui.navigation.AppNavigation
@@ -56,12 +62,40 @@ import org.koin.androidx.compose.koinViewModel
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinViewModel()) {
+    val log = logger("MainScreen")
     val state by viewModel.state.collectAsState()
     val navController = rememberNavController()
     val focusManager = LocalFocusManager.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val currentRoute = currentDestination?.route
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(viewModel) {
+        log.i { "MainScreen is displayed" }
+        viewModel.effect.collect { effect ->
+            log.i { "Effect received: $effect" }
+            when (effect) {
+                MainEffect.ShowWordAddedSuccess -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Word added successfully!",
+                    )
+                }
+
+                MainEffect.ShowWordAlreadyExists -> {
+                    snackbarHostState.showSnackbar(
+                        message = "Word already exists in your dictionary",
+                    )
+                }
+
+                is MainEffect.ShowError -> {
+                    snackbarHostState.showSnackbar(
+                        message = effect.message,
+                    )
+                }
+            }
+        }
+    }
 
     Scaffold(
         modifier = modifier,
@@ -108,6 +142,7 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinVie
                 }
             }
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { paddingValues ->
         Box(modifier = Modifier.padding(paddingValues)) {
             AppNavigation(navController = navController, focusManager = focusManager)

@@ -32,7 +32,7 @@ import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import com.vocabri.ui.screens.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -55,7 +55,6 @@ open class DictionaryDetailsViewModel(
     private val partOfSpeech: PartOfSpeech,
     private val observeWordsUseCase: ObserveWordsUseCase,
     private val deleteWordUseCase: DeleteWordUseCase,
-    private val ioScope: CoroutineScope,
 ) : ViewModel() {
     private val log = logger()
 
@@ -102,7 +101,7 @@ open class DictionaryDetailsViewModel(
     private fun observeWords() {
         log.i { "Starting to observe $partOfSpeech words" }
         observeJob?.cancel()
-        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob = viewModelScope.launch(Dispatchers.IO) {
             try {
                 observeWordsUseCase.executeByPartOfSpeech(partOfSpeech)
                     .onStart {
@@ -176,7 +175,7 @@ open class DictionaryDetailsViewModel(
     // Deletes a word using the DeleteWordUseCase and reloads the word list.
     private fun deleteWordInternally(wordId: String) {
         log.i { "Starting to delete word with id: $wordId" }
-        viewModelScope.launch(ioScope.coroutineContext) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 deleteWordUseCase.execute(wordId)
                 log.i { "Word with id: $wordId deleted successfully" }

@@ -34,7 +34,7 @@ import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.utils.IdGenerator
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -44,11 +44,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class AddWordViewModel(
-    private val addWordsUseCase: AddWordUseCase,
-    private val idGenerator: IdGenerator,
-    private val ioScope: CoroutineScope,
-) : ViewModel() {
+class AddWordViewModel(private val addWordsUseCase: AddWordUseCase, private val idGenerator: IdGenerator) :
+    ViewModel() {
     private val log = logger()
 
     private val _state = MutableStateFlow<AddWordState>(AddWordState.Editing())
@@ -410,7 +407,7 @@ class AddWordViewModel(
         }
 
         log.d { "Word to save: $word" }
-        viewModelScope.launch(ioScope.coroutineContext) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 addWordsUseCase.execute(word)
                 log.i { "Word saved successfully" }
