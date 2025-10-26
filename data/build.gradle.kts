@@ -98,6 +98,7 @@ dependencies {
     implementation(projects.domain)
     implementation(projects.core.logger)
     implementation(projects.core.utils)
+    implementation(projects.shared)
 
     implementation(libs.kotlinx.coroutines)
     implementation(libs.kermit.log)
@@ -105,6 +106,12 @@ dependencies {
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.ktor.client.content.negotiation)
+    implementation(libs.ktor.client.logging)
+    implementation(libs.ktor.serialization.kotlinx.json)
+    implementation(libs.ktor.client.okhttp)
 
     implementation(libs.androidx.core.ktx)
 
