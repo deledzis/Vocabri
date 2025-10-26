@@ -232,11 +232,11 @@ fun ErrorScreen(
         Text(
             modifier = Modifier
                 .padding(16.dp),
+            color = MaterialTheme.colorScheme.tertiary,
             text = stringResource(R.string.error_message, state.message),
             style = MaterialTheme.typography.labelLarge,
         )
         Buttons.Filled(
-            modifier = Modifier.padding(top = 8.dp),
             text = stringResource(R.string.retry),
             contentDescriptionResId = R.string.retry,
         ) { onEvent(DictionaryDetailsEvent.RetryClicked) }

@@ -13,15 +13,16 @@ Multiplatform shared module is already in place for future iOS support.
 ## Features
 
 - Add words with:
-  - Multiple translations
-  - Usage examples
-  - Part‑of‑speech specific metadata (noun gender/plural, verb forms/management, adjective/adverb degrees)
+    - Multiple translations
+    - Usage examples
+    - Part‑of‑speech specific metadata (noun gender/plural, verb forms/management, adjective/adverb degrees)
 - Browse grouped dictionary summaries (including "All words")
 - Per‑category detailed lists with deletion
 - Offline‑first local database (SQLDelight)
 - Debug helper: long‑press the + button on the main screen to generate and save a random word
 
 Planned/roadmap:
+
 - Training mode (quizzes/flashcards, spaced repetition)
 - Discover and search/filter experiences
 - Edit existing words
@@ -46,8 +47,8 @@ Planned/roadmap:
 - domain: Domain models, repository contracts, use cases (add/observe/delete/generate random), Koin domainModule
 - data: SQLDelight database, data sources, repository implementations, ID generator, Koin dataModule
 - core:
-  - core/logger: Kermit logger abstractions
-  - core/utils: common utilities (ID generator abstraction, Android resources bridge, etc.)
+    - core/logger: Kermit logger abstractions
+    - core/utils: common utilities (ID generator abstraction, Android resources bridge, etc.)
 - shared: Kotlin Multiplatform module prepared for iOS frameworks
 - build-logic: Custom Gradle convention plugins (Android app/library, Spotless, Detekt, Kover)
 
@@ -61,19 +62,22 @@ Planned/roadmap:
 
 1) Clone the repo and open it in Android Studio. Gradle sync should configure everything.
 2) Run the app:
-   - Android Studio: select the app configuration and Run
-   - CLI: `./gradlew :app:installDebug` (or `./gradlew :app:assembleDebug` to build only)
+    - Android Studio: select the app configuration and Run
+    - CLI: `./gradlew :app:installDebug` (or `./gradlew :app:assembleDebug` to build only)
 3) Try it out:
-   - Use the bottom navigation to go to Dictionary, Training, Discover, Settings
-   - Tap the + to add a word, or long‑press the + to auto‑add a random word (debug)
+    - Use the bottom navigation to go to Dictionary, Training, Discover, Settings
+    - Tap the + to add a word, or long‑press the + to auto‑add a random word (debug)
 
 Notes:
-- A google-services.json is included for convenience. To use your own Firebase project, replace app/google-services.json.
+
+- A google-services.json is included for convenience. To use your own Firebase project, replace
+  app/google-services.json.
 - The local database file is created automatically (SQLDelight + AndroidSqliteDriver).
 
 ## Build, test, and quality
 
 Common tasks (run from project root):
+
 - Format code: `./gradlew spotlessApply`
 - Static analysis: `./gradlew detekt`
 - Unit tests (JVM): `./gradlew test`
@@ -81,6 +85,7 @@ Common tasks (run from project root):
 - Code coverage (Kover): `./gradlew koverHtmlReport` (aggregated at the root), `./gradlew koverXmlReport`
 
 Testing libraries and approach:
+
 - JUnit 4, Kotlin Coroutines Test, MockK
 - Robolectric for Android unit tests where needed
 - Compose UI testing for instrumented tests
@@ -98,7 +103,7 @@ Contributions are welcome!
 - Fork the repo and create a feature branch from main
 - Keep changes focused and incremental
 - Before opening a PR, please run locally:
-  - `./gradlew spotlessApply detekt test koverXmlReport`
+    - `./gradlew spotlessApply detekt test koverXmlReport`
 - Open a PR and ensure CI checks pass
 
 If you plan a larger change, consider opening an issue first to discuss the approach.

@@ -16,9 +16,9 @@ enabled = true
 name = "kotlin"
 enabled = true
 
-  [analyzers.meta]
-  runtime_version = "17"
-  language_version = "1.9"
+[analyzers.meta]
+runtime_version = "17"
+language_version = "1.9"
 
 [[analyzers]]
 name = "test-coverage"

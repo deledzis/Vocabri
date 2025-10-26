@@ -144,6 +144,7 @@ internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEven
             Text(
                 modifier = Modifier
                     .padding(32.dp),
+                color = MaterialTheme.colorScheme.tertiary,
                 textAlign = TextAlign.Center,
                 text = stringResource(R.string.dictionary_empty_message),
                 style = MaterialTheme.typography.displaySmall,
@@ -285,11 +286,11 @@ internal fun ErrorScreen(
         Text(
             modifier = Modifier
                 .padding(16.dp),
+            color = MaterialTheme.colorScheme.tertiary,
             text = stringResource(R.string.error_message, state.message),
             style = MaterialTheme.typography.labelLarge,
         )
         Buttons.Filled(
-            modifier = Modifier.padding(top = 8.dp),
             text = stringResource(R.string.retry),
             contentDescriptionResId = R.string.retry,
         ) { onEvent(DictionaryEvent.RetryClicked) }
@@ -376,6 +377,7 @@ private fun PreviewLoadingScreen() {
 @Preview(
     name = "Night Mode",
     showBackground = true,
+    locale = "ru",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
 )
 @Preview(
