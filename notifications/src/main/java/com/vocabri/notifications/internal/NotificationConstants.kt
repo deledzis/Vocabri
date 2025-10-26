@@ -21,26 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications.internal
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import android.content.Context
+import com.vocabri.notifications.PushNotificationTopics
+import com.vocabri.notifications.R
+
+internal object NotificationConstants {
+    const val DEFAULT_CHANNEL_ID: String = "vocabri_default_channel"
+    private val DEFAULT_TOPICS: List<String> = listOf(PushNotificationTopics.GENERAL)
+    const val LOG_CHANNEL_INITIALIZER: String = "NotificationChannelInitializer"
+    const val LOG_INITIALIZER: String = "PushNotificationInitializer"
+    const val LOG_SERVICE: String = "PushNotificationService"
+    const val LOG_TOKEN_REPOSITORY: String = "PushNotificationTokenRepository"
+
+    fun defaultTopics(): List<String> = DEFAULT_TOPICS
+
+    fun getDefaultChannelName(context: Context): String = context.getString(
+        R.string.notification_channel_general_name,
+    )
+
+    fun getDefaultChannelDescription(context: Context): String = context.getString(
+        R.string.notification_channel_general_description,
+    )
 }

@@ -21,26 +21,26 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import kotlinx.coroutines.flow.StateFlow
+
+/**
+ * Stores the latest Firebase Cloud Messaging registration token.
+ */
+interface PushNotificationTokenRepository {
+    /**
+     * Observes the current token value, or `null` when unavailable.
+     */
+    val token: StateFlow<String?>
+
+    /**
+     * Persists the latest token.
+     */
+    fun update(token: String)
+
+    /**
+     * Clears any stored token.
+     */
+    fun clear()
 }

@@ -21,26 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.core.content.ContextCompat
+
+/**
+ * Android implementation backed by the runtime notification permission APIs.
+ */
+class DefaultPushNotificationPermissionManager(private val context: Context) : PushNotificationPermissionManager {
+
+    override fun hasPermission(): Boolean = if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU) {
+        true
+    } else {
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.POST_NOTIFICATIONS,
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    override fun isPermissionRequestRequired(): Boolean = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 }

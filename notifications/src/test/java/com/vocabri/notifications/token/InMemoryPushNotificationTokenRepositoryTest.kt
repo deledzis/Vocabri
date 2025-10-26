@@ -21,26 +21,38 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications.token
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import com.vocabri.notifications.InMemoryPushNotificationTokenRepository
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
+import org.junit.Test
+
+class InMemoryPushNotificationTokenRepositoryTest {
+
+    @Test
+    fun `initial token is null`() {
+        val repository = InMemoryPushNotificationTokenRepository(initialToken = null)
+
+        assertNull(repository.token.value)
+    }
+
+    @Test
+    fun `update stores the latest token`() {
+        val repository = InMemoryPushNotificationTokenRepository(initialToken = null)
+
+        repository.update("abc")
+
+        assertEquals("abc", repository.token.value)
+    }
+
+    @Test
+    fun `clear removes stored token`() {
+        val repository = InMemoryPushNotificationTokenRepository(initialToken = null)
+
+        repository.update("abc")
+        repository.clear()
+
+        assertNull(repository.token.value)
+    }
 }

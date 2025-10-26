@@ -23,15 +23,29 @@
  */
 package com.vocabri.ui.main
 
+import android.Manifest
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import com.vocabri.logger.logger
+import com.vocabri.notifications.PushNotificationInitializer
+import com.vocabri.notifications.PushNotificationPermissionManager
 import com.vocabri.ui.theme.VocabriTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val log = logger()
+    private val pushNotificationPermissionManager: PushNotificationPermissionManager by inject()
+    private val pushNotificationInitializer: PushNotificationInitializer by inject()
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+            log.i { "Notification permission result: $granted" }
+            if (granted) {
+                pushNotificationInitializer.initialize()
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log.i { "onCreate called" }
@@ -42,6 +56,26 @@ class MainActivity : ComponentActivity() {
         setContent {
             VocabriTheme {
                 MainScreen()
+            }
+        }
+
+        maybeInitializePushNotifications()
+    }
+
+    private fun maybeInitializePushNotifications() {
+        when {
+            pushNotificationPermissionManager.hasPermission() -> {
+                log.i { "Notification permission already granted. Initializing push notifications." }
+                pushNotificationInitializer.initialize()
+            }
+
+            pushNotificationPermissionManager.isPermissionRequestRequired() -> {
+                log.i { "Requesting notification permission from the user." }
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+
+            else -> {
+                log.w { "Notification permission is not granted and cannot be requested automatically." }
             }
         }
     }

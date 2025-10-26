@@ -21,26 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import com.vocabri.logger.logger
+import com.vocabri.notifications.internal.NotificationConstants
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+/**
+ * In-memory implementation backed by a [MutableStateFlow].
+ */
+class InMemoryPushNotificationTokenRepository(initialToken: String? = null) : PushNotificationTokenRepository {
+
+    private val log = logger(NotificationConstants.LOG_TOKEN_REPOSITORY)
+
+    private val _token = MutableStateFlow(initialToken)
+
+    override val token: StateFlow<String?> = _token.asStateFlow()
+
+    override fun update(token: String) {
+        log.i { "Push notification token updated" }
+        _token.value = token
+    }
+
+    override fun clear() {
+        log.i { "Push notification token cleared" }
+        _token.value = null
+    }
 }

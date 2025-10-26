@@ -49,6 +49,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 include(":app")
 include(":domain")
 include(":data")
+include(":notifications")
 include(":core:logger")
 include(":core:utils")
 
