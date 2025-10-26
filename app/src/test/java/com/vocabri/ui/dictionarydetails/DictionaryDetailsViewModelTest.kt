@@ -32,7 +32,7 @@ import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.ObserveWordsUseCase
 import com.vocabri.rules.MainDispatcherRule
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsIntent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import io.mockk.Runs
@@ -156,7 +156,7 @@ class DictionaryDetailsViewModelTest {
         setupViewModel(setupWordRepository = false)
         advanceUntilIdle()
 
-        viewModel.handleEvent(DictionaryDetailsEvent.DeleteWordClicked("1"))
+        viewModel.onIntent(DictionaryDetailsIntent.DeleteWord("1"))
         advanceUntilIdle()
 
         // Assert

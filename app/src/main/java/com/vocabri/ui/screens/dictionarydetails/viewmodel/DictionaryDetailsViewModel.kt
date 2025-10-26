@@ -66,20 +66,11 @@ open class DictionaryDetailsViewModel(
         observeWords()
     }
 
-    fun retry() {
-        log.i { "Retry requested from UI for $partOfSpeech" }
-        observeWords()
-    }
-
-    // Handles UI events triggered by the Dictionary screen.
-    fun handleEvent(event: DictionaryDetailsEvent) {
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryDetailsEvent.DeleteWordClicked -> handleDeleteWord(event.id)
-            is DictionaryDetailsEvent.AddWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.OnBackClicked -> Unit // Nothing, handled by View
-            is DictionaryDetailsEvent.OnWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.RetryClicked -> Unit // Handled by View
+    fun onIntent(intent: DictionaryDetailsIntent) {
+        log.i { "Handling intent: $intent" }
+        when (intent) {
+            is DictionaryDetailsIntent.DeleteWord -> handleDeleteWord(intent.id)
+            DictionaryDetailsIntent.Retry -> observeWords()
         }
     }
 

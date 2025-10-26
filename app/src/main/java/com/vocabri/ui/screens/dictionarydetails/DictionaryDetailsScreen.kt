@@ -58,7 +58,7 @@ import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsIntent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import com.vocabri.ui.theme.VocabriTheme
@@ -84,45 +84,44 @@ fun DictionaryDetailsScreen(
         log.i { "DictionaryDetailsScreen is displayed" }
     }
 
-    DictionaryDetailsScreenRoot(modifier = modifier, state = state) { event ->
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryDetailsEvent.AddWordClicked -> {
-                navController.navigate(NavigationRoute.Secondary.AddWord.route)
-            }
-
-            is DictionaryDetailsEvent.DeleteWordClicked -> {
-                viewModel.handleEvent(event)
-            }
-
-            DictionaryDetailsEvent.OnBackClicked -> {
-                navController.popBackStack()
-            }
-
-            is DictionaryDetailsEvent.OnWordClicked -> {
-                // TODO: navigate to edit word screen
-                navController.popBackStack()
-            }
-
-            DictionaryDetailsEvent.RetryClicked -> {
-                viewModel.retry()
-            }
-        }
-    }
+    DictionaryDetailsScreenRoot(
+        modifier = modifier,
+        state = state,
+        onAddWordClick = {
+            log.i { "Add word clicked" }
+            navController.navigate(NavigationRoute.Secondary.AddWord.route)
+        },
+        onWordClick = { wordId ->
+            log.i { "Word clicked: $wordId" }
+            // TODO: navigate to edit word screen
+            navController.popBackStack()
+        },
+        onDeleteWord = { wordId ->
+            log.i { "Delete word requested: $wordId" }
+            viewModel.onIntent(DictionaryDetailsIntent.DeleteWord(wordId))
+        },
+        onRetryClick = {
+            log.i { "Retry requested" }
+            viewModel.onIntent(DictionaryDetailsIntent.Retry)
+        },
+    )
 }
 
 @Composable
 fun DictionaryDetailsScreenRoot(
     modifier: Modifier = Modifier,
     state: DictionaryDetailsState,
-    onEvent: (DictionaryDetailsEvent) -> Unit,
+    onAddWordClick: () -> Unit,
+    onWordClick: (String) -> Unit,
+    onDeleteWord: (String) -> Unit,
+    onRetryClick: () -> Unit,
 ) {
     Box(
         modifier = modifier,
     ) {
         when (state) {
             is DictionaryDetailsState.Empty -> {
-                EmptyScreen(onEvent = onEvent)
+                EmptyScreen(onAddWordClick = onAddWordClick)
             }
 
             is DictionaryDetailsState.Loading -> {
@@ -132,12 +131,13 @@ fun DictionaryDetailsScreenRoot(
             is DictionaryDetailsState.WordsLoaded -> {
                 WordListScreen(
                     state = state,
-                    onEvent = onEvent,
+                    onWordClick = onWordClick,
+                    onDeleteWord = onDeleteWord,
                 )
             }
 
             is DictionaryDetailsState.Error -> {
-                ErrorScreen(state = state, onEvent = onEvent)
+                ErrorScreen(state = state, onRetryClick = onRetryClick)
             }
         }
     }
@@ -191,7 +191,8 @@ fun LoadingScreen(modifier: Modifier = Modifier) {
 fun WordListScreen(
     modifier: Modifier = Modifier,
     state: DictionaryDetailsState.WordsLoaded,
-    onEvent: (DictionaryDetailsEvent) -> Unit,
+    onWordClick: (String) -> Unit,
+    onDeleteWord: (String) -> Unit,
 ) {
     val words = remember(state.words) {
         state.words
@@ -208,7 +209,11 @@ fun WordListScreen(
             Box(
                 modifier = Modifier.animateItem(),
             ) {
-                WordListItem(uiItem = item, onEvent = onEvent)
+                WordListItem(
+                    uiItem = item,
+                    onWordClick = onWordClick,
+                    onDeleteWord = onDeleteWord,
+                )
             }
         }
     }
@@ -218,11 +223,7 @@ fun WordListScreen(
  * Displays an error message.
  */
 @Composable
-fun ErrorScreen(
-    modifier: Modifier = Modifier,
-    state: DictionaryDetailsState.Error,
-    onEvent: (DictionaryDetailsEvent) -> Unit,
-) {
+fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryDetailsState.Error, onRetryClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize(),
@@ -239,7 +240,7 @@ fun ErrorScreen(
         Buttons.Filled(
             text = stringResource(R.string.retry),
             contentDescriptionResId = R.string.retry,
-        ) { onEvent(DictionaryDetailsEvent.RetryClicked) }
+        ) { onRetryClick() }
     }
 }
 
@@ -247,7 +248,7 @@ fun ErrorScreen(
  * Displays a message when the dictionary is empty.
  */
 @Composable
-fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryDetailsEvent) -> Unit) {
+fun EmptyScreen(modifier: Modifier = Modifier, onAddWordClick: () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize(),
@@ -265,7 +266,7 @@ fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryDetailsEvent)
                 text = stringResource(R.string.add_word),
                 icon = Icons.Default.Create,
                 contentDescriptionResId = R.string.add_word,
-            ) { onEvent(DictionaryDetailsEvent.AddWordClicked) }
+            ) { onAddWordClick() }
         }
     }
 }
@@ -325,7 +326,11 @@ private fun PreviewWordListScreen() {
                 titleId = R.string.adverbs,
                 words = sampleWords,
             ),
-        ) {}
+            onAddWordClick = {},
+            onWordClick = {},
+            onDeleteWord = {},
+            onRetryClick = {},
+        )
     }
 }
 
@@ -342,7 +347,13 @@ private fun PreviewWordListScreen() {
 @Composable
 private fun PreviewLoadingScreen() {
     VocabriTheme {
-        DictionaryDetailsScreenRoot(state = DictionaryDetailsState.Loading(titleId = R.string.nouns)) {}
+        DictionaryDetailsScreenRoot(
+            state = DictionaryDetailsState.Loading(titleId = R.string.nouns),
+            onAddWordClick = {},
+            onWordClick = {},
+            onDeleteWord = {},
+            onRetryClick = {},
+        )
     }
 }
 
@@ -364,6 +375,10 @@ private fun PreviewErrorScreen() {
                 titleId = R.string.verbs,
                 message = "Network error",
             ),
-        ) {}
+            onAddWordClick = {},
+            onWordClick = {},
+            onDeleteWord = {},
+            onRetryClick = {},
+        )
     }
 }

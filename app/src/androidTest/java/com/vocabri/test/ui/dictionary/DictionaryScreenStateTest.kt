@@ -29,7 +29,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vocabri.ui.screens.dictionary.DictionaryScreenRoot
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.theme.VocabriTheme
 import org.junit.Rule
@@ -46,7 +45,12 @@ class DictionaryScreenStateTest {
     fun emptyState_showsAddWordCta() {
         composeTestRule.setContent {
             VocabriTheme {
-                DictionaryScreenRoot(state = DictionaryState.Empty, onEvent = {})
+                DictionaryScreenRoot(
+                    state = DictionaryState.Empty,
+                    onAddWordClick = {},
+                    onGroupClick = {},
+                    onRetryClick = {},
+                )
             }
         }
 
@@ -56,13 +60,15 @@ class DictionaryScreenStateTest {
 
     @Test
     fun errorState_showsRetry_andDispatchesEvent() {
-        val events = mutableListOf<DictionaryEvent>()
+        var retryInvoked = false
 
         composeTestRule.setContent {
             VocabriTheme {
                 DictionaryScreenRoot(
                     state = DictionaryState.Error(message = "Network error"),
-                    onEvent = { events.add(it) },
+                    onAddWordClick = {},
+                    onGroupClick = {},
+                    onRetryClick = { retryInvoked = true },
                 )
             }
         }
@@ -70,6 +76,6 @@ class DictionaryScreenStateTest {
         composeTestRule.onNodeWithText("An error occurred: Network error").assertIsDisplayed()
         composeTestRule.onNodeWithText("Retry").assertIsDisplayed().performClick()
 
-        assert(events.contains(DictionaryEvent.RetryClicked))
+        assert(retryInvoked)
     }
 }

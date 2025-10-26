@@ -58,9 +58,11 @@ open class DictionaryViewModel(
         observeWordGroups()
     }
 
-    fun retry() {
-        log.i { "Retry requested from UI" }
-        observeWordGroups()
+    fun onIntent(intent: DictionaryIntent) {
+        log.i { "Handling intent: $intent" }
+        when (intent) {
+            DictionaryIntent.Retry -> observeWordGroups()
+        }
     }
 
     private fun observeWordGroups() {
