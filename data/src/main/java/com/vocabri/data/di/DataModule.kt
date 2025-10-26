@@ -27,6 +27,8 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.vocabri.data.datasource.debug.DebugDataSource
 import com.vocabri.data.datasource.debug.DebugDataSourceImpl
+import com.vocabri.data.datasource.sync.PendingOperationDataSource
+import com.vocabri.data.datasource.sync.PendingOperationLocalDataSource
 import com.vocabri.data.datasource.word.LocalWordDataSource
 import com.vocabri.data.datasource.word.RemoteWordDataSource
 import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
@@ -68,6 +70,7 @@ val dataModule = module {
         )
     }
     singleOf(::WordRemoteDataSourceStub) { bind<RemoteWordDataSource>() }
+    singleOf(::PendingOperationLocalDataSource) { bind<PendingOperationDataSource>() }
     singleOf(::DebugDataSourceImpl) { bind<DebugDataSource>() }
     singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
     singleOf(::DebugRepositoryImpl) { bind<DebugRepository>() }

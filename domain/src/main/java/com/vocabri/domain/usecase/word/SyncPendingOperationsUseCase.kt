@@ -21,40 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.repository
+package com.vocabri.domain.usecase.word
 
-import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.domain.model.word.Word
-import kotlinx.coroutines.flow.Flow
+import com.vocabri.domain.repository.WordRepository
+import com.vocabri.logger.logger
 
 /**
- * Repository interface for managing Word data.
+ * Use case for synchronizing pending operations with the remote data source.
+ *
+ * This should be called when network connectivity is available to sync
+ * operations that previously failed (e.g., when the device was offline).
+ *
+ * @param wordRepository The repository responsible for word data operations.
  */
-interface WordRepository {
+class SyncPendingOperationsUseCase(private val wordRepository: WordRepository) {
 
-    fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>>
-
-    /**
-     * Retrieves words by a specific part of speech from the data source.
-     *
-     * @param partOfSpeech The part of speech used to filter words.
-     * @return A list of words matching the specified part of speech.
-     */
-    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word>
-
-    /**
-     * Inserts a new word into the data source.
-     */
-    suspend fun insertWord(word: Word)
-
-    /**
-     * Deletes a word by its unique identifier.
-     */
-    suspend fun deleteWordById(id: String)
+    private val log = logger()
 
     /**
      * Synchronizes pending operations with the remote data source.
-     * This should be called when network connectivity is available.
+     *
+     * This method attempts to replay queued operations (INSERT, DELETE, UPDATE)
+     * to the remote backend. Successfully synced operations are removed from the queue.
      */
-    suspend fun syncPendingOperations()
+    suspend fun execute() {
+        log.i { "Executing SyncPendingOperationsUseCase" }
+        wordRepository.syncPendingOperations()
+        log.i { "SyncPendingOperationsUseCase completed" }
+    }
 }
