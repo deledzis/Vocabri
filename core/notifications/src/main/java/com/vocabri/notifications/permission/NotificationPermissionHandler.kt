@@ -35,6 +35,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.MainThread
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
 import com.vocabri.logger.logger
@@ -73,6 +74,7 @@ class NotificationPermissionHandler(private val context: Context) {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun shouldShowRationale(activity: Activity): Boolean = ActivityCompat.shouldShowRequestPermissionRationale(
         activity,
         Manifest.permission.POST_NOTIFICATIONS,
@@ -98,6 +100,7 @@ class NotificationPermissionHandler(private val context: Context) {
         return NotificationPermissionLauncher(launcher)
     }
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     suspend fun awaitPermission(activity: ComponentActivity): Boolean = suspendCancellableCoroutine { continuation ->
         val launcher = registerPermissionLauncher(activity) { granted ->
             if (continuation.isActive) {
@@ -116,11 +119,10 @@ sealed interface NotificationPermissionStatus {
     data object DisabledFromSystemSettings : NotificationPermissionStatus
 }
 
-class NotificationPermissionLauncher internal constructor(
-    private val launcher: ActivityResultLauncher<String>,
-) {
+class NotificationPermissionLauncher internal constructor(private val launcher: ActivityResultLauncher<String>) {
     private var launched = false
 
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     @MainThread
     fun launch() {
         if (!launched) {

@@ -23,19 +23,19 @@
  */
 package com.vocabri.notifications.di
 
+import com.vocabri.R
+import com.vocabri.notifications.channel.NotificationChannelSpec
+import com.vocabri.notifications.channel.NotificationImportance
 import com.vocabri.notifications.deeplink.ComposeNotificationDeeplinkHandler
 import com.vocabri.notifications.deeplink.DeeplinkHandler
 import com.vocabri.notifications.model.NotificationDefaults
-import com.vocabri.notifications.channel.NotificationChannelSpec
-import com.vocabri.notifications.channel.NotificationImportance
 import com.vocabri.notifications.navigation.NotificationDeeplinkNavigator
 import com.vocabri.notifications.navigation.NotificationNavigationCoordinator
 import com.vocabri.ui.main.MainActivity
-import com.vocabri.R
 import org.koin.dsl.module
 
 val appNotificationsModule = module {
-    single<NotificationDefaults>(override = true) {
+    single<NotificationDefaults> {
         NotificationDefaults(
             defaultChannel = NotificationChannelSpec(
                 id = "vocabri.general",
@@ -48,7 +48,7 @@ val appNotificationsModule = module {
         )
     }
 
-    single<DeeplinkHandler>(override = true) {
+    single<DeeplinkHandler> {
         ComposeNotificationDeeplinkHandler(
             deeplinkParser = get(),
             entryActivity = MainActivity::class.java,

@@ -25,19 +25,20 @@ package com.vocabri.notifications.manager
 
 import android.content.Context
 import android.os.Build
+import androidx.annotation.RequiresPermission
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.vocabri.logger.logger
 import com.vocabri.notifications.channel.NotificationChannelManager
 import com.vocabri.notifications.channel.NotificationChannelSpec
+import com.vocabri.notifications.deeplink.DeeplinkHandler
+import com.vocabri.notifications.image.NotificationImageLoader
 import com.vocabri.notifications.model.NotificationAction
 import com.vocabri.notifications.model.NotificationData
 import com.vocabri.notifications.model.NotificationDefaults
 import com.vocabri.notifications.model.NotificationImage
 import com.vocabri.notifications.model.NotificationSound
 import com.vocabri.notifications.model.NotificationStyle
-import com.vocabri.notifications.deeplink.DeeplinkHandler
-import com.vocabri.notifications.image.NotificationImageLoader
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -61,10 +62,12 @@ class AndroidNotificationManager(
         channelManager.ensureChannel(defaults.defaultChannel)
     }
 
+    @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun show(notification: NotificationData) {
         show(listOf(notification))
     }
 
+    @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     override suspend fun show(notifications: Collection<NotificationData>) {
         notifications.forEach { notification ->
             ensureDefaultChannel(notification)
@@ -144,29 +147,31 @@ class AndroidNotificationManager(
     private suspend fun applyStyle(notification: NotificationData, builder: NotificationCompat.Builder) {
         when (val style = notification.style) {
             is NotificationStyle.BigText -> builder.setStyle(
-                NotificationCompat.BigTextStyle().bigText(style.text).apply {
+                NotificationCompat.BigTextStyle().bigText(style.text).also {
                     style.summaryText?.let(::setSummaryText)
                 },
             )
+
             is NotificationStyle.BigPicture -> {
                 val bigPictureBitmap = loadBitmap(notification.bigPicture)
                 if (bigPictureBitmap != null) {
                     builder.setStyle(
                         NotificationCompat.BigPictureStyle()
                             .bigPicture(bigPictureBitmap)
-                            .bigLargeIcon(null)
-                            .apply {
+                            .also {
                                 style.summaryText?.let(::setSummaryText)
                             },
                     )
                 }
             }
+
             is NotificationStyle.Inbox -> builder.setStyle(
-                NotificationCompat.InboxStyle().apply {
+                NotificationCompat.InboxStyle().also {
                     style.lines.forEach(::addLine)
                     style.summaryText?.let(::setSummaryText)
                 },
             )
+
             null -> {
                 // no-op
             }
@@ -199,6 +204,7 @@ class AndroidNotificationManager(
             null -> {
                 // do nothing, rely on channel sound
             }
+
             is NotificationSound.Silent -> builder.setSound(null)
             else -> {
                 val (uri, attributes) = sound.resolve(context)

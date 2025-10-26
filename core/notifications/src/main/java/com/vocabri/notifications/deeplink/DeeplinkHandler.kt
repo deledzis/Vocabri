@@ -33,7 +33,12 @@ import android.content.Intent
 interface DeeplinkHandler {
     fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent?
 
-    fun createActionIntent(context: Context, actionId: String, requestCode: Int, deeplink: DeeplinkData?): PendingIntent?
+    fun createActionIntent(
+        context: Context,
+        actionId: String,
+        requestCode: Int,
+        deeplink: DeeplinkData?,
+    ): PendingIntent?
 
     fun extract(intent: Intent?): DeeplinkData?
 }
@@ -42,9 +47,15 @@ interface DeeplinkHandler {
  * Default no-op implementation used when the host application does not provide deeplink handling.
  */
 class NoOpDeeplinkHandler : DeeplinkHandler {
-    override fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent? = null
+    override fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent? =
+        null
 
-    override fun createActionIntent(context: Context, actionId: String, requestCode: Int, deeplink: DeeplinkData?): PendingIntent? = null
+    override fun createActionIntent(
+        context: Context,
+        actionId: String,
+        requestCode: Int,
+        deeplink: DeeplinkData?,
+    ): PendingIntent? = null
 
     override fun extract(intent: Intent?): DeeplinkData? = null
 }

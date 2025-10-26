@@ -35,7 +35,10 @@ import androidx.core.app.NotificationCompat
  */
 @Suppress("MagicNumber")
 enum class NotificationImportance(
-    @IntRange(from = NotificationManager.IMPORTANCE_NONE.toLong(), to = NotificationManager.IMPORTANCE_MAX.toLong())
+    @param:IntRange(
+        from = NotificationManager.IMPORTANCE_NONE.toLong(),
+        to = NotificationManager.IMPORTANCE_MAX.toLong(),
+    )
     val channelImportance: Int,
     val notificationPriority: Int,
 ) {
@@ -58,7 +61,8 @@ enum class NotificationImportance(
     URGENT(
         channelImportance = NotificationManager.IMPORTANCE_MAX,
         notificationPriority = NotificationCompat.PRIORITY_MAX,
-    );
+    ),
+    ;
 
     companion object {
         /**

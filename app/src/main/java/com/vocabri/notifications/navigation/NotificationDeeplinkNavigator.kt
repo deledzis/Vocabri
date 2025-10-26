@@ -45,9 +45,13 @@ class NotificationDeeplinkNavigator {
             normalizedRoute.startsWith("dict/") -> {
                 resolveDictionaryDetails(deeplink)
             }
+
             normalizedRoute == NavigationRoute.Start.Dictionary.route -> NavigationRoute.Start.Dictionary.route
             normalizedRoute == NavigationRoute.Start.Training.route -> NavigationRoute.Start.Training.route
-            normalizedRoute == "discover" || normalizedRoute == NavigationRoute.Start.DiscoverMore.route -> NavigationRoute.Start.DiscoverMore.route
+            normalizedRoute == "discover" || normalizedRoute == NavigationRoute.Start.DiscoverMore.route -> {
+                NavigationRoute.Start.DiscoverMore.route
+            }
+
             normalizedRoute == NavigationRoute.Start.Settings.route -> NavigationRoute.Start.Settings.route
             normalizedRoute == NavigationRoute.Secondary.AddWord.route -> NavigationRoute.Secondary.AddWord.route
             else -> NavigationRoute.Start.Dictionary.route

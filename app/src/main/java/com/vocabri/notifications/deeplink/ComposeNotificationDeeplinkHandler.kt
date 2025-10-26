@@ -28,9 +28,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.TaskStackBuilder
-import com.vocabri.notifications.deeplink.DeeplinkData
-import com.vocabri.notifications.deeplink.DeeplinkHandler
-import com.vocabri.notifications.deeplink.DeeplinkParser
 
 /**
  * Application specific [DeeplinkHandler] that creates task stacks targeting [entryActivity].
@@ -40,13 +37,15 @@ class ComposeNotificationDeeplinkHandler(
     private val entryActivity: Class<out Activity>,
 ) : DeeplinkHandler {
 
-    override fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent? {
-        return buildPendingIntent(context, notificationId, deeplink, actionId = null)
-    }
+    override fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent? =
+        buildPendingIntent(context, notificationId, deeplink, actionId = null)
 
-    override fun createActionIntent(context: Context, actionId: String, requestCode: Int, deeplink: DeeplinkData?): PendingIntent? {
-        return buildPendingIntent(context, requestCode, deeplink, actionId = actionId)
-    }
+    override fun createActionIntent(
+        context: Context,
+        actionId: String,
+        requestCode: Int,
+        deeplink: DeeplinkData?,
+    ): PendingIntent? = buildPendingIntent(context, requestCode, deeplink, actionId = actionId)
 
     override fun extract(intent: Intent?): DeeplinkData? {
         if (intent == null) return null

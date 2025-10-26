@@ -29,13 +29,14 @@ import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import androidx.annotation.DrawableRes
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.createBitmap
 import com.vocabri.logger.logger
 import com.vocabri.notifications.model.NotificationImage
-import java.net.HttpURLConnection
-import java.net.URL
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.net.HttpURLConnection
+import java.net.URL
 
 /**
  * Default implementation that covers common image loading use-cases without pulling heavyweight dependencies.
@@ -54,7 +55,11 @@ class DefaultNotificationImageLoader(
                 when (image) {
                     is NotificationImage.BitmapImage -> image.bitmap
                     is NotificationImage.Resource -> decodeResource(image.resId)
-                    is NotificationImage.UriImage -> context.contentResolver.openInputStream(image.uri)?.use(BitmapFactory::decodeStream)
+                    is NotificationImage.UriImage -> {
+                        context.contentResolver.openInputStream(image.uri)
+                            ?.use(BitmapFactory::decodeStream)
+                    }
+
                     is NotificationImage.UrlImage -> image.download()
                 }
             }.onFailure { throwable ->
@@ -89,7 +94,7 @@ class DefaultNotificationImageLoader(
         val drawable = AppCompatResources.getDrawable(context, resId) ?: return null
         val width = (drawable.intrinsicWidth.takeIf { it > 0 } ?: DEFAULT_DRAWABLE_SIZE)
         val height = (drawable.intrinsicHeight.takeIf { it > 0 } ?: DEFAULT_DRAWABLE_SIZE)
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(width, height)
         val canvas = Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

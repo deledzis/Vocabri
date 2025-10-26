@@ -45,7 +45,7 @@ tasks.test {
 }
 
 dependencies {
-    implementation(libs.kermit.log)
+    api(libs.kermit.log)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

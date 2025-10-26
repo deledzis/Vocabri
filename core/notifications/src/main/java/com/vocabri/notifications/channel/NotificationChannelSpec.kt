@@ -41,10 +41,10 @@ data class NotificationChannelSpec(
     val importance: NotificationImportance = NotificationImportance.DEFAULT,
     val showBadge: Boolean = true,
     val enableLights: Boolean = false,
-    @ColorInt val lightColor: Int? = null,
+    @field:ColorInt val useLightColor: Int? = null,
     val enableVibration: Boolean = true,
-    val vibrationPattern: List<Long> = emptyList(),
-    val sound: NotificationSound? = NotificationSound.Default,
+    val useVibrationPattern: List<Long> = emptyList(),
+    val useSound: NotificationSound? = NotificationSound.Default,
     val groupId: String? = null,
     val canBypassDnd: Boolean = false,
     val lockscreenVisibility: Int = NotificationCompat.VISIBILITY_PRIVATE,
@@ -60,13 +60,13 @@ data class NotificationChannelSpec(
         setShowBadge(showBadge)
         enableLights(enableLights)
         if (enableLights) {
-            lightColor?.let(::setLightColor)
+            useLightColor?.let(::setLightColor)
         }
         enableVibration(enableVibration)
-        if (enableVibration && vibrationPattern.isNotEmpty()) {
-            vibrationPattern = vibrationPattern.toLongArray()
+        if (enableVibration && useVibrationPattern.isNotEmpty()) {
+            vibrationPattern = useVibrationPattern.toLongArray()
         }
-        sound?.resolve(context)?.let { (uri, attributes) ->
+        useSound?.resolve(context)?.let { (uri, attributes) ->
             setSound(uri, attributes)
         } ?: setSound(null, null)
         groupId?.let { group = it }

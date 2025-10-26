@@ -28,12 +28,7 @@ import android.net.Uri
 /**
  * Value object describing a deeplink destination extracted from a notification payload.
  */
-data class DeeplinkData(
-    val rawUri: String,
-    val uri: Uri,
-    val route: String,
-    val arguments: Map<String, String>,
-) {
+data class DeeplinkData(val rawUri: String, val uri: Uri, val route: String, val arguments: Map<String, String>) {
     val pathSegments: List<String> = uri.pathSegments ?: emptyList()
 
     val isValid: Boolean = uri.scheme != null || uri.path?.isNotBlank() == true

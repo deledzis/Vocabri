@@ -27,6 +27,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.net.Uri
 import androidx.annotation.RawRes
+import androidx.core.net.toUri
 
 /**
  * Represents a sound configuration used for notification channels and individual notifications.
@@ -39,14 +40,12 @@ sealed class NotificationSound {
     data object Silent : NotificationSound()
 
     /** Plays a specific [Uri] provided by the caller. */
-    data class Custom(
-        val uri: Uri,
-        val audioAttributes: AudioAttributes? = defaultAudioAttributes(),
-    ) : NotificationSound()
+    data class Custom(val uri: Uri, val audioAttributes: AudioAttributes? = defaultAudioAttributes()) :
+        NotificationSound()
 
     /** Plays a raw resource associated with the client application. */
     data class Resource(
-        @RawRes val resId: Int,
+        @field:RawRes val resId: Int,
         val audioAttributes: AudioAttributes? = defaultAudioAttributes(),
     ) : NotificationSound()
 
@@ -74,6 +73,5 @@ sealed class NotificationSound {
     }
 }
 
-private fun Context.resourceUri(@RawRes resId: Int): Uri = Uri.parse(
-    "${android.content.ContentResolver.SCHEME_ANDROID_RESOURCE}://${packageName}/$resId",
-)
+private fun Context.resourceUri(@RawRes resId: Int): Uri =
+    "${android.content.ContentResolver.SCHEME_ANDROID_RESOURCE}://$packageName/$resId".toUri()

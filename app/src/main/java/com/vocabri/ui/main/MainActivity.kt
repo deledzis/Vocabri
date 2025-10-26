@@ -31,8 +31,8 @@ import androidx.activity.enableEdgeToEdge
 import com.vocabri.logger.logger
 import com.vocabri.notifications.deeplink.DeeplinkHandler
 import com.vocabri.notifications.navigation.NotificationNavigationCoordinator
-import org.koin.android.ext.android.inject
 import com.vocabri.ui.theme.VocabriTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val log = logger()
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleNotificationIntent(intent)
     }

@@ -23,6 +23,7 @@
  */
 package com.vocabri.notifications.manager
 
+import androidx.annotation.RequiresPermission
 import com.vocabri.notifications.channel.NotificationChannelSpec
 import com.vocabri.notifications.model.NotificationData
 
@@ -30,8 +31,10 @@ import com.vocabri.notifications.model.NotificationData
  * High level API for posting notifications.
  */
 interface NotificationManager {
+    @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     suspend fun show(notification: NotificationData)
 
+    @RequiresPermission(android.Manifest.permission.POST_NOTIFICATIONS)
     suspend fun show(notifications: Collection<NotificationData>)
 
     fun cancel(notificationId: Int, tag: String? = null)

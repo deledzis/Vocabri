@@ -23,7 +23,7 @@
  */
 package com.vocabri.notifications.service
 
-import android.net.Uri
+import androidx.core.net.toUri
 import com.google.firebase.messaging.RemoteMessage
 import com.vocabri.logger.logger
 import com.vocabri.notifications.channel.NotificationImportance
@@ -74,9 +74,12 @@ class NotificationMessageParser(
 
         when (payload[KEY_STYLE]?.lowercase()) {
             STYLE_BIG_TEXT -> builder.style(NotificationStyle.BigText(payload[KEY_BIG_TEXT] ?: body.orEmpty()))
-            STYLE_BIG_PICTURE -> builder.style(NotificationStyle.BigPicture(
-                summaryText = payload[KEY_SUMMARY_TEXT],
-            ))
+            STYLE_BIG_PICTURE -> builder.style(
+                NotificationStyle.BigPicture(
+                    summaryText = payload[KEY_SUMMARY_TEXT],
+                ),
+            )
+
             STYLE_INBOX -> builder.style(NotificationStyle.Inbox(parseInboxLines(payload)))
         }
 
@@ -104,8 +107,10 @@ class NotificationMessageParser(
         val trimmed = value.trim()
         return when {
             trimmed.startsWith("http", ignoreCase = true) -> NotificationImage.UrlImage(trimmed)
-            trimmed.startsWith("content://") || trimmed.startsWith("file://") || trimmed.startsWith("android.resource://") ->
-                NotificationImage.UriImage(Uri.parse(trimmed))
+            trimmed.startsWith("content://") || trimmed.startsWith("file://") ||
+                trimmed.startsWith("android.resource://") ->
+                NotificationImage.UriImage(trimmed.toUri())
+
             trimmed.all { it.isDigit() } -> NotificationImage.Resource(trimmed.toInt())
             else -> null
         }
@@ -114,7 +119,7 @@ class NotificationMessageParser(
     private fun parseSound(value: String): NotificationSound? = when (value.lowercase()) {
         SOUND_DEFAULT -> NotificationSound.Default
         SOUND_SILENT -> NotificationSound.Silent
-        else -> NotificationSound.Custom(Uri.parse(value))
+        else -> NotificationSound.Custom(value.toUri())
     }
 
     private fun parseVibrationPattern(value: String): LongArray? = runCatching {

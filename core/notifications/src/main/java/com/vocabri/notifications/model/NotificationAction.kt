@@ -24,6 +24,7 @@
 package com.vocabri.notifications.model
 
 import androidx.annotation.DrawableRes
+import com.vocabri.notifications.deeplink.DeeplinkData
 
 /**
  * Describes an action button displayed alongside a notification.
@@ -32,7 +33,7 @@ data class NotificationAction(
     val id: String,
     val title: String,
     val deeplink: DeeplinkData?,
-    @DrawableRes val iconResId: Int? = null,
+    @field:DrawableRes val iconResId: Int? = null,
     val requestCode: Int = id.hashCode(),
     val requiresAuthentication: Boolean = false,
     val isDestructive: Boolean = false,

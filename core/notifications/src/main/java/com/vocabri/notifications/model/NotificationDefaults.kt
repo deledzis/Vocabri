@@ -38,7 +38,7 @@ data class NotificationDefaults(
         description = "All Vocabri notifications",
         importance = NotificationImportance.DEFAULT,
     ),
-    @DrawableRes val defaultSmallIconResId: Int = android.R.drawable.ic_dialog_info,
+    @field:DrawableRes val defaultSmallIconResId: Int = android.R.drawable.ic_dialog_info,
     val defaultGroupKey: String? = null,
     private val initialNotificationId: Int = 1_000,
 ) {
