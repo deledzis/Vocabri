@@ -21,37 +21,21 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
+package com.vocabri.notifications.navigation
+
+import com.vocabri.notifications.deeplink.DeeplinkData
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+
+/**
+ * Simple event bus used to dispatch deeplinks originating from notifications to the UI layer.
+ */
+class NotificationNavigationCoordinator {
+    private val _deeplinks = MutableSharedFlow<DeeplinkData>(extraBufferCapacity = 1)
+    val deeplinks: SharedFlow<DeeplinkData> = _deeplinks.asSharedFlow()
+
+    fun publish(deeplink: DeeplinkData) {
+        _deeplinks.tryEmit(deeplink)
     }
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

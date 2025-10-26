@@ -21,37 +21,30 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+package com.vocabri.notifications.deeplink
+
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+
+/**
+ * Creates [PendingIntent]s and navigation hooks for deeplinks triggered by notifications.
+ */
+interface DeeplinkHandler {
+    fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent?
+
+    fun createActionIntent(context: Context, actionId: String, requestCode: Int, deeplink: DeeplinkData?): PendingIntent?
+
+    fun extract(intent: Intent?): DeeplinkData?
 }
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
+/**
+ * Default no-op implementation used when the host application does not provide deeplink handling.
+ */
+class NoOpDeeplinkHandler : DeeplinkHandler {
+    override fun createContentIntent(context: Context, notificationId: Int, deeplink: DeeplinkData?): PendingIntent? = null
+
+    override fun createActionIntent(context: Context, actionId: String, requestCode: Int, deeplink: DeeplinkData?): PendingIntent? = null
+
+    override fun extract(intent: Intent?): DeeplinkData? = null
 }
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

@@ -21,37 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+package com.vocabri.notifications.image
+
+import android.graphics.Bitmap
+import com.vocabri.notifications.model.NotificationImage
+
+/**
+ * Resolves [NotificationImage] descriptors into concrete [Bitmap] instances.
+ */
+interface NotificationImageLoader {
+    suspend fun load(image: NotificationImage?): Bitmap?
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

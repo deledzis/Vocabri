@@ -25,30 +25,17 @@ import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
-    id("com.vocabri.android.application")
-    alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.firebase.crashlytics)
+    id("com.vocabri.android.library")
     id("com.vocabri.kover")
 }
 
 android {
-    namespace = "com.vocabri"
+    namespace = "com.vocabri.notifications"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "com.vocabri"
-        testApplicationId = "com.vocabri.test"
         minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    buildFeatures {
-        compose = true
     }
 
     buildTypes {
@@ -59,10 +46,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-    }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.bom.get()
     }
 
     compileOptions {
@@ -100,53 +83,22 @@ android {
 }
 
 dependencies {
-    implementation(projects.shared)
-    implementation(projects.domain)
-    implementation(projects.data)
     implementation(projects.core.logger)
-    implementation(projects.core.utils)
-    implementation(projects.core.notifications)
 
     implementation(libs.kotlinx.coroutines)
-    implementation(libs.kermit.log)
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.ktx)
 
     implementation(platform(libs.koin.bom))
     implementation(libs.koin.core)
     implementation(libs.koin.android)
-    implementation(libs.koin.compose)
-
-    implementation(libs.sqldelight.android)
-
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.appcompat)
-    implementation(libs.material)
 
     implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.crashlytics)
-
-    implementation(platform(libs.compose.bom))
-    implementation(libs.compose.material3)
-    implementation(libs.compose.foundation)
-    implementation(libs.compose.icons.extended)
-    implementation(libs.compose.activity)
-    implementation(libs.compose.viewmodel)
-    implementation(libs.accompanist.flowlayout)
-    implementation(libs.compose.navigation)
-    implementation(libs.compose.tooling.preview)
-    implementation(libs.androidx.ui.text.google.fonts)
-    debugImplementation(libs.compose.tooling)
+    implementation(libs.firebase.messaging)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
-    testImplementation(libs.androidx.junit.compose)
     testImplementation(libs.robolectric)
-
-    androidTestImplementation(libs.androidx.runner)
-    androidTestImplementation(libs.mockk.android)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.junit.compose)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.sqldelight.jvm)
+    testImplementation(libs.androidx.test.core)
 }

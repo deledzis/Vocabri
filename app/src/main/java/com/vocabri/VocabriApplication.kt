@@ -28,6 +28,8 @@ import com.vocabri.data.di.dataModule
 import com.vocabri.di.appModule
 import com.vocabri.domain.di.domainModule
 import com.vocabri.logger.logger
+import com.vocabri.notifications.di.appNotificationsModule
+import com.vocabri.notifications.di.notificationsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.startKoin
@@ -48,6 +50,8 @@ class VocabriApplication : Application() {
             modules(
                 dataModule,
                 domainModule,
+                notificationsModule,
+                appNotificationsModule,
                 appModule,
             )
         }

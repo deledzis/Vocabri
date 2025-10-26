@@ -21,37 +21,19 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
-}
+package com.vocabri.notifications.model
 
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
+import androidx.annotation.DrawableRes
 
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")
+/**
+ * Describes an action button displayed alongside a notification.
+ */
+data class NotificationAction(
+    val id: String,
+    val title: String,
+    val deeplink: DeeplinkData?,
+    @DrawableRes val iconResId: Int? = null,
+    val requestCode: Int = id.hashCode(),
+    val requiresAuthentication: Boolean = false,
+    val isDestructive: Boolean = false,
+)
