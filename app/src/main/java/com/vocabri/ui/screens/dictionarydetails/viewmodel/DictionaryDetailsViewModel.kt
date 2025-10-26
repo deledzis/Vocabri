@@ -34,12 +34,15 @@ import com.vocabri.ui.screens.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Handles events and manages state for the Dictionary screen.
@@ -59,6 +62,11 @@ open class DictionaryDetailsViewModel(
         DictionaryDetailsState.Loading(partOfSpeech.toTitleResId),
     )
     open val state: StateFlow<DictionaryDetailsState> = _state
+
+    private val navigateBackAfterDelete = AtomicBoolean(false)
+
+    private val _navigationEvents = MutableSharedFlow<DictionaryDetailsEffect>(extraBufferCapacity = 1)
+    open val navigationEvents: SharedFlow<DictionaryDetailsEffect> = _navigationEvents
 
     private var observeJob: Job? = null
 
@@ -118,6 +126,11 @@ open class DictionaryDetailsViewModel(
                         val uiWords = words.map { it.toUiModel() }
                         log.d { "Fetched ${uiWords.size} $partOfSpeech words" }
 
+                        if (uiWords.isEmpty() && navigateBackAfterDelete.get()) {
+                            log.i { "Skipping empty state emission due to pending navigation" }
+                            return@collect
+                        }
+
                         _state.update {
                             if (uiWords.isEmpty()) {
                                 log.i { "No words found => Empty state" }
@@ -150,6 +163,10 @@ open class DictionaryDetailsViewModel(
         val currentState = _state.value
         if (currentState is DictionaryDetailsState.WordsLoaded) {
             val newList = currentState.words.filterNot { it.id == wordId }
+            if (newList.isEmpty()) {
+                log.i { "Last word removed locally, preparing navigation back" }
+                navigateBackAfterDelete.set(true)
+            }
             _state.update { currentState.copy(words = newList) }
         }
 
@@ -163,8 +180,24 @@ open class DictionaryDetailsViewModel(
             try {
                 deleteWordUseCase.execute(wordId)
                 log.i { "Word with id: $wordId deleted successfully" }
+
+                if (navigateBackAfterDelete.get()) {
+                    log.i { "All words deleted for $partOfSpeech, emitting navigation event" }
+                    observeJob?.cancel()
+                    observeJob = null
+                    val emitted = _navigationEvents.tryEmit(DictionaryDetailsEffect.NavigateBack)
+                    if (!emitted) {
+                        log.w { "Navigation event buffer full; unable to emit NavigateBack" }
+                    }
+                    navigateBackAfterDelete.set(false)
+                }
+            } catch (e: CancellationException) {
+                log.w(e) { "Delete word job was cancelled: $wordId" }
+                navigateBackAfterDelete.set(false)
+                throw e
             } catch (e: Exception) {
                 log.e(e) { "Failed to delete word with id: $wordId" }
+                navigateBackAfterDelete.set(false)
                 _state.update {
                     DictionaryDetailsState.Error(
                         titleId = it.titleId,

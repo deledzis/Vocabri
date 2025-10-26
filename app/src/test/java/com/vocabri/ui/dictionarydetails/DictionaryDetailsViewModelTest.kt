@@ -32,6 +32,7 @@ import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.ObserveWordsUseCase
 import com.vocabri.rules.MainDispatcherRule
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEffect
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
@@ -42,6 +43,7 @@ import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
@@ -164,6 +166,21 @@ class DictionaryDetailsViewModelTest {
         assertTrue(state is DictionaryDetailsState.WordsLoaded)
         coVerify { mockWordRepository.deleteWordById("1") }
         coVerify(exactly = 1) { mockWordRepository.observeWordsByPartOfSpeech(samplePartOfSpeech) }
+    }
+
+    @Test
+    fun `Deleting last word emits navigation effect`() = runTest {
+        setupViewModel(words = sampleWords.take(1))
+        coEvery { mockWordRepository.deleteWordById("1") } just Runs
+        advanceUntilIdle()
+
+        val navigationEffect = async { viewModel.navigationEvents.first() }
+
+        viewModel.handleEvent(DictionaryDetailsEvent.DeleteWordClicked("1"))
+        advanceUntilIdle()
+
+        assertEquals(DictionaryDetailsEffect.NavigateBack, navigationEffect.await())
+        coVerify { mockWordRepository.deleteWordById("1") }
     }
 
     @Test
