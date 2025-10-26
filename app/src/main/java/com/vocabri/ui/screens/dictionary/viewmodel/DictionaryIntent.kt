@@ -21,16 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.dictionarydetails.viewmodel
+package com.vocabri.ui.screens.dictionary.viewmodel
 
-sealed interface DictionaryDetailsEvent {
-    data object AddWordClicked : DictionaryDetailsEvent
-
-    data object RetryClicked : DictionaryDetailsEvent
-
-    data class OnWordClicked(val id: String) : DictionaryDetailsEvent
-
-    data class DeleteWordClicked(val id: String) : DictionaryDetailsEvent
-
-    data object OnBackClicked : DictionaryDetailsEvent
+sealed interface DictionaryIntent {
+    data object Retry : DictionaryIntent
 }

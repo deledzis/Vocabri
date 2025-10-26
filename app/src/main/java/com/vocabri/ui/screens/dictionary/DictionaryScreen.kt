@@ -60,7 +60,7 @@ import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionary.components.WordGroupCard
 import com.vocabri.ui.screens.dictionary.components.WordGroupHighlightedCard
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryIntent
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import com.vocabri.ui.theme.VocabriTheme
@@ -84,39 +84,48 @@ fun DictionaryScreen(
         log.i { "DictionaryScreen is displayed" }
     }
 
-    DictionaryScreenRoot(modifier = modifier, state = state) { event ->
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryEvent.AddWordClicked -> {
-                navController.navigate(NavigationRoute.Secondary.AddWord.route)
-            }
-
-            is DictionaryEvent.OnGroupCardClicked -> {
-                navController.navigate(
-                    NavigationRoute.Secondary.DictionaryDetails.fromGroup(event.partOfSpeech),
-                )
-            }
-
-            DictionaryEvent.RetryClicked -> {
-                viewModel.retry()
-            }
-        }
-    }
+    DictionaryScreenRoot(
+        modifier = modifier,
+        state = state,
+        onAddWordClick = {
+            log.i { "Add word clicked" }
+            navController.navigate(NavigationRoute.Secondary.AddWord.route)
+        },
+        onGroupClick = { partOfSpeech ->
+            log.i { "Group clicked: $partOfSpeech" }
+            navController.navigate(
+                NavigationRoute.Secondary.DictionaryDetails.fromGroup(partOfSpeech.name),
+            )
+        },
+        onRetryClick = {
+            log.i { "Retry requested" }
+            viewModel.onIntent(DictionaryIntent.Retry)
+        },
+    )
 }
 
 @Composable
-fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
+fun DictionaryScreenRoot(
+    modifier: Modifier = Modifier,
+    state: DictionaryState,
+    onAddWordClick: () -> Unit,
+    onGroupClick: (PartOfSpeech) -> Unit,
+    onRetryClick: () -> Unit,
+) {
     Box(
         modifier = modifier
             .fillMaxSize(),
     ) {
         when (state) {
             is DictionaryState.GroupsLoaded -> {
-                WordListScreen(state = state, onEvent = onEvent)
+                WordListScreen(
+                    state = state,
+                    onGroupClick = onGroupClick,
+                )
             }
 
             is DictionaryState.Empty -> {
-                EmptyScreen(onEvent = onEvent)
+                EmptyScreen(onAddWordClick = onAddWordClick)
             }
 
             is DictionaryState.Loading -> {
@@ -124,7 +133,7 @@ fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, 
             }
 
             is DictionaryState.Error -> {
-                ErrorScreen(state = state, onEvent = onEvent)
+                ErrorScreen(state = state, onRetryClick = onRetryClick)
             }
         }
     }
@@ -134,7 +143,7 @@ fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, 
  * Displays a message when the dictionary is empty.
  */
 @Composable
-internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEvent) -> Unit) {
+internal fun EmptyScreen(modifier: Modifier = Modifier, onAddWordClick: () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize(),
@@ -154,7 +163,7 @@ internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEven
                 text = stringResource(R.string.add_word),
                 icon = Icons.Default.Create,
                 contentDescriptionResId = R.string.add_word,
-            ) { onEvent(DictionaryEvent.AddWordClicked) }
+            ) { onAddWordClick() }
         }
     }
 }
@@ -207,7 +216,7 @@ internal fun LoadingScreen(modifier: Modifier = Modifier) {
 internal fun WordListScreen(
     modifier: Modifier = Modifier,
     state: DictionaryState.GroupsLoaded,
-    onEvent: (DictionaryEvent) -> Unit,
+    onGroupClick: (PartOfSpeech) -> Unit,
 ) {
     val log = logger("DictionaryScreenGrid")
 
@@ -237,16 +246,16 @@ internal fun WordListScreen(
                     // considering "All words" group too
                     items(state.groups.size + 1) { groupIndex ->
                         if (groupIndex == 0) {
-                            WordGroupHighlightedCard(uiItem = state.allWords, onEvent = onEvent)
+                            WordGroupHighlightedCard(uiItem = state.allWords, onGroupClick = onGroupClick)
                         } else {
-                            WordGroupCard(uiItem = state.groups[groupIndex - 1], onEvent = onEvent)
+                            WordGroupCard(uiItem = state.groups[groupIndex - 1], onGroupClick = onGroupClick)
                         }
                     }
                 }
             }
 
             false -> {
-                WordGroupHighlightedCard(uiItem = state.allWords, onEvent = onEvent)
+                WordGroupHighlightedCard(uiItem = state.allWords, onGroupClick = onGroupClick)
                 val groupsColumns = state.groups.chunked(columnCount)
                 groupsColumns.forEach { column ->
                     Row(
@@ -258,7 +267,7 @@ internal fun WordListScreen(
                             WordGroupCard(
                                 modifier = Modifier.weight(1f),
                                 uiItem = group,
-                                onEvent = onEvent,
+                                onGroupClick = onGroupClick,
                             )
                         }
                     }
@@ -272,11 +281,7 @@ internal fun WordListScreen(
  * Displays an error message.
  */
 @Composable
-internal fun ErrorScreen(
-    modifier: Modifier = Modifier,
-    state: DictionaryState.Error,
-    onEvent: (DictionaryEvent) -> Unit,
-) {
+internal fun ErrorScreen(modifier: Modifier = Modifier, state: DictionaryState.Error, onRetryClick: () -> Unit) {
     Column(
         modifier = modifier
             .fillMaxSize(),
@@ -293,7 +298,7 @@ internal fun ErrorScreen(
         Buttons.Filled(
             text = stringResource(R.string.retry),
             contentDescriptionResId = R.string.retry,
-        ) { onEvent(DictionaryEvent.RetryClicked) }
+        ) { onRetryClick() }
     }
 }
 
@@ -334,7 +339,12 @@ private fun PreviewWordListScreen() {
         ),
     )
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.GroupsLoaded(allWords = allWords, groups = sampleWordGroups)) {}
+        DictionaryScreenRoot(
+            state = DictionaryState.GroupsLoaded(allWords = allWords, groups = sampleWordGroups),
+            onAddWordClick = {},
+            onGroupClick = {},
+            onRetryClick = {},
+        )
     }
 }
 
@@ -353,7 +363,10 @@ private fun PreviewEmptyDictionaryScreen() {
     VocabriTheme {
         DictionaryScreenRoot(
             state = DictionaryState.Empty,
-        ) {}
+            onAddWordClick = {},
+            onGroupClick = {},
+            onRetryClick = {},
+        )
     }
 }
 
@@ -370,7 +383,12 @@ private fun PreviewEmptyDictionaryScreen() {
 @Composable
 private fun PreviewLoadingScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Loading) {}
+        DictionaryScreenRoot(
+            state = DictionaryState.Loading,
+            onAddWordClick = {},
+            onGroupClick = {},
+            onRetryClick = {},
+        )
     }
 }
 
@@ -388,6 +406,11 @@ private fun PreviewLoadingScreen() {
 @Composable
 private fun PreviewErrorScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Error(message = "Network error")) {}
+        DictionaryScreenRoot(
+            state = DictionaryState.Error(message = "Network error"),
+            onAddWordClick = {},
+            onGroupClick = {},
+            onRetryClick = {},
+        )
     }
 }

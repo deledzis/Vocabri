@@ -21,12 +21,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.dictionary.viewmodel
+package com.vocabri.ui.screens.dictionarydetails.viewmodel
 
-sealed interface DictionaryEvent {
-    data object AddWordClicked : DictionaryEvent
+sealed interface DictionaryDetailsIntent {
+    data object Retry : DictionaryDetailsIntent
 
-    data object RetryClicked : DictionaryEvent
-
-    data class OnGroupCardClicked(val partOfSpeech: String) : DictionaryEvent
+    data class DeleteWord(val id: String) : DictionaryDetailsIntent
 }

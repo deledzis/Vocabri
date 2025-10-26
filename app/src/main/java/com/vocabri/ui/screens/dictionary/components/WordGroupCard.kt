@@ -42,18 +42,17 @@ import androidx.compose.ui.unit.dp
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.Cards
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun WordGroupCard(modifier: Modifier = Modifier, uiItem: WordGroupUiModel, onEvent: (DictionaryEvent) -> Unit) {
+fun WordGroupCard(modifier: Modifier = Modifier, uiItem: WordGroupUiModel, onGroupClick: (PartOfSpeech) -> Unit) {
     Cards.Solid(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         color = MaterialTheme.colorScheme.surfaceContainer,
         onClick = {
-            onEvent(DictionaryEvent.OnGroupCardClicked(partOfSpeech = uiItem.partOfSpeech.toString()))
+            onGroupClick(uiItem.partOfSpeech)
         },
     ) {
         WordGroupCardContent(
@@ -68,7 +67,7 @@ fun WordGroupCard(modifier: Modifier = Modifier, uiItem: WordGroupUiModel, onEve
 fun WordGroupHighlightedCard(
     modifier: Modifier = Modifier,
     uiItem: WordGroupUiModel,
-    onEvent: (DictionaryEvent) -> Unit,
+    onGroupClick: (PartOfSpeech) -> Unit,
 ) {
     Cards.Solid(
         modifier = modifier
@@ -76,7 +75,7 @@ fun WordGroupHighlightedCard(
             .wrapContentHeight(),
         color = MaterialTheme.colorScheme.tertiary,
         onClick = {
-            onEvent(DictionaryEvent.OnGroupCardClicked(partOfSpeech = uiItem.partOfSpeech.toString()))
+            onGroupClick(uiItem.partOfSpeech)
         },
     ) {
         WordGroupCardContent(
@@ -134,7 +133,8 @@ private fun WordGroupCardPreview() {
                 titleText = "Noun",
                 subtitleText = "Words: 10",
             ),
-        ) {}
+            onGroupClick = {},
+        )
     }
 }
 
@@ -157,6 +157,7 @@ private fun WordWordGroupHighlightedCard() {
                 titleText = "All words",
                 subtitleText = "Words: 10",
             ),
-        ) {}
+            onGroupClick = {},
+        )
     }
 }

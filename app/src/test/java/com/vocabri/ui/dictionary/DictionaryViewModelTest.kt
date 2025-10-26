@@ -29,6 +29,7 @@ import com.vocabri.domain.repository.ResourcesRepository
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.rules.MainDispatcherRule
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryIntent
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import io.mockk.clearAllMocks
@@ -126,7 +127,7 @@ class DictionaryViewModelTest {
         assertTrue(viewModel.state.first() is DictionaryState.Error)
 
         // Retry should switch to Empty
-        viewModel.retry()
+        viewModel.onIntent(DictionaryIntent.Retry)
         advanceUntilIdle()
         assertEquals(DictionaryState.Empty, viewModel.state.first())
     }
