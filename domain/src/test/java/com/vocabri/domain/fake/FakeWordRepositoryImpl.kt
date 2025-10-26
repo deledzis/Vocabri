@@ -51,4 +51,8 @@ class FakeWordRepositoryImpl : WordRepository {
     override suspend fun deleteWordById(id: String) {
         words.removeIf { it.id == id }
     }
+
+    override suspend fun syncPendingOperations() {
+        // No-op for fake implementation
+    }
 }

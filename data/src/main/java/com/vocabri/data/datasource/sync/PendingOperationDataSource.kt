@@ -21,40 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.domain.repository
+package com.vocabri.data.datasource.sync
 
-import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
-import kotlinx.coroutines.flow.Flow
 
-/**
- * Repository interface for managing Word data.
- */
-interface WordRepository {
+enum class OperationType {
+    INSERT,
+    DELETE,
+    UPDATE,
+}
 
-    fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>>
+data class PendingOperation(
+    val id: String,
+    val operationType: OperationType,
+    val wordId: String,
+    val wordData: Word?,
+    val timestamp: Long,
+)
 
-    /**
-     * Retrieves words by a specific part of speech from the data source.
-     *
-     * @param partOfSpeech The part of speech used to filter words.
-     * @return A list of words matching the specified part of speech.
-     */
-    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word>
-
-    /**
-     * Inserts a new word into the data source.
-     */
-    suspend fun insertWord(word: Word)
-
-    /**
-     * Deletes a word by its unique identifier.
-     */
-    suspend fun deleteWordById(id: String)
-
-    /**
-     * Synchronizes pending operations with the remote data source.
-     * This should be called when network connectivity is available.
-     */
-    suspend fun syncPendingOperations()
+interface PendingOperationDataSource {
+    suspend fun insertPendingOperation(operation: PendingOperation)
+    suspend fun getAllPendingOperations(): List<PendingOperation>
+    suspend fun deletePendingOperation(id: String)
+    suspend fun deleteAllPendingOperations()
 }
