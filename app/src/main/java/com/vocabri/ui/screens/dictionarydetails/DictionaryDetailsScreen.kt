@@ -58,6 +58,7 @@ import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEffect
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
@@ -82,6 +83,14 @@ fun DictionaryDetailsScreen(
 
     LaunchedEffect(viewModel) {
         log.i { "DictionaryDetailsScreen is displayed" }
+        viewModel.navigationEvents.collect { effect ->
+            when (effect) {
+                DictionaryDetailsEffect.NavigateBack -> {
+                    log.i { "Navigation effect received. Popping back stack." }
+                    navController.popBackStack()
+                }
+            }
+        }
     }
 
     DictionaryDetailsScreenRoot(modifier = modifier, state = state) { event ->
