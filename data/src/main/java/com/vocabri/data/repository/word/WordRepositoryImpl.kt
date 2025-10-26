@@ -23,6 +23,7 @@
  */
 package com.vocabri.data.repository.word
 
+import com.vocabri.data.datasource.word.RemoteWordDataSource
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
@@ -32,49 +33,60 @@ import com.vocabri.logger.logger
 import kotlinx.coroutines.flow.Flow
 
 /**
- * Implementation of the WordsRepository interface that delegates to WordDataSource.
+ * Implementation of [WordRepository] that orchestrates remote and local data sources.
  */
-class WordRepositoryImpl(private val wordDataSource: WordDataSource) : WordRepository {
+class WordRepositoryImpl(
+    private val localWordDataSource: WordDataSource,
+    private val remoteWordDataSource: RemoteWordDataSource,
+) : WordRepository {
 
     private val log = logger()
 
     override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> {
         log.i { "observeWordsByPartOfSpeech called for $partOfSpeech" }
-        return wordDataSource.observeWordsByPartOfSpeech(partOfSpeech)
+        return localWordDataSource.observeWordsByPartOfSpeech(partOfSpeech)
     }
 
-    /**
-     * Retrieves words by a specific part of speech.
-     */
     override suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word> {
         log.i { "getWordsByPartOfSpeech called for $partOfSpeech" }
-        val words = wordDataSource.getWordsByPartOfSpeech(partOfSpeech)
+        val words = localWordDataSource.getWordsByPartOfSpeech(partOfSpeech)
         log.i { "Fetched ${words.size} words for $partOfSpeech" }
         return words
     }
 
-    /**
-     * Inserts a word by delegating to the local data source.
-     */
     override suspend fun insertWord(word: Word) {
         log.i { "insertWord called with ID = ${word.id}, text = ${word.text}" }
 
-        val existingWords = wordDataSource.getWordsByPartOfSpeech(word.toPartOfSpeech()).filter { it.text == word.text }
+        val existingWords = localWordDataSource
+            .getWordsByPartOfSpeech(word.toPartOfSpeech())
+            .filter { it.text == word.text }
         if (existingWords.isNotEmpty()) {
             log.w { "Word with text '${word.text}' already exists" }
             error("Word with text '${word.text}' already exists")
         }
 
-        wordDataSource.insertWord(word)
+        runCatching {
+            log.i { "Attempting remote insert for wordId=${word.id}" }
+            remoteWordDataSource.insertWord(word)
+        }.onFailure { throwable ->
+            log.w { "Remote insert failed for wordId=${word.id}: ${throwable.message ?: throwable::class.simpleName}" }
+        }
+
+        localWordDataSource.insertWord(word)
         log.i { "Word inserted successfully, ID = ${word.id}" }
     }
 
-    /**
-     * Deletes a word by its ID, leveraging the local data source.
-     */
     override suspend fun deleteWordById(id: String) {
         log.i { "deleteWordById called for ID = $id" }
-        wordDataSource.deleteWord(id)
+
+        runCatching {
+            log.i { "Attempting remote delete for wordId=$id" }
+            remoteWordDataSource.deleteWord(id)
+        }.onFailure { throwable ->
+            log.w { "Remote delete failed for wordId=$id: ${throwable.message ?: throwable::class.simpleName}" }
+        }
+
+        localWordDataSource.deleteWord(id)
         log.i { "Word with ID = $id deleted successfully" }
     }
 }

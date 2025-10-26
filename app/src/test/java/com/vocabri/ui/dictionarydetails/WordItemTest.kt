@@ -25,11 +25,17 @@ package com.vocabri.ui.dictionarydetails
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
+import androidx.compose.ui.test.swipeRight
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.fake.TestApplication
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -74,5 +80,54 @@ class WordItemTest {
         }
 
         composeRule.onNodeWithText("learn, study").assertExists()
+    }
+
+    @Test
+    fun `Swiping end to start triggers delete event`() {
+        val word = WordUiModel(
+            id = "1",
+            text = "lernen",
+            translations = "learn",
+            examples = "Ich lerne",
+            partOfSpeech = PartOfSpeech.VERB,
+        )
+        val events = mutableListOf<DictionaryDetailsEvent>()
+
+        composeRule.setContent {
+            WordListItem(uiItem = word, onEvent = events::add)
+        }
+
+        composeRule.onNodeWithText("lernen")
+            .performTouchInput { swipeLeft() }
+
+        composeRule.waitForIdle()
+
+        assertEquals(
+            listOf(DictionaryDetailsEvent.DeleteWordClicked(word.id)),
+            events,
+        )
+    }
+
+    @Test
+    fun `Swiping start to end does not trigger delete event`() {
+        val word = WordUiModel(
+            id = "1",
+            text = "lernen",
+            translations = "learn",
+            examples = "Ich lerne",
+            partOfSpeech = PartOfSpeech.VERB,
+        )
+        val events = mutableListOf<DictionaryDetailsEvent>()
+
+        composeRule.setContent {
+            WordListItem(uiItem = word, onEvent = events::add)
+        }
+
+        composeRule.onNodeWithText("lernen")
+            .performTouchInput { swipeRight() }
+
+        composeRule.waitForIdle()
+
+        assertTrue(events.isEmpty())
     }
 }

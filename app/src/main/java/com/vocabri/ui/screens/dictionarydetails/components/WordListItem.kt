@@ -43,7 +43,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.material3.ripple
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -67,24 +72,41 @@ private const val THRESHOLD = 0.5f
 
 @Composable
 fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryDetailsEvent) -> Unit) {
-    val dismissState = rememberSwipeToDismissBoxState(
-        positionalThreshold = { it * THRESHOLD },
-        confirmValueChange = {
-            when (it) {
-                SwipeToDismissBoxValue.EndToStart -> {
-                    onEvent(DictionaryDetailsEvent.DeleteWordClicked(uiItem.id))
-                    true
-                }
+    var isDismissEnabled by remember(uiItem.id) { mutableStateOf(true) }
 
-                else -> false
-            }
-        },
+    val dismissState = rememberSwipeToDismissBoxState(
+        initialValue = SwipeToDismissBoxValue.Settled,
+        positionalThreshold = { it * THRESHOLD },
     )
+
+    val currentOnEvent by rememberUpdatedState(newValue = onEvent)
+    val currentWordId by rememberUpdatedState(newValue = uiItem.id)
+
+    LaunchedEffect(dismissState.currentValue) {
+        when (dismissState.currentValue) {
+            SwipeToDismissBoxValue.EndToStart -> {
+                if (isDismissEnabled) {
+                    isDismissEnabled = false
+                    currentOnEvent(DictionaryDetailsEvent.DeleteWordClicked(currentWordId))
+                    dismissState.snapTo(SwipeToDismissBoxValue.Settled)
+                }
+            }
+
+            SwipeToDismissBoxValue.Settled -> {
+                if (!isDismissEnabled) {
+                    isDismissEnabled = true
+                }
+            }
+
+            else -> Unit
+        }
+    }
 
     SwipeToDismissBox(
         modifier = modifier,
         state = dismissState,
         enableDismissFromStartToEnd = false,
+        enableDismissFromEndToStart = isDismissEnabled,
         backgroundContent = { DeleteBackground() },
     ) {
         WordListItemContent(uiItem = uiItem, onEvent = onEvent)

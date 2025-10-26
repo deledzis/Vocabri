@@ -27,8 +27,10 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.vocabri.data.datasource.debug.DebugDataSource
 import com.vocabri.data.datasource.debug.DebugDataSourceImpl
+import com.vocabri.data.datasource.word.RemoteWordDataSource
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.datasource.word.WordLocalDataSourceImpl
+import com.vocabri.data.datasource.word.WordRemoteDataSourceStub
 import com.vocabri.data.db.VocabriDatabase
 import com.vocabri.data.repository.debug.DebugRepositoryImpl
 import com.vocabri.data.repository.word.WordRepositoryImpl
@@ -36,7 +38,9 @@ import com.vocabri.data.util.UuidIdGenerator
 import com.vocabri.domain.model.kover.ExcludeFromCoverage
 import com.vocabri.domain.repository.DebugRepository
 import com.vocabri.domain.repository.WordRepository
+import com.vocabri.shared.network.VocabriHttpClientFactory
 import com.vocabri.utils.IdGenerator
+import io.ktor.client.HttpClient
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -54,7 +58,10 @@ val dataModule = module {
         )
     }
 
+    single<HttpClient> { VocabriHttpClientFactory().create() }
+
     singleOf(::WordLocalDataSourceImpl) { bind<WordDataSource>() }
+    singleOf(::WordRemoteDataSourceStub) { bind<RemoteWordDataSource>() }
     singleOf(::DebugDataSourceImpl) { bind<DebugDataSource>() }
     singleOf(::WordRepositoryImpl) { bind<WordRepository>() }
     singleOf(::DebugRepositoryImpl) { bind<DebugRepository>() }
