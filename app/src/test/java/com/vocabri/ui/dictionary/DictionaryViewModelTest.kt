@@ -29,12 +29,15 @@ import com.vocabri.domain.repository.ResourcesRepository
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.rules.MainDispatcherRule
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEffect
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -126,8 +129,34 @@ class DictionaryViewModelTest {
         assertTrue(viewModel.state.first() is DictionaryState.Error)
 
         // Retry should switch to Empty
-        viewModel.retry()
+        viewModel.handleEvent(DictionaryEvent.RetryClicked)
         advanceUntilIdle()
         assertEquals(DictionaryState.Empty, viewModel.state.first())
+    }
+
+    @Test
+    fun `AddWordClicked emits navigation effect`() = runTest {
+        val viewModel = createViewModel(flowOf(emptyList()))
+
+        val effect = async { viewModel.effect.first() }
+
+        viewModel.handleEvent(DictionaryEvent.AddWordClicked)
+
+        assertEquals(DictionaryEffect.NavigateToAddWord, effect.await())
+    }
+
+    @Test
+    fun `OnGroupCardClicked emits navigation effect with part of speech`() = runTest {
+        val viewModel = createViewModel(flowOf(emptyList()))
+
+        val effect = async { viewModel.effect.first() }
+        val expectedPartOfSpeech = PartOfSpeech.NOUN.name
+
+        viewModel.handleEvent(DictionaryEvent.OnGroupCardClicked(expectedPartOfSpeech))
+
+        assertEquals(
+            DictionaryEffect.NavigateToDictionaryDetails(partOfSpeech = expectedPartOfSpeech),
+            effect.await(),
+        )
     }
 }

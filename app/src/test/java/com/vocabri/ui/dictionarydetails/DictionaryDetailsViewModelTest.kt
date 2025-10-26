@@ -32,6 +32,7 @@ import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.ObserveWordsUseCase
 import com.vocabri.rules.MainDispatcherRule
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEffect
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
@@ -42,6 +43,7 @@ import io.mockk.coVerify
 import io.mockk.just
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.TestScope
@@ -178,6 +180,46 @@ class DictionaryDetailsViewModelTest {
             state,
         )
         coVerify(exactly = 1) { mockWordRepository.observeWordsByPartOfSpeech(samplePartOfSpeech) }
+    }
+
+    @Test
+    fun `AddWordClicked emits navigation effect`() = runTest {
+        setupViewModel()
+        advanceUntilIdle()
+
+        val effect = async { viewModel.effect.first() }
+
+        viewModel.handleEvent(DictionaryDetailsEvent.AddWordClicked)
+
+        assertEquals(DictionaryDetailsEffect.NavigateToAddWord, effect.await())
+    }
+
+    @Test
+    fun `OnBackClicked emits navigation effect`() = runTest {
+        setupViewModel()
+        advanceUntilIdle()
+
+        val effect = async { viewModel.effect.first() }
+
+        viewModel.handleEvent(DictionaryDetailsEvent.OnBackClicked)
+
+        assertEquals(DictionaryDetailsEffect.NavigateBack, effect.await())
+    }
+
+    @Test
+    fun `OnWordClicked emits navigation effect with id`() = runTest {
+        setupViewModel()
+        advanceUntilIdle()
+
+        val effect = async { viewModel.effect.first() }
+        val expectedWordId = "test-id"
+
+        viewModel.handleEvent(DictionaryDetailsEvent.OnWordClicked(expectedWordId))
+
+        assertEquals(
+            DictionaryDetailsEffect.NavigateToWord(wordId = expectedWordId),
+            effect.await(),
+        )
     }
 
     private fun setupWordRepository(words: List<Word> = sampleWords.take(1)) {

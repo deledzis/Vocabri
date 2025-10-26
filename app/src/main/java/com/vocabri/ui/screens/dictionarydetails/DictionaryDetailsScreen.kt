@@ -58,6 +58,7 @@ import com.vocabri.ui.components.ShimmerEffect
 import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEffect
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
@@ -82,33 +83,25 @@ fun DictionaryDetailsScreen(
 
     LaunchedEffect(viewModel) {
         log.i { "DictionaryDetailsScreen is displayed" }
-    }
-
-    DictionaryDetailsScreenRoot(modifier = modifier, state = state) { event ->
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryDetailsEvent.AddWordClicked -> {
-                navController.navigate(NavigationRoute.Secondary.AddWord.route)
-            }
-
-            is DictionaryDetailsEvent.DeleteWordClicked -> {
-                viewModel.handleEvent(event)
-            }
-
-            DictionaryDetailsEvent.OnBackClicked -> {
-                navController.popBackStack()
-            }
-
-            is DictionaryDetailsEvent.OnWordClicked -> {
-                // TODO: navigate to edit word screen
-                navController.popBackStack()
-            }
-
-            DictionaryDetailsEvent.RetryClicked -> {
-                viewModel.retry()
+        viewModel.effect.collect { effect ->
+            log.i { "Effect received: $effect" }
+            when (effect) {
+                DictionaryDetailsEffect.NavigateBack -> navController.popBackStack()
+                DictionaryDetailsEffect.NavigateToAddWord ->
+                    navController.navigate(NavigationRoute.Secondary.AddWord.route)
+                is DictionaryDetailsEffect.NavigateToWord -> {
+                    // TODO: navigate to edit word screen
+                    navController.popBackStack()
+                }
             }
         }
     }
+
+    DictionaryDetailsScreenRoot(
+        modifier = modifier,
+        state = state,
+        onEvent = viewModel::handleEvent,
+    )
 }
 
 @Composable

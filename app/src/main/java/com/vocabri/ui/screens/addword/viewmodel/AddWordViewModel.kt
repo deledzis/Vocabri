@@ -35,8 +35,12 @@ import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.utils.IdGenerator
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -49,6 +53,13 @@ class AddWordViewModel(
 
     private val _state = MutableStateFlow<AddWordState>(AddWordState.Editing())
     val state: StateFlow<AddWordState> = _state
+
+    private val _effect = MutableSharedFlow<AddWordEffect>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    val effect: SharedFlow<AddWordEffect> = _effect.asSharedFlow()
 
     fun handleEvent(event: AddWordEvent) {
         log.i { "Handling event: $event" }
@@ -403,15 +414,26 @@ class AddWordViewModel(
             try {
                 addWordsUseCase.execute(word)
                 log.i { "Word saved successfully" }
-                _state.update { AddWordState.Saved }
+                onWordSaved()
             } catch (e: IllegalStateException) {
                 log.e(e) { "Word already exists, ignore and leave: $e" }
                 // TODO: word already exists, we should update existing word merging with the data user provided here
-                _state.update { AddWordState.Saved }
+                onWordSaved()
             } catch (e: Exception) {
                 log.e(e) { "Failed to save the word: $e" }
-                _state.update { AddWordState.Error("Failed to save the word") }
+                sendEffect(AddWordEffect.ShowError("Failed to save the word"))
             }
+        }
+    }
+
+    private fun onWordSaved() {
+        _state.update { AddWordState.Editing() }
+        sendEffect(AddWordEffect.WordSaved)
+    }
+
+    private fun sendEffect(effect: AddWordEffect) {
+        viewModelScope.launch {
+            _effect.emit(effect)
         }
     }
 

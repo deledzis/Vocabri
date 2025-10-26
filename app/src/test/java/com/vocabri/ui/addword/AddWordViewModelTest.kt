@@ -30,6 +30,7 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.rules.MainDispatcherRule
+import com.vocabri.ui.screens.addword.viewmodel.AddWordEffect
 import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
 import com.vocabri.ui.screens.addword.viewmodel.AddWordState
 import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
@@ -39,10 +40,13 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,7 +55,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainViewModelTest {
+class AddWordViewModelTest {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
@@ -158,6 +162,8 @@ class MainViewModelTest {
         viewModel.handleEvent(AddWordEvent.UpdateCurrentManagement("auf + Akk."))
         viewModel.handleEvent(AddWordEvent.AddManagement)
 
+        val effect = async { viewModel.effect.first() }
+
         // Act
         viewModel.handleEvent(AddWordEvent.SaveWord)
         advanceUntilIdle()
@@ -180,7 +186,8 @@ class MainViewModelTest {
         coVerify(exactly = 1) {
             addWordUseCase.execute(expectedWord)
         }
-        assertEquals(AddWordState.Saved, viewModel.state.first())
+        assertEquals(AddWordEffect.WordSaved, effect.await())
+        assertTrue(viewModel.state.first() is AddWordState.Editing)
     }
 
     @Test
@@ -188,6 +195,8 @@ class MainViewModelTest {
         // Arrange
         val errorMessage = "Failed to save the word"
         coEvery { addWordUseCase.execute(any()) } throws Exception(errorMessage)
+
+        val effect = async { viewModel.effect.first() }
 
         // Act
         viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
@@ -198,10 +207,13 @@ class MainViewModelTest {
         advanceUntilIdle()
 
         // Assert
+        val emittedEffect = effect.await()
+        assertTrue(emittedEffect is AddWordEffect.ShowError)
+        assertEquals("Failed to save the word", (emittedEffect as AddWordEffect.ShowError).message)
+
         val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Error)
-        state as AddWordState.Error
-        assertEquals("Failed to save the word", state.message)
+        assertTrue(state is AddWordState.Editing)
+        assertEquals("lernen", (state as AddWordState.Editing).text)
     }
 
     @Test
@@ -209,6 +221,8 @@ class MainViewModelTest {
         // Arrange
         val errorMessage = "Failed to save the word"
         coEvery { addWordUseCase.execute(any()) } throws IllegalStateException(errorMessage)
+
+        val effect = async { viewModel.effect.first() }
 
         // Act
         viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
@@ -222,6 +236,34 @@ class MainViewModelTest {
         coVerify(exactly = 1) {
             addWordUseCase.execute(any())
         }
-        assertEquals(AddWordState.Saved, viewModel.state.first())
+        assertEquals(AddWordEffect.WordSaved, effect.await())
+    }
+
+    @Test
+    fun `word saved effect is not replayed automatically`() = runTest {
+        coEvery { addWordUseCase.execute(any()) } returns Unit
+
+        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
+        viewModel.handleEvent(AddWordEvent.AddTranslation)
+
+        val firstEffect = async { viewModel.effect.first() }
+
+        viewModel.handleEvent(AddWordEvent.SaveWord)
+        advanceUntilIdle()
+
+        assertEquals(AddWordEffect.WordSaved, firstEffect.await())
+
+        val replayCheck = async {
+            withTimeoutOrNull(1) {
+                viewModel.effect.first()
+            }
+        }
+
+        advanceUntilIdle()
+        advanceTimeBy(1)
+        advanceUntilIdle()
+
+        assertEquals(null, replayCheck.await())
     }
 }

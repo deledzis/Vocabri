@@ -30,10 +30,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.input.pointer.pointerInput
@@ -51,6 +55,7 @@ import com.vocabri.ui.screens.addword.components.SelectPartOfSpeech
 import com.vocabri.ui.screens.addword.components.TranslationTextField
 import com.vocabri.ui.screens.addword.components.VerbFields
 import com.vocabri.ui.screens.addword.components.WordTextField
+import com.vocabri.ui.screens.addword.viewmodel.AddWordEffect
 import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
 import com.vocabri.ui.screens.addword.viewmodel.AddWordState
 import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
@@ -65,19 +70,28 @@ fun AddWordScreen(
     focusManager: FocusManager,
 ) {
     val state by viewModel.state.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
-    LaunchedEffect(state) {
-        if (state is AddWordState.Saved) {
-            navController.popBackStack()
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                AddWordEffect.WordSaved -> navController.popBackStack()
+                is AddWordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            }
         }
     }
 
-    AddWordScreenRoot(
+    Scaffold(
         modifier = modifier,
-        state = state,
-        focusManager = focusManager,
-        onEvent = { event -> viewModel.handleEvent(event) },
-    )
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { padding ->
+        AddWordScreenRoot(
+            modifier = Modifier.padding(padding),
+            state = state,
+            focusManager = focusManager,
+            onEvent = viewModel::handleEvent,
+        )
+    }
 }
 
 @Composable
@@ -89,8 +103,6 @@ fun AddWordScreenRoot(
 ) {
     when (state) {
         is AddWordState.Editing -> AddWordScreenContent(modifier, focusManager, state, onEvent)
-        is AddWordState.Error -> TODO()
-        AddWordState.Saved -> Unit // Nothing, we popBackStack in LaunchedEffect
     }
 }
 

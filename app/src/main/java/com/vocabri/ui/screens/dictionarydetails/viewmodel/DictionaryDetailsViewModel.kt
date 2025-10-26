@@ -34,8 +34,12 @@ import com.vocabri.ui.screens.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
@@ -60,6 +64,13 @@ open class DictionaryDetailsViewModel(
     )
     open val state: StateFlow<DictionaryDetailsState> = _state
 
+    private val _effect = MutableSharedFlow<DictionaryDetailsEffect>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    open val effect: SharedFlow<DictionaryDetailsEffect> = _effect.asSharedFlow()
+
     private var observeJob: Job? = null
 
     init {
@@ -75,11 +86,11 @@ open class DictionaryDetailsViewModel(
     fun handleEvent(event: DictionaryDetailsEvent) {
         log.i { "Handling event: $event" }
         when (event) {
+            DictionaryDetailsEvent.AddWordClicked -> sendEffect(DictionaryDetailsEffect.NavigateToAddWord)
+            DictionaryDetailsEvent.OnBackClicked -> sendEffect(DictionaryDetailsEffect.NavigateBack)
+            is DictionaryDetailsEvent.OnWordClicked -> sendEffect(DictionaryDetailsEffect.NavigateToWord(event.id))
+            DictionaryDetailsEvent.RetryClicked -> retry()
             is DictionaryDetailsEvent.DeleteWordClicked -> handleDeleteWord(event.id)
-            is DictionaryDetailsEvent.AddWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.OnBackClicked -> Unit // Nothing, handled by View
-            is DictionaryDetailsEvent.OnWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.RetryClicked -> Unit // Handled by View
         }
     }
 
@@ -142,6 +153,12 @@ open class DictionaryDetailsViewModel(
                     )
                 }
             }
+        }
+    }
+
+    private fun sendEffect(effect: DictionaryDetailsEffect) {
+        viewModelScope.launch {
+            _effect.emit(effect)
         }
     }
 

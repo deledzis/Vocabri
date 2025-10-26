@@ -69,7 +69,5 @@ sealed interface AddWordState {
         @param:StringRes val errorMessageId: Int? = null,
     ) : AddWordState
 
-    data object Saved : AddWordState
-
     data class Error(val message: String) : AddWordState
 }

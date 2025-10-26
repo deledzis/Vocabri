@@ -60,6 +60,7 @@ import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionary.components.WordGroupCard
 import com.vocabri.ui.screens.dictionary.components.WordGroupHighlightedCard
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEffect
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
@@ -82,26 +83,25 @@ fun DictionaryScreen(
 
     LaunchedEffect(viewModel) {
         log.i { "DictionaryScreen is displayed" }
-    }
+        viewModel.effect.collect { effect ->
+            log.i { "Effect received: $effect" }
+            when (effect) {
+                DictionaryEffect.NavigateToAddWord ->
+                    navController.navigate(NavigationRoute.Secondary.AddWord.route)
 
-    DictionaryScreenRoot(modifier = modifier, state = state) { event ->
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryEvent.AddWordClicked -> {
-                navController.navigate(NavigationRoute.Secondary.AddWord.route)
-            }
-
-            is DictionaryEvent.OnGroupCardClicked -> {
-                navController.navigate(
-                    NavigationRoute.Secondary.DictionaryDetails.fromGroup(event.partOfSpeech),
-                )
-            }
-
-            DictionaryEvent.RetryClicked -> {
-                viewModel.retry()
+                is DictionaryEffect.NavigateToDictionaryDetails ->
+                    navController.navigate(
+                        NavigationRoute.Secondary.DictionaryDetails.fromGroup(effect.partOfSpeech),
+                    )
             }
         }
     }
+
+    DictionaryScreenRoot(
+        modifier = modifier,
+        state = state,
+        onEvent = viewModel::handleEvent,
+    )
 }
 
 @Composable

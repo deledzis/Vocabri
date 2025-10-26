@@ -34,8 +34,12 @@ import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -52,10 +56,28 @@ open class DictionaryViewModel(
     private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Loading)
     open val state: StateFlow<DictionaryState> = _state
 
+    private val _effect = MutableSharedFlow<DictionaryEffect>(
+        replay = 0,
+        extraBufferCapacity = 1,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
+    )
+    open val effect: SharedFlow<DictionaryEffect> = _effect.asSharedFlow()
+
     private var observeJob: Job? = null
 
     init {
         observeWordGroups()
+    }
+
+    fun handleEvent(event: DictionaryEvent) {
+        log.i { "Handling event: $event" }
+        when (event) {
+            DictionaryEvent.AddWordClicked -> sendEffect(DictionaryEffect.NavigateToAddWord)
+            is DictionaryEvent.OnGroupCardClicked ->
+                sendEffect(DictionaryEffect.NavigateToDictionaryDetails(event.partOfSpeech))
+
+            DictionaryEvent.RetryClicked -> retry()
+        }
     }
 
     fun retry() {
@@ -95,6 +117,12 @@ open class DictionaryViewModel(
                         )
                     }
                 }
+        }
+    }
+
+    private fun sendEffect(effect: DictionaryEffect) {
+        viewModelScope.launch {
+            _effect.emit(effect)
         }
     }
 
