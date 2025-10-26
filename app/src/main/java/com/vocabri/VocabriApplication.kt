@@ -28,8 +28,13 @@ import com.vocabri.data.di.dataModule
 import com.vocabri.di.appModule
 import com.vocabri.domain.di.domainModule
 import com.vocabri.logger.logger
+import com.vocabri.notifications.PushNotificationInitializer
+import com.vocabri.notifications.PushNotificationServiceLocator
+import com.vocabri.notifications.PushNotificationTokenRepository
+import com.vocabri.notifications.di.notificationsModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
+import org.koin.core.component.get
 import org.koin.core.context.startKoin
 
 class VocabriApplication : Application() {
@@ -41,7 +46,7 @@ class VocabriApplication : Application() {
         log.i { "VocabriApplication is starting" }
 
         // Initialize Koin
-        startKoin {
+        val koinApplication = startKoin {
             log.i { "Initializing Koin with application context and modules" }
             androidLogger()
             androidContext(this@VocabriApplication)
@@ -49,8 +54,19 @@ class VocabriApplication : Application() {
                 dataModule,
                 domainModule,
                 appModule,
+                notificationsModule,
             )
         }
         log.i { "Koin initialization completed" }
+
+        val koin = koinApplication.koin
+        val tokenRepository = koin.get<PushNotificationTokenRepository>()
+        PushNotificationServiceLocator.register(tokenRepository)
+        koin.get<PushNotificationInitializer>().initialize()
+    }
+
+    override fun onTerminate() {
+        super.onTerminate()
+        PushNotificationServiceLocator.unregister()
     }
 }

@@ -21,37 +21,16 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-    <application
-        android:name=".VocabriApplication"
-        android:allowBackup="true"
-        android:dataExtractionRules="@xml/data_extraction_rules"
-        android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/ic_launcher"
-        android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.Vocabri"
-        tools:targetApi="31">
-
-        <activity
-            android:name=".ui.main.MainActivity"
-            android:exported="true"
-            android:windowSoftInputMode="adjustPan">
+    <application>
+        <service
+            android:name="com.vocabri.notifications.service.VocabriFirebaseMessagingService"
+            android:exported="false">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
-        </activity>
-
-        <!-- To run compose UI tests -->
-        <activity android:name="androidx.activity.ComponentActivity" />
-
+        </service>
     </application>
 
 </manifest>

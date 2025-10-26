@@ -21,26 +21,34 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-plugins {
-    alias(libs.plugins.kotlin.multiplatform) apply false
-    alias(libs.plugins.android.application) apply false
-    alias(libs.plugins.android.library) apply false
-    alias(libs.plugins.kotlin.android) apply false
-    alias(libs.plugins.compose.compiler) apply false
-    alias(libs.plugins.google.services) apply false
-    alias(libs.plugins.firebase.crashlytics) apply false
-    alias(libs.plugins.spotless) apply false
-    alias(libs.plugins.detekt) apply false
-    alias(libs.plugins.kover)
-    id("com.vocabri.project")
-}
+package com.vocabri.notifications.service
 
-dependencies {
-    kover(projects.app)
-    kover(projects.data)
-    kover(projects.domain)
-    kover(projects.core.logger)
-    kover(projects.core.utils)
-    kover(projects.notifications)
+import com.google.firebase.messaging.FirebaseMessagingService
+import com.google.firebase.messaging.RemoteMessage
+import com.vocabri.logger.logger
+import com.vocabri.notifications.PushNotificationServiceLocator
+import com.vocabri.notifications.internal.NotificationConstants
+
+/**
+ * Firebase messaging service that propagates token updates into the application layer.
+ */
+class VocabriFirebaseMessagingService : FirebaseMessagingService() {
+
+    private val log = logger(NotificationConstants.LOG_SERVICE)
+
+    override fun onNewToken(token: String) {
+        super.onNewToken(token)
+        log.i { "Received refreshed Firebase token" }
+        val repository = PushNotificationServiceLocator.tokenRepository()
+        if (repository == null) {
+            log.w { "PushNotificationTokenRepository is not yet available" }
+            return
+        }
+        repository.update(token)
+    }
+
+    override fun onMessageReceived(message: RemoteMessage) {
+        super.onMessageReceived(message)
+        log.i { "Push notification received from ${message.from}" }
+    }
 }
