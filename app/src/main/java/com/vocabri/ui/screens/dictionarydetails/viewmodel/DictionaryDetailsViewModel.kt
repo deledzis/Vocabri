@@ -76,7 +76,7 @@ open class DictionaryDetailsViewModel(
         log.i { "Handling event: $event" }
         when (event) {
             is DictionaryDetailsEvent.DeleteWordClicked -> handleDeleteWord(event.id)
-            is DictionaryDetailsEvent.AddWordClicked -> log.i { "AddWordClicked event received" }
+            is DictionaryDetailsEvent.AddWordClicked -> Unit // Nothing, handled by View
             DictionaryDetailsEvent.OnBackClicked -> Unit // Nothing, handled by View
             is DictionaryDetailsEvent.OnWordClicked -> Unit // Nothing, handled by View
             DictionaryDetailsEvent.RetryClicked -> Unit // Handled by View
@@ -145,6 +145,7 @@ open class DictionaryDetailsViewModel(
         }
     }
 
+    // TODO: when last word from details screen was deleted request screen to navigate back to home screen
     private fun handleDeleteWord(wordId: String) {
         val currentState = _state.value
         if (currentState is DictionaryDetailsState.WordsLoaded) {
