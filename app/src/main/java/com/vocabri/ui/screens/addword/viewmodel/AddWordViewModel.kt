@@ -336,7 +336,7 @@ class AddWordViewModel(
 
         // Basic validation
         if (currentState.text.isBlank() || finalTranslations.isEmpty()) {
-            log.w { "Cannot save word: Empty text or translations" }
+            log.e { "Cannot save word: Empty text or translations" }
             _state.update { currentState.copy(errorMessageId = R.string.add_word_empty_field) }
             return@let
         }

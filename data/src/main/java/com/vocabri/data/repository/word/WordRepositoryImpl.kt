@@ -62,7 +62,7 @@ class WordRepositoryImpl(
             .getWordsByPartOfSpeech(word.toPartOfSpeech())
             .filter { it.text == word.text }
         if (existingWords.isNotEmpty()) {
-            log.w { "Word with text '${word.text}' already exists" }
+            log.e { "Word with text '${word.text}' already exists" }
             error("Word with text '${word.text}' already exists")
         }
 
@@ -92,7 +92,7 @@ class WordRepositoryImpl(
         } catch (cancellationException: CancellationException) {
             throw cancellationException
         } catch (throwable: Throwable) {
-            log.w { "Remote $operation failed: ${throwable.message ?: throwable::class.simpleName}" }
+            log.e { "Remote $operation failed: ${throwable.message ?: throwable::class.simpleName}" }
         }
     }
 }

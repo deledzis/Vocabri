@@ -77,7 +77,7 @@ open class DictionaryViewModel(
                         }
 
                         else -> {
-                            log.w(throwable) { "observeWordGroups failed due to exception: $throwable" }
+                            log.e(throwable) { "observeWordGroups failed due to exception: $throwable" }
                             _state.value = DictionaryState.Error("Failed to load data, please try again later.")
                         }
                     }
