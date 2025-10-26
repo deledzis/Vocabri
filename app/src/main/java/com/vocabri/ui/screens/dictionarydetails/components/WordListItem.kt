@@ -23,6 +23,7 @@
  */
 package com.vocabri.ui.screens.dictionarydetails.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -132,6 +133,7 @@ fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel, onEv
             Text(
                 text = uiItem.translations,
                 style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.secondary,
                 fontStyle = FontStyle.Italic,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -146,7 +148,16 @@ fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel, onEv
     }
 }
 
-@Preview(showBackground = true, name = "Single Word Item")
+@Preview(
+    name = "Single Word Item Night Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Preview(
+    name = "Single Word Item Day Mode",
+    showBackground = true,
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+)
 @Composable
 private fun PreviewWordListItem() {
     val sampleWord = WordUiModel(

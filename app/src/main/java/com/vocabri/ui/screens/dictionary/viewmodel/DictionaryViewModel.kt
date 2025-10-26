@@ -33,6 +33,7 @@ import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
@@ -51,12 +52,20 @@ open class DictionaryViewModel(
     private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Loading)
     open val state: StateFlow<DictionaryState> = _state
 
+    private var observeJob: Job? = null
+
     init {
         observeWordGroups()
     }
 
+    fun retry() {
+        log.i { "Retry requested from UI" }
+        observeWordGroups()
+    }
+
     private fun observeWordGroups() {
-        viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob?.cancel()
+        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
             observeWordGroupsUseCase.execute()
                 .onStart {
                     _state.value = DictionaryState.Loading

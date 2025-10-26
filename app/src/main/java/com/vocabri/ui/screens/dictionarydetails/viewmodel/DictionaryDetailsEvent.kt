@@ -26,6 +26,8 @@ package com.vocabri.ui.screens.dictionarydetails.viewmodel
 sealed interface DictionaryDetailsEvent {
     data object AddWordClicked : DictionaryDetailsEvent
 
+    data object RetryClicked : DictionaryDetailsEvent
+
     data class OnWordClicked(val id: String) : DictionaryDetailsEvent
 
     data class DeleteWordClicked(val id: String) : DictionaryDetailsEvent
