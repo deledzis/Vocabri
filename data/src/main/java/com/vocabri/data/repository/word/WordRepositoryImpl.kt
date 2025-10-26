@@ -30,6 +30,7 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -65,11 +66,8 @@ class WordRepositoryImpl(
             error("Word with text '${word.text}' already exists")
         }
 
-        runCatching {
-            log.i { "Attempting remote insert for wordId=${word.id}" }
+        attemptRemoteOperation("insert for wordId=${word.id}") {
             remoteWordDataSource.insertWord(word)
-        }.onFailure { throwable ->
-            log.w { "Remote insert failed for wordId=${word.id}: ${throwable.message ?: throwable::class.simpleName}" }
         }
 
         localWordDataSource.insertWord(word)
@@ -79,14 +77,22 @@ class WordRepositoryImpl(
     override suspend fun deleteWordById(id: String) {
         log.i { "deleteWordById called for ID = $id" }
 
-        runCatching {
-            log.i { "Attempting remote delete for wordId=$id" }
+        attemptRemoteOperation("delete for wordId=$id") {
             remoteWordDataSource.deleteWord(id)
-        }.onFailure { throwable ->
-            log.w { "Remote delete failed for wordId=$id: ${throwable.message ?: throwable::class.simpleName}" }
         }
 
         localWordDataSource.deleteWord(id)
         log.i { "Word with ID = $id deleted successfully" }
+    }
+
+    private suspend fun attemptRemoteOperation(operation: String, block: suspend () -> Unit) {
+        log.i { "Attempting remote $operation" }
+        try {
+            block()
+        } catch (cancellationException: CancellationException) {
+            throw cancellationException
+        } catch (throwable: Throwable) {
+            log.w { "Remote $operation failed: ${throwable.message ?: throwable::class.simpleName}" }
+        }
     }
 }
