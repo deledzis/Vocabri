@@ -21,37 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+package com.vocabri.notifications.deeplink
+
+import android.net.Uri
+
+/**
+ * Value object describing a deeplink destination extracted from a notification payload.
+ */
+data class DeeplinkData(val rawUri: String, val uri: Uri, val route: String, val arguments: Map<String, String>) {
+    val pathSegments: List<String> = uri.pathSegments ?: emptyList()
+
+    val isValid: Boolean = uri.scheme != null || uri.path?.isNotBlank() == true
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

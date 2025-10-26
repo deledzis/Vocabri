@@ -21,37 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
+package com.vocabri.notifications.model
+
+import androidx.annotation.DrawableRes
+import com.vocabri.notifications.channel.NotificationChannelSpec
+import com.vocabri.notifications.channel.NotificationImportance
+import java.util.concurrent.atomic.AtomicInteger
+
+/**
+ * Holds global defaults for the notifications framework.
+ */
+data class NotificationDefaults(
+    val defaultChannel: NotificationChannelSpec = NotificationChannelSpec(
+        id = DEFAULT_CHANNEL_ID,
+        name = "General updates",
+        description = "All Vocabri notifications",
+        importance = NotificationImportance.DEFAULT,
+    ),
+    @field:DrawableRes val defaultSmallIconResId: Int = android.R.drawable.ic_dialog_info,
+    val defaultGroupKey: String? = null,
+    private val initialNotificationId: Int = 1_000,
+) {
+    private val notificationIdGenerator = AtomicInteger(initialNotificationId)
+
+    fun nextNotificationId(): Int = notificationIdGenerator.incrementAndGet()
+
+    companion object {
+        const val DEFAULT_CHANNEL_ID = "vocabri.core.notifications.default"
     }
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

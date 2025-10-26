@@ -21,37 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+package com.vocabri.notifications.channel
+
+/**
+ * Defines the contract for creating and maintaining Android notification channels.
+ */
+interface NotificationChannelManager {
+    /** Ensures that the provided channel exists, creating or updating it when necessary. */
+    fun ensureChannel(channel: NotificationChannelSpec)
+
+    /** Creates all channels in the supplied collection in a single pass. */
+    fun ensureChannels(channels: Collection<NotificationChannelSpec>)
+
+    /** Removes the channel with the corresponding identifier. */
+    fun deleteChannel(channelId: String)
+
+    /**
+     * Returns the identifiers of all channels currently registered with the app.
+     * On API levels below Android O this returns an empty list because channels do not exist.
+     */
+    fun listChannelIds(): List<String>
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")

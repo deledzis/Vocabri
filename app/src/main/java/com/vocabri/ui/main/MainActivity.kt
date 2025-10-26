@@ -23,27 +23,39 @@
  */
 package com.vocabri.ui.main
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import com.vocabri.logger.logger
+import com.vocabri.notifications.deeplink.DeeplinkHandler
+import com.vocabri.notifications.navigation.NotificationNavigationCoordinator
 import com.vocabri.ui.theme.VocabriTheme
+import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
     private val log = logger()
+    private val deeplinkHandler: DeeplinkHandler by inject()
+    private val navigationCoordinator: NotificationNavigationCoordinator by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         log.i { "onCreate called" }
         super.onCreate(savedInstanceState)
 
         enableEdgeToEdge()
+        handleNotificationIntent(intent)
 
         setContent {
             VocabriTheme {
-                MainScreen()
+                MainScreen(deeplinkFlow = navigationCoordinator.deeplinks)
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleNotificationIntent(intent)
     }
 
     override fun onStart() {
@@ -69,5 +81,11 @@ class MainActivity : ComponentActivity() {
     override fun onDestroy() {
         log.i { "onDestroy called" }
         super.onDestroy()
+    }
+
+    private fun handleNotificationIntent(intent: Intent?) {
+        val deeplink = deeplinkHandler.extract(intent) ?: return
+        log.i { "Handling notification deeplink: ${deeplink.rawUri}" }
+        navigationCoordinator.publish(deeplink)
     }
 }

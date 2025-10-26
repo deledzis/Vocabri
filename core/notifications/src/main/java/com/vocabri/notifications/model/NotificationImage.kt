@@ -21,37 +21,18 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-pluginManagement {
-    includeBuild("build-logic")
-    repositories {
-        google {
-            content {
-                includeGroupByRegex("com\\.android.*")
-                includeGroupByRegex("com\\.google.*")
-                includeGroupByRegex("androidx.*")
-            }
-        }
-        mavenCentral()
-        gradlePluginPortal()
-    }
+package com.vocabri.notifications.model
+
+import android.graphics.Bitmap
+import android.net.Uri
+import androidx.annotation.DrawableRes
+
+/**
+ * Abstraction describing an image resource used in notification payloads.
+ */
+sealed class NotificationImage {
+    data class Resource(@DrawableRes val resId: Int) : NotificationImage()
+    data class BitmapImage(val bitmap: Bitmap) : NotificationImage()
+    data class UriImage(val uri: Uri) : NotificationImage()
+    data class UrlImage(val url: String) : NotificationImage()
 }
-
-dependencyResolutionManagement {
-    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
-    repositories {
-        google()
-        mavenCentral()
-    }
-}
-
-rootProject.name = "Vocabri"
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-include(":app")
-include(":domain")
-include(":data")
-include(":core:logger")
-include(":core:utils")
-include(":core:notifications")
-
-gradle.startParameter.excludedTaskNames.addAll(listOf(":build-logic:convention:testClasses"))
-include(":shared")
