@@ -31,6 +31,7 @@ import com.vocabri.domain.usecase.word.GetWordGroupsUseCase
 import com.vocabri.domain.usecase.word.GetWordsUseCase
 import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.domain.usecase.word.ObserveWordsUseCase
+import com.vocabri.domain.usecase.word.SyncPendingOperationsUseCase
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
@@ -44,4 +45,5 @@ val domainModule = module {
     factoryOf(::ObserveWordGroupsUseCase)
     factoryOf(::DeleteWordUseCase)
     factoryOf(::GenerateRandomWordUseCase)
+    factoryOf(::SyncPendingOperationsUseCase)
 }

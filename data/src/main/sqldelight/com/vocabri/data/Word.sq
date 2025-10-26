@@ -52,6 +52,15 @@ CREATE TABLE ExampleEntity (
     FOREIGN KEY (wordId) REFERENCES WordBaseEntity(id) ON DELETE CASCADE
 );
 
+-- Table creation for pending remote operations
+CREATE TABLE PendingOperationEntity (
+    id TEXT PRIMARY KEY UNIQUE NOT NULL,  -- Unique identifier for the pending operation
+    operationType TEXT NOT NULL,          -- Type of operation: INSERT, DELETE, UPDATE
+    wordId TEXT NOT NULL,                 -- ID of the word affected by this operation
+    wordData TEXT,                        -- Serialized word data for INSERT/UPDATE operations
+    timestamp INTEGER NOT NULL            -- Timestamp when the operation was queued
+);
+
 ----------------------------------------------
 -- CRUD QUERIES FOR ALL TABLES
 ----------------------------------------------
@@ -183,3 +192,23 @@ SELECT * FROM ExampleEntity WHERE wordId = ?;
 -- 🔹 Delete all examples for a word
 deleteExamplesByWordId:
 DELETE FROM ExampleEntity WHERE wordId = ?;
+
+----------------------------------------------
+-- CRUD for PendingOperationEntity (Pending Operations)
+----------------------------------------------
+
+-- 🔹 Insert a pending operation
+insertPendingOperation:
+INSERT INTO PendingOperationEntity (id, operationType, wordId, wordData, timestamp) VALUES (?, ?, ?, ?, ?);
+
+-- 🔹 Retrieve all pending operations ordered by timestamp
+selectAllPendingOperations:
+SELECT * FROM PendingOperationEntity ORDER BY timestamp ASC;
+
+-- 🔹 Delete a pending operation by ID
+deletePendingOperationById:
+DELETE FROM PendingOperationEntity WHERE id = ?;
+
+-- 🔹 Delete all pending operations
+deleteAllPendingOperations:
+DELETE FROM PendingOperationEntity;

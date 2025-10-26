@@ -23,6 +23,9 @@
  */
 package com.vocabri.data.repository.word
 
+import com.vocabri.data.datasource.sync.OperationType
+import com.vocabri.data.datasource.sync.PendingOperation
+import com.vocabri.data.datasource.sync.PendingOperationDataSource
 import com.vocabri.data.datasource.word.RemoteWordDataSource
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.PartOfSpeech
@@ -30,6 +33,7 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.logger.logger
+import com.vocabri.utils.IdGenerator
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 
@@ -39,6 +43,8 @@ import kotlinx.coroutines.flow.Flow
 class WordRepositoryImpl(
     private val localWordDataSource: WordDataSource,
     private val remoteWordDataSource: RemoteWordDataSource,
+    private val pendingOperationDataSource: PendingOperationDataSource,
+    private val idGenerator: IdGenerator,
 ) : WordRepository {
 
     private val log = logger()
@@ -66,33 +72,103 @@ class WordRepositoryImpl(
             error("Word with text '${word.text}' already exists")
         }
 
-        attemptRemoteOperation("insert for wordId=${word.id}") {
+        localWordDataSource.insertWord(word)
+        log.i { "Word inserted to local database, ID = ${word.id}" }
+
+        attemptRemoteOperationWithFallback(
+            operation = "insert for wordId=${word.id}",
+            operationType = OperationType.INSERT,
+            wordId = word.id,
+            wordData = word,
+        ) {
             remoteWordDataSource.insertWord(word)
         }
 
-        localWordDataSource.insertWord(word)
-        log.i { "Word inserted successfully, ID = ${word.id}" }
+        log.i { "Word insert operation completed, ID = ${word.id}" }
     }
 
     override suspend fun deleteWordById(id: String) {
         log.i { "deleteWordById called for ID = $id" }
 
-        attemptRemoteOperation("delete for wordId=$id") {
+        localWordDataSource.deleteWord(id)
+        log.i { "Word with ID = $id deleted from local database" }
+
+        attemptRemoteOperationWithFallback(
+            operation = "delete for wordId=$id",
+            operationType = OperationType.DELETE,
+            wordId = id,
+            wordData = null,
+        ) {
             remoteWordDataSource.deleteWord(id)
         }
 
-        localWordDataSource.deleteWord(id)
-        log.i { "Word with ID = $id deleted successfully" }
+        log.i { "Word delete operation completed, ID = $id" }
     }
 
-    private suspend fun attemptRemoteOperation(operation: String, block: suspend () -> Unit) {
+    override suspend fun syncPendingOperations() {
+        log.i { "Starting sync of pending operations" }
+
+        val pendingOperations = pendingOperationDataSource.getAllPendingOperations()
+        log.i { "Found ${pendingOperations.size} pending operations to sync" }
+
+        pendingOperations.forEach { operation ->
+            val success = runCatching {
+                when (operation.operationType) {
+                    OperationType.INSERT -> {
+                        operation.wordData?.let { word ->
+                            log.i { "Syncing INSERT operation for wordId=${operation.wordId}" }
+                            remoteWordDataSource.insertWord(word)
+                        } ?: log.w { "INSERT operation missing word data for wordId=${operation.wordId}" }
+                    }
+                    OperationType.DELETE -> {
+                        log.i { "Syncing DELETE operation for wordId=${operation.wordId}" }
+                        remoteWordDataSource.deleteWord(operation.wordId)
+                    }
+                    OperationType.UPDATE -> {
+                        operation.wordData?.let { word ->
+                            log.i { "Syncing UPDATE operation for wordId=${operation.wordId}" }
+                            remoteWordDataSource.updateWord(word)
+                        } ?: log.w { "UPDATE operation missing word data for wordId=${operation.wordId}" }
+                    }
+                }
+                true
+            }.onFailure { throwable ->
+                val errorMsg = throwable.message ?: throwable::class.simpleName
+                log.w { "Failed to sync operation ${operation.id}: $errorMsg" }
+            }.getOrDefault(false)
+
+            if (success) {
+                pendingOperationDataSource.deletePendingOperation(operation.id)
+                log.i { "Successfully synced and removed operation ${operation.id}" }
+            }
+        }
+
+        log.i { "Sync of pending operations completed" }
+    }
+
+    private suspend fun attemptRemoteOperationWithFallback(
+        operation: String,
+        operationType: OperationType,
+        wordId: String,
+        wordData: Word?,
+        block: suspend () -> Unit,
+    ) {
         log.i { "Attempting remote $operation" }
         try {
             block()
         } catch (cancellationException: CancellationException) {
             throw cancellationException
         } catch (throwable: Throwable) {
-            log.e { "Remote $operation failed: ${throwable.message ?: throwable::class.simpleName}" }
+            log.w { "Remote $operation failed: ${throwable.message ?: throwable::class.simpleName}" }
+            log.i { "Queueing operation for later sync" }
+            val pendingOperation = PendingOperation(
+                id = idGenerator.generateStringId(),
+                operationType = operationType,
+                wordId = wordId,
+                wordData = wordData,
+                timestamp = System.currentTimeMillis(),
+            )
+            pendingOperationDataSource.insertPendingOperation(pendingOperation)
         }
     }
 }
