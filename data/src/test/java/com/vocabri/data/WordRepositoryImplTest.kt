@@ -23,6 +23,7 @@
  */
 package com.vocabri.data
 
+import com.vocabri.data.datasource.word.RemoteWordDataSource
 import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.data.repository.word.WordRepositoryImpl
 import com.vocabri.domain.model.word.PartOfSpeech
@@ -43,10 +44,11 @@ class WordRepositoryImplTest {
 
     private lateinit var repository: WordRepositoryImpl
     private val localDataSource: WordDataSource = mockk(relaxed = true)
+    private val remoteDataSource: RemoteWordDataSource = mockk(relaxed = true)
 
     @Before
     fun setup() {
-        repository = WordRepositoryImpl(localDataSource)
+        repository = WordRepositoryImpl(localDataSource, remoteDataSource)
     }
 
     @Test
@@ -62,14 +64,16 @@ class WordRepositoryImplTest {
 
         coEvery { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) } returns emptyList()
         coEvery { localDataSource.insertWord(testWord) } returns Unit
+        coEvery { remoteDataSource.insertWord(testWord) } returns Unit
 
         // -- When --
         repository.insertWord(testWord)
 
         // -- Then --
+        coVerify(exactly = 1) { remoteDataSource.insertWord(testWord) }
         coVerify(exactly = 1) { localDataSource.insertWord(testWord) }
         coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) }
-        confirmVerified(localDataSource)
+        confirmVerified(localDataSource, remoteDataSource)
     }
 
     @Test
@@ -104,7 +108,7 @@ class WordRepositoryImplTest {
         assertEquals(2, result.size)
         assertEquals("lernen", result[0].text)
         assertEquals("Haus", result[1].text)
-        confirmVerified(localDataSource)
+        confirmVerified(localDataSource, remoteDataSource)
     }
 
     @Test
@@ -112,13 +116,15 @@ class WordRepositoryImplTest {
         // -- Given --
         val wordId = "123"
         coEvery { localDataSource.deleteWord(wordId) } returns Unit
+        coEvery { remoteDataSource.deleteWord(wordId) } returns Unit
 
         // -- When --
         repository.deleteWordById(wordId)
 
         // -- Then --
+        coVerify { remoteDataSource.deleteWord(wordId) }
         coVerify { localDataSource.deleteWord(wordId) }
-        confirmVerified(localDataSource)
+        confirmVerified(localDataSource, remoteDataSource)
     }
 
     @Test
@@ -153,9 +159,12 @@ class WordRepositoryImplTest {
             }
         }
         coVerify(exactly = 0) {
+            remoteDataSource.insertWord(newWord)
+        }
+        coVerify(exactly = 0) {
             localDataSource.insertWord(newWord)
         }
         coVerify(exactly = 1) { localDataSource.getWordsByPartOfSpeech(PartOfSpeech.VERB) }
-        confirmVerified(localDataSource)
+        confirmVerified(localDataSource, remoteDataSource)
     }
 }
