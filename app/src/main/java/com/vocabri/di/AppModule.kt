@@ -32,9 +32,6 @@ import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import com.vocabri.utils.AndroidResourcesRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
@@ -42,6 +39,8 @@ import org.koin.dsl.module
 
 @ExcludeFromCoverage
 val appModule = module {
+    single<ResourcesRepository> { AndroidResourcesRepository(context = androidContext()) }
+
     viewModelOf(::MainViewModel)
     viewModelOf(::DictionaryViewModel)
     viewModelOf(::AddWordViewModel)
@@ -53,13 +52,8 @@ val appModule = module {
                 partOfSpeech = partOfSpeech,
                 observeWordsUseCase = get(),
                 deleteWordUseCase = get(),
-                ioScope = get(),
+                get(),
             )
         }
     }
-
-    factory { SupervisorJob() }
-    factory { CoroutineScope(context = Dispatchers.IO + SupervisorJob()) }
-
-    single<ResourcesRepository> { AndroidResourcesRepository(context = androidContext()) }
 }

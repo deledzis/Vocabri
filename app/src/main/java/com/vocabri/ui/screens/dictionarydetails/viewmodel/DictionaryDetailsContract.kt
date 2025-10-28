@@ -21,8 +21,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.main.viewmodel
+package com.vocabri.ui.screens.dictionarydetails.viewmodel
 
-sealed interface MainEvent {
-    data object OnPlusButtonLongClick : MainEvent
+import androidx.annotation.StringRes
+import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
+
+object DictionaryDetailsContract {
+    sealed interface UiState {
+        val titleId: Int
+
+        data class WordsLoaded(@param:StringRes override val titleId: Int, val words: List<WordUiModel>) : UiState
+
+        data class Empty(@param:StringRes override val titleId: Int) : UiState
+
+        data class Loading(@param:StringRes override val titleId: Int) : UiState
+
+        data class Error(@param:StringRes override val titleId: Int, val message: String) : UiState
+    }
+
+    sealed interface UiEvent {
+        data object Retry : UiEvent
+
+        data class OnDeleteWordClicked(val id: String) : UiEvent
+    }
 }

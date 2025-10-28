@@ -42,21 +42,20 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vocabri.R
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun AdjectiveAdverbFields(
     modifier: Modifier = Modifier,
-    state: AddWordState.Editing,
-    onEvent: (AddWordEvent) -> Unit,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
 ) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.comparative,
-            onValueChange = { onEvent(AddWordEvent.UpdateComparative(it)) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateComparative(it)) },
             placeholder = {
                 Text(
                     text = stringResource(R.string.comparative_placeholder),
@@ -77,7 +76,7 @@ fun AdjectiveAdverbFields(
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.superlative,
-            onValueChange = { onEvent(AddWordEvent.UpdateSuperlative(it)) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateSuperlative(it)) },
             placeholder = {
                 Text(
                     text = stringResource(R.string.superlative_placeholder),
@@ -125,7 +124,7 @@ private fun PreviewAdjectiveAdverbFields() {
         ) {
             item {
                 AdjectiveAdverbFields(
-                    state = AddWordState.Editing(
+                    state = AddWordContract.UiState.Editing(
                         comparative = "less",
                         superlative = "most",
                     ),

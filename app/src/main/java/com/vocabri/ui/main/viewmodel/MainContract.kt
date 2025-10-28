@@ -25,4 +25,30 @@ package com.vocabri.ui.main.viewmodel
 
 import com.vocabri.ui.navigation.NavigationRoute
 
-data class MainState(val routes: List<NavigationRoute>)
+object MainContract {
+    data class UiState(val routes: List<NavigationRoute>)
+
+    sealed interface UiEvent {
+        data object OnPlusButtonLongClick : UiEvent
+    }
+
+    /**
+     * One-off UI actions emitted by [MainViewModel].
+     */
+    sealed interface UiEffect {
+        /**
+         * Shows a success message when a word is added successfully.
+         */
+        data object ShowWordAddedSuccess : UiEffect
+
+        /**
+         * Shows an error message when word addition fails.
+         */
+        data class ShowError(val message: String) : UiEffect
+
+        /**
+         * Shows a message when a word already exists.
+         */
+        data object ShowWordAlreadyExists : UiEffect
+    }
+}

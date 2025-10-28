@@ -32,18 +32,36 @@ import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
 import com.vocabri.logger.logger
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 
 /**
  * Implementation of the WordDataSource interface using SQLDelight for local storage.
  * All queries for the different parts of speech are located in database.wordQueries.
  */
-class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataSource {
+class WordLocalDataSourceImpl(
+    private val database: VocabriDatabase,
+    ioDispatcher: CoroutineDispatcher,
+    coroutineScope: CoroutineScope,
+) : LocalWordDataSource {
 
     private val log = logger()
+
+    // Shared flow to prevent multiple database queries for the same data
+    private val allWordsFlow = database.wordQueries
+        .selectAllWords()
+        .asFlow()
+        .mapToList(context = ioDispatcher)
+        .shareIn(
+            scope = coroutineScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            replay = 1,
+        )
 
     /**
      * Inserts a new word into the database, along with part-of-speech-specific data.
@@ -166,13 +184,9 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase) : WordDataS
     /**
      * Returns a reactive flow of words filtered by partOfSpeech.
      */
-    override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> = database.wordQueries
-        .selectAllWords()
-        .asFlow()
-        .mapToList(context = Dispatchers.IO)
-        .map { baseWords ->
-            log.i { "Base words updated. Count = ${baseWords.size}" }
-
+    override fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>> =
+        allWordsFlow.map { baseWords ->
+            log.d { "Base words updated. Count = ${baseWords.size}" }
             val domainWords = baseWords.map { wordBase ->
                 // 1) Fetch translations
                 val translations = database.wordQueries

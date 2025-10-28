@@ -21,16 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.dictionarydetails.viewmodel
+package com.vocabri.ui.screens.dictionary.viewmodel
 
-sealed interface DictionaryDetailsEvent {
-    data object AddWordClicked : DictionaryDetailsEvent
+import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 
-    data object RetryClicked : DictionaryDetailsEvent
+object DictionaryContract {
+    sealed interface UiState {
+        data object Loading : UiState
 
-    data class OnWordClicked(val id: String) : DictionaryDetailsEvent
+        data object Empty : UiState
 
-    data class DeleteWordClicked(val id: String) : DictionaryDetailsEvent
+        data class GroupsLoaded(val allWords: WordGroupUiModel, val groups: List<WordGroupUiModel>) : UiState
 
-    data object OnBackClicked : DictionaryDetailsEvent
+        data class Error(val message: String) : UiState
+    }
+
+    sealed interface UiEvent {
+        data object Retry : UiEvent
+    }
 }

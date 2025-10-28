@@ -32,7 +32,7 @@ import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
 import com.vocabri.ui.screens.dictionarydetails.model.toUiModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -41,24 +41,18 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-/**
- * Handles events and manages state for the Dictionary screen.
- *
- * @property observeWordsUseCase Use case for observing words from the repository.
- * @property deleteWordUseCase Use case for deleting words from the repository.
- */
 open class DictionaryDetailsViewModel(
     private val partOfSpeech: PartOfSpeech,
     private val observeWordsUseCase: ObserveWordsUseCase,
     private val deleteWordUseCase: DeleteWordUseCase,
-    private val ioScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val log = logger()
 
-    private val _state = MutableStateFlow<DictionaryDetailsState>(
-        DictionaryDetailsState.Loading(partOfSpeech.toTitleResId),
+    private val _uiState = MutableStateFlow<DictionaryDetailsContract.UiState>(
+        DictionaryDetailsContract.UiState.Loading(partOfSpeech.toTitleResId),
     )
-    open val state: StateFlow<DictionaryDetailsState> = _state
+    open val uiState: StateFlow<DictionaryDetailsContract.UiState> = _uiState
 
     private var observeJob: Job? = null
 
@@ -66,36 +60,27 @@ open class DictionaryDetailsViewModel(
         observeWords()
     }
 
-    fun retry() {
+    fun onEvent(event: DictionaryDetailsContract.UiEvent) {
+        log.i { "Handling event: $event" }
+        when (event) {
+            DictionaryDetailsContract.UiEvent.Retry -> retry()
+            is DictionaryDetailsContract.UiEvent.OnDeleteWordClicked -> handleDeleteWord(event.id)
+        }
+    }
+
+    private fun retry() {
         log.i { "Retry requested from UI for $partOfSpeech" }
         observeWords()
     }
 
-    // Handles UI events triggered by the Dictionary screen.
-    fun handleEvent(event: DictionaryDetailsEvent) {
-        log.i { "Handling event: $event" }
-        when (event) {
-            is DictionaryDetailsEvent.DeleteWordClicked -> handleDeleteWord(event.id)
-            is DictionaryDetailsEvent.AddWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.OnBackClicked -> Unit // Nothing, handled by View
-            is DictionaryDetailsEvent.OnWordClicked -> Unit // Nothing, handled by View
-            DictionaryDetailsEvent.RetryClicked -> Unit // Handled by View
-        }
-    }
-
-    /**
-     * Call this method whenever you want to observe words
-     * for a certain part of speech.
-     * For example, you might call it on init or on user action.
-     */
     private fun observeWords() {
         log.i { "Starting to observe $partOfSpeech words" }
         observeJob?.cancel()
-        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob = viewModelScope.launch(ioDispatcher) {
             try {
                 observeWordsUseCase.executeByPartOfSpeech(partOfSpeech)
                     .onStart {
-                        _state.value = DictionaryDetailsState.Loading(partOfSpeech.toTitleResId)
+                        _uiState.value = DictionaryDetailsContract.UiState.Loading(partOfSpeech.toTitleResId)
                     }
                     .catch { throwable ->
                         when (throwable) {
@@ -105,8 +90,8 @@ open class DictionaryDetailsViewModel(
 
                             else -> {
                                 log.e(throwable) { "Error while loading words: $throwable" }
-                                _state.update {
-                                    DictionaryDetailsState.Error(
+                                _uiState.update {
+                                    DictionaryDetailsContract.UiState.Error(
                                         titleId = partOfSpeech.toTitleResId,
                                         message = throwable.message ?: "Failed to load $partOfSpeech words",
                                     )
@@ -118,13 +103,13 @@ open class DictionaryDetailsViewModel(
                         val uiWords = words.map { it.toUiModel() }
                         log.d { "Fetched ${uiWords.size} $partOfSpeech words" }
 
-                        _state.update {
+                        _uiState.update {
                             if (uiWords.isEmpty()) {
                                 log.i { "No words found => Empty state" }
-                                DictionaryDetailsState.Empty(partOfSpeech.toTitleResId)
+                                DictionaryDetailsContract.UiState.Empty(partOfSpeech.toTitleResId)
                             } else {
                                 log.i { "Loaded ${uiWords.size} words => WordsLoaded state" }
-                                DictionaryDetailsState.WordsLoaded(
+                                DictionaryDetailsContract.UiState.WordsLoaded(
                                     titleId = partOfSpeech.toTitleResId,
                                     words = uiWords,
                                 )
@@ -135,8 +120,8 @@ open class DictionaryDetailsViewModel(
                 log.w(e) { "observeWords was cancelled: $e" }
             } catch (e: Exception) {
                 log.e(e) { "Error while observing words: $e" }
-                _state.update {
-                    DictionaryDetailsState.Error(
+                _uiState.update {
+                    DictionaryDetailsContract.UiState.Error(
                         titleId = partOfSpeech.toTitleResId,
                         message = e.message ?: "Failed to load $partOfSpeech words",
                     )
@@ -147,10 +132,10 @@ open class DictionaryDetailsViewModel(
 
     // TODO: when last word from details screen was deleted request screen to navigate back to home screen
     private fun handleDeleteWord(wordId: String) {
-        val currentState = _state.value
-        if (currentState is DictionaryDetailsState.WordsLoaded) {
+        val currentState = _uiState.value
+        if (currentState is DictionaryDetailsContract.UiState.WordsLoaded) {
             val newList = currentState.words.filterNot { it.id == wordId }
-            _state.update { currentState.copy(words = newList) }
+            _uiState.update { currentState.copy(words = newList) }
         }
 
         deleteWordInternally(wordId)
@@ -159,14 +144,14 @@ open class DictionaryDetailsViewModel(
     // Deletes a word using the DeleteWordUseCase and reloads the word list.
     private fun deleteWordInternally(wordId: String) {
         log.i { "Starting to delete word with id: $wordId" }
-        viewModelScope.launch(ioScope.coroutineContext) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 deleteWordUseCase.execute(wordId)
                 log.i { "Word with id: $wordId deleted successfully" }
             } catch (e: Exception) {
                 log.e(e) { "Failed to delete word with id: $wordId" }
-                _state.update {
-                    DictionaryDetailsState.Error(
+                _uiState.update {
+                    DictionaryDetailsContract.UiState.Error(
                         titleId = it.titleId,
                         message = e.message ?: "Failed to delete word",
                     )

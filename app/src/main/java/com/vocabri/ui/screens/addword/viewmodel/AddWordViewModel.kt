@@ -34,65 +34,71 @@ import com.vocabri.domain.model.word.WordGender
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.utils.IdGenerator
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class AddWordViewModel(
     private val addWordsUseCase: AddWordUseCase,
     private val idGenerator: IdGenerator,
-    private val ioScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val log = logger()
 
-    private val _state = MutableStateFlow<AddWordState>(AddWordState.Editing())
-    val state: StateFlow<AddWordState> = _state
+    private val _uiState = MutableStateFlow<AddWordContract.UiState>(AddWordContract.UiState.Editing())
+    val uiState: StateFlow<AddWordContract.UiState> = _uiState
 
-    fun handleEvent(event: AddWordEvent) {
+    private val _sideEffect = Channel<AddWordContract.UiEffect>()
+    val sideEffect: Flow<AddWordContract.UiEffect> = _sideEffect.receiveAsFlow()
+
+    fun onEvent(event: AddWordContract.UiEvent) {
         log.i { "Handling event: $event" }
         when (event) {
-            is AddWordEvent.UpdateText -> updateText(event.text)
-            is AddWordEvent.UpdatePartOfSpeech -> updatePartOfSpeech(event.partOfSpeech)
+            is AddWordContract.UiEvent.UpdateText -> updateText(event.text)
+            is AddWordContract.UiEvent.UpdatePartOfSpeech -> updatePartOfSpeech(event.partOfSpeech)
 
             // Translations
-            is AddWordEvent.UpdateCurrentTranslation -> updateCurrentTranslation(event.translation)
-            AddWordEvent.AddTranslation -> addTranslation()
-            is AddWordEvent.RemoveTranslation -> removeTranslation(event.translation)
-            is AddWordEvent.OnTranslationFieldFocusChange -> onTranslationFieldFocusChange(event.focused)
+            is AddWordContract.UiEvent.UpdateCurrentTranslation -> updateCurrentTranslation(event.translation)
+            AddWordContract.UiEvent.AddTranslation -> addTranslation()
+            is AddWordContract.UiEvent.RemoveTranslation -> removeTranslation(event.translation)
+            is AddWordContract.UiEvent.OnTranslationFieldFocusChange -> onTranslationFieldFocusChange(event.focused)
 
             // Examples
-            is AddWordEvent.UpdateCurrentExample -> updateCurrentExample(event.example)
-            AddWordEvent.AddExample -> addExample()
-            is AddWordEvent.RemoveExample -> removeExample(event.example)
-            is AddWordEvent.OnExampleFieldFocusChange -> onExampleFieldFocusChange(event.focused)
+            is AddWordContract.UiEvent.UpdateCurrentExample -> updateCurrentExample(event.example)
+            AddWordContract.UiEvent.AddExample -> addExample()
+            is AddWordContract.UiEvent.RemoveExample -> removeExample(event.example)
+            is AddWordContract.UiEvent.OnExampleFieldFocusChange -> onExampleFieldFocusChange(event.focused)
 
             // Noun
-            is AddWordEvent.UpdateNounGender -> updateNounGender(event.gender)
-            is AddWordEvent.UpdatePluralForm -> updateNounPlural(event.plural)
+            is AddWordContract.UiEvent.UpdateNounGender -> updateNounGender(event.gender)
+            is AddWordContract.UiEvent.UpdatePluralForm -> updateNounPlural(event.plural)
 
             // Verb
-            is AddWordEvent.UpdateCurrentConjugation -> updateCurrentConjugation(event.conjugation)
-            AddWordEvent.AddConjugation -> addConjugation()
-            is AddWordEvent.RemoveConjugation -> removeConjugation(event.conjugation)
-            is AddWordEvent.OnConjugationFieldFocusChange -> onConjugationFieldFocusChange(event.focused)
+            is AddWordContract.UiEvent.UpdateCurrentConjugation -> updateCurrentConjugation(event.conjugation)
+            AddWordContract.UiEvent.AddConjugation -> addConjugation()
+            is AddWordContract.UiEvent.RemoveConjugation -> removeConjugation(event.conjugation)
+            is AddWordContract.UiEvent.OnConjugationFieldFocusChange -> onConjugationFieldFocusChange(event.focused)
 
-            is AddWordEvent.UpdateCurrentManagement -> updateCurrentManagement(event.management)
-            AddWordEvent.AddManagement -> addManagement()
-            is AddWordEvent.RemoveManagement -> removeManagement(event.management)
-            is AddWordEvent.OnManagementFieldFocusChange -> onManagementFieldFocusChange(event.focused)
+            is AddWordContract.UiEvent.UpdateCurrentManagement -> updateCurrentManagement(event.management)
+            AddWordContract.UiEvent.AddManagement -> addManagement()
+            is AddWordContract.UiEvent.RemoveManagement -> removeManagement(event.management)
+            is AddWordContract.UiEvent.OnManagementFieldFocusChange -> onManagementFieldFocusChange(event.focused)
 
             // Adjective/Adverb
-            is AddWordEvent.UpdateComparative -> updateComparative(event.comparative)
-            is AddWordEvent.UpdateSuperlative -> updateSuperlative(event.superlative)
-            AddWordEvent.SaveWord -> saveWord()
+            is AddWordContract.UiEvent.UpdateComparative -> updateComparative(event.comparative)
+            is AddWordContract.UiEvent.UpdateSuperlative -> updateSuperlative(event.superlative)
+            AddWordContract.UiEvent.SaveWord -> saveWord()
         }
     }
 
     private fun updateText(text: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current text updated to: $text" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 text = text,
                 isSaveButtonEnabled = isSaveButtonEnabled(text = text),
@@ -102,14 +108,14 @@ class AddWordViewModel(
 
     private fun updatePartOfSpeech(partOfSpeech: PartOfSpeech) = stateAsEditing()?.let { currentState ->
         log.d { "Part of speech updated to: $partOfSpeech" }
-        _state.update {
+        _uiState.update {
             currentState.copy(partOfSpeech = partOfSpeech)
         }
     }
 
     private fun updateCurrentTranslation(translation: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current translation updated to: $translation" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 currentTranslation = translation,
                 showAddTranslationButton = translation.isNotBlank() && currentState.isTranslationFieldFocused,
@@ -122,7 +128,7 @@ class AddWordViewModel(
         if (currentState.currentTranslation.isNotBlank()) {
             val newTranslation = currentState.currentTranslation.trim()
             log.d { "Adding new translation: $newTranslation" }
-            _state.update {
+            _uiState.update {
                 currentState.copy(
                     translations = currentState.translations + newTranslation,
                     currentTranslation = "",
@@ -137,7 +143,7 @@ class AddWordViewModel(
         log.d { "Removing translation: $translation" }
         val updatedTranslations =
             currentState.translations.toMutableList().apply { remove(translation) }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 translations = updatedTranslations,
                 isSaveButtonEnabled = isSaveButtonEnabled(translations = updatedTranslations),
@@ -147,7 +153,7 @@ class AddWordViewModel(
 
     private fun onTranslationFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
         log.d { "Translation field focus changed to: $focused" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 isTranslationFieldFocused = focused,
                 showAddTranslationButton = focused && currentState.currentTranslation.isNotBlank(),
@@ -158,7 +164,7 @@ class AddWordViewModel(
     // region: Examples
     private fun updateCurrentExample(example: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current example updated to: $example" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 currentExample = example,
                 showAddExampleButton = example.isNotBlank() && currentState.isExampleFieldFocused,
@@ -171,7 +177,7 @@ class AddWordViewModel(
             val newExample = currentState.currentExample.trim()
             log.d { "Adding new example: $newExample" }
             val newList = currentState.examples + newExample
-            _state.update {
+            _uiState.update {
                 currentState.copy(
                     examples = newList,
                     currentExample = "",
@@ -184,7 +190,7 @@ class AddWordViewModel(
     private fun removeExample(example: String) = stateAsEditing()?.let { currentState ->
         log.d { "Removing example: $example" }
         val updated = currentState.examples.toMutableList().apply { remove(example) }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 examples = updated,
             )
@@ -193,7 +199,7 @@ class AddWordViewModel(
 
     private fun onExampleFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
         log.d { "Example field focus changed to: $focused" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 isExampleFieldFocused = focused,
                 showAddExampleButton = focused && currentState.currentExample.isNotBlank(),
@@ -205,7 +211,7 @@ class AddWordViewModel(
     // region: Noun
     private fun updateNounGender(gender: WordGender) = stateAsEditing()?.let { currentState ->
         log.d { "Noun gender updated to: $gender" }
-        _state.update {
+        _uiState.update {
             // allow toggle selection of gender
             currentState.copy(selectedGender = if (currentState.selectedGender == gender) null else gender)
         }
@@ -213,7 +219,7 @@ class AddWordViewModel(
 
     private fun updateNounPlural(plural: String) = stateAsEditing()?.let { currentState ->
         log.d { "Noun plural form updated to: $plural" }
-        _state.update {
+        _uiState.update {
             currentState.copy(pluralForm = plural)
         }
     }
@@ -222,7 +228,7 @@ class AddWordViewModel(
     // region: Verb
     private fun updateCurrentConjugation(conjugation: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current conjugation updated: $conjugation" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 currentConjugation = conjugation,
                 showAddConjugationButton = conjugation.isNotBlank() && currentState.isConjugationFieldFocused,
@@ -235,7 +241,7 @@ class AddWordViewModel(
             val newConjugation = currentState.currentConjugation.trim()
             log.d { "Adding new conjugation: $newConjugation" }
             val newList = currentState.conjugations + newConjugation
-            _state.update {
+            _uiState.update {
                 currentState.copy(
                     conjugations = newList,
                     currentConjugation = "",
@@ -248,14 +254,14 @@ class AddWordViewModel(
     private fun removeConjugation(conjugation: String) = stateAsEditing()?.let { currentState ->
         log.d { "Removing conjugation: $conjugation" }
         val updated = currentState.conjugations.toMutableList().apply { remove(conjugation) }
-        _state.update {
+        _uiState.update {
             currentState.copy(conjugations = updated)
         }
     }
 
     private fun onConjugationFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
         log.d { "Conjugation field focus changed to: $focused" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 isConjugationFieldFocused = focused,
                 showAddConjugationButton = focused && currentState.currentConjugation.isNotBlank(),
@@ -265,7 +271,7 @@ class AddWordViewModel(
 
     private fun updateCurrentManagement(management: String) = stateAsEditing()?.let { currentState ->
         log.d { "Current management updated: $management" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 currentManagement = management,
                 showAddManagementButton = management.isNotBlank() && currentState.isManagementFieldFocused,
@@ -278,7 +284,7 @@ class AddWordViewModel(
             val newManagement = currentState.currentManagement.trim()
             log.d { "Adding new management: $newManagement" }
             val newList = currentState.managements + newManagement
-            _state.update {
+            _uiState.update {
                 currentState.copy(
                     managements = newList,
                     currentManagement = "",
@@ -291,14 +297,14 @@ class AddWordViewModel(
     private fun removeManagement(management: String) = stateAsEditing()?.let { currentState ->
         log.d { "Removing management: $management" }
         val updated = currentState.managements.toMutableList().apply { remove(management) }
-        _state.update {
+        _uiState.update {
             currentState.copy(managements = updated)
         }
     }
 
     private fun onManagementFieldFocusChange(focused: Boolean) = stateAsEditing()?.let { currentState ->
         log.d { "Management field focus changed to: $focused" }
-        _state.update {
+        _uiState.update {
             currentState.copy(
                 isManagementFieldFocused = focused,
                 showAddManagementButton = focused && currentState.currentManagement.isNotBlank(),
@@ -310,14 +316,14 @@ class AddWordViewModel(
     // region: Adjective / Adverb
     private fun updateComparative(comparative: String) = stateAsEditing()?.let { currentState ->
         log.d { "Comparative updated: $comparative" }
-        _state.update {
+        _uiState.update {
             currentState.copy(comparative = comparative)
         }
     }
 
     private fun updateSuperlative(superlative: String) = stateAsEditing()?.let { currentState ->
         log.d { "Superlative updated: $superlative" }
-        _state.update {
+        _uiState.update {
             currentState.copy(superlative = superlative)
         }
     }
@@ -337,7 +343,7 @@ class AddWordViewModel(
         // Basic validation
         if (currentState.text.isBlank() || finalTranslations.isEmpty()) {
             log.e { "Cannot save word: Empty text or translations" }
-            _state.update { currentState.copy(errorMessageId = R.string.add_word_empty_field) }
+            _uiState.update { currentState.copy(errorMessageId = R.string.add_word_empty_field) }
             return@let
         }
 
@@ -399,23 +405,30 @@ class AddWordViewModel(
         }
 
         log.d { "Word to save: $word" }
-        viewModelScope.launch(ioScope.coroutineContext) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 addWordsUseCase.execute(word)
                 log.i { "Word saved successfully" }
-                _state.update { AddWordState.Saved }
+                onWordSaved()
             } catch (e: IllegalStateException) {
                 log.e(e) { "Word already exists, ignore and leave: $e" }
                 // TODO: word already exists, we should update existing word merging with the data user provided here
-                _state.update { AddWordState.Saved }
+                onWordSaved()
             } catch (e: Exception) {
                 log.e(e) { "Failed to save the word: $e" }
-                _state.update { AddWordState.Error("Failed to save the word") }
+                _sideEffect.send(AddWordContract.UiEffect.ShowError("Failed to save the word"))
             }
         }
     }
 
-    private fun stateAsEditing() = (_state.value as? AddWordState.Editing)
+    private fun onWordSaved() {
+        _uiState.update { AddWordContract.UiState.Editing() }
+        viewModelScope.launch(ioDispatcher) {
+            _sideEffect.send(AddWordContract.UiEffect.WordSaved)
+        }
+    }
+
+    private fun stateAsEditing() = (_uiState.value as? AddWordContract.UiState.Editing)
 
     private fun isSaveButtonEnabled(
         text: String? = null,

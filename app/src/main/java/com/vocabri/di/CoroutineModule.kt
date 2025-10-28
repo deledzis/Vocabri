@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.dictionary.viewmodel
+package com.vocabri.di
 
-import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
+import com.vocabri.domain.model.kover.ExcludeFromCoverage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
-sealed interface DictionaryState {
-    data object Loading : DictionaryState
-
-    data object Empty : DictionaryState
-
-    data class GroupsLoaded(val allWords: WordGroupUiModel, val groups: List<WordGroupUiModel>) : DictionaryState
-
-    data class Error(val message: String) : DictionaryState
+@ExcludeFromCoverage
+fun coroutineModule(appDataScope: CoroutineScope) = module {
+    single<CoroutineScope>(named("AppScope")) { appDataScope }
+    single { Dispatchers.IO }
 }

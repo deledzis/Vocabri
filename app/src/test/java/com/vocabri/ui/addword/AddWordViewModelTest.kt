@@ -30,8 +30,7 @@ import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.rules.MainDispatcherRule
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.utils.IdGenerator
 import io.mockk.clearAllMocks
@@ -39,10 +38,12 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeoutOrNull
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -51,7 +52,7 @@ import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainViewModelTest {
+class AddWordViewModelTest {
 
     @get:Rule
     val dispatcherRule = MainDispatcherRule()
@@ -69,7 +70,7 @@ class MainViewModelTest {
         viewModel = AddWordViewModel(
             addWordsUseCase = addWordUseCase,
             idGenerator = idGenerator,
-            ioScope = TestScope(dispatcherRule.testDispatcher),
+            ioDispatcher = dispatcherRule.testDispatcher,
         )
     }
 
@@ -81,28 +82,28 @@ class MainViewModelTest {
     @Test
     fun `updateText updates the text in state`() = runTest {
         // Act
-        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateText("lernen"))
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Editing)
-        assertEquals("lernen", (state as AddWordState.Editing).text)
+        val state = viewModel.uiState.first()
+        assertTrue(state is AddWordContract.UiState.Editing)
+        assertEquals("lernen", (state as AddWordContract.UiState.Editing).text)
     }
 
     @Test
     fun `addTranslation adds a translation and clears current translation`() = runTest {
         // Arrange
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
 
         // Act
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Editing)
-        state as AddWordState.Editing
+        val state = viewModel.uiState.first()
+        assertTrue(state is AddWordContract.UiState.Editing)
+        state as AddWordContract.UiState.Editing
         assertEquals(listOf("learn"), state.translations)
         assertEquals("", state.currentTranslation)
     }
@@ -110,36 +111,36 @@ class MainViewModelTest {
     @Test
     fun `removeTranslation removes the specified translation`() = runTest {
         // Arrange
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("study"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("study"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
 
         // Act
-        viewModel.handleEvent(AddWordEvent.RemoveTranslation("study"))
+        viewModel.onEvent(AddWordContract.UiEvent.RemoveTranslation("study"))
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Editing)
-        state as AddWordState.Editing
+        val state = viewModel.uiState.first()
+        assertTrue(state is AddWordContract.UiState.Editing)
+        state as AddWordContract.UiState.Editing
         assertEquals(listOf("learn"), state.translations)
     }
 
     @Test
     fun `removeTranslation does nothing if translation does not exist`() = runTest {
         // Arrange
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
 
         // Act
-        viewModel.handleEvent(AddWordEvent.RemoveTranslation("study"))
+        viewModel.onEvent(AddWordContract.UiEvent.RemoveTranslation("study"))
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Editing)
-        state as AddWordState.Editing
+        val state = viewModel.uiState.first()
+        assertTrue(state is AddWordContract.UiState.Editing)
+        state as AddWordContract.UiState.Editing
         assertEquals(listOf("learn"), state.translations)
     }
 
@@ -149,17 +150,19 @@ class MainViewModelTest {
         coEvery { addWordUseCase.execute(any()) } returns Unit
 
         // Act
-        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
-        viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentConjugation("regular"))
-        viewModel.handleEvent(AddWordEvent.AddConjugation)
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentManagement("auf + Akk."))
-        viewModel.handleEvent(AddWordEvent.AddManagement)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateText("lernen"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentConjugation("regular"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddConjugation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentManagement("auf + Akk."))
+        viewModel.onEvent(AddWordContract.UiEvent.AddManagement)
+
+        val effect = async { viewModel.sideEffect.first() }
 
         // Act
-        viewModel.handleEvent(AddWordEvent.SaveWord)
+        viewModel.onEvent(AddWordContract.UiEvent.SaveWord)
         advanceUntilIdle()
 
         // Assert
@@ -180,7 +183,8 @@ class MainViewModelTest {
         coVerify(exactly = 1) {
             addWordUseCase.execute(expectedWord)
         }
-        assertEquals(AddWordState.Saved, viewModel.state.first())
+        assertEquals(AddWordContract.UiEffect.WordSaved, effect.await())
+        assertTrue(viewModel.uiState.first() is AddWordContract.UiState.Editing)
     }
 
     @Test
@@ -189,19 +193,24 @@ class MainViewModelTest {
         val errorMessage = "Failed to save the word"
         coEvery { addWordUseCase.execute(any()) } throws Exception(errorMessage)
 
+        val effect = async { viewModel.sideEffect.first() }
+
         // Act
-        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
-        viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
-        viewModel.handleEvent(AddWordEvent.SaveWord)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateText("lernen"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
+        viewModel.onEvent(AddWordContract.UiEvent.SaveWord)
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is AddWordState.Error)
-        state as AddWordState.Error
-        assertEquals("Failed to save the word", state.message)
+        val emittedEffect = effect.await()
+        assertTrue(emittedEffect is AddWordContract.UiEffect.ShowError)
+        assertEquals("Failed to save the word", (emittedEffect as AddWordContract.UiEffect.ShowError).message)
+
+        val state = viewModel.uiState.first()
+        assertTrue(state is AddWordContract.UiState.Editing)
+        assertEquals("lernen", (state as AddWordContract.UiState.Editing).text)
     }
 
     @Test
@@ -210,18 +219,48 @@ class MainViewModelTest {
         val errorMessage = "Failed to save the word"
         coEvery { addWordUseCase.execute(any()) } throws IllegalStateException(errorMessage)
 
+        val effect = async { viewModel.sideEffect.first() }
+
         // Act
-        viewModel.handleEvent(AddWordEvent.UpdateText("lernen"))
-        viewModel.handleEvent(AddWordEvent.UpdateCurrentTranslation("learn"))
-        viewModel.handleEvent(AddWordEvent.AddTranslation)
-        viewModel.handleEvent(AddWordEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
-        viewModel.handleEvent(AddWordEvent.SaveWord)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateText("lernen"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
+        viewModel.onEvent(AddWordContract.UiEvent.UpdatePartOfSpeech(PartOfSpeech.VERB))
+        viewModel.onEvent(AddWordContract.UiEvent.SaveWord)
         advanceUntilIdle()
 
         // Assert
         coVerify(exactly = 1) {
             addWordUseCase.execute(any())
         }
-        assertEquals(AddWordState.Saved, viewModel.state.first())
+        assertEquals(AddWordContract.UiEffect.WordSaved, effect.await())
+    }
+
+    @Test
+    fun `word saved effect is not replayed automatically`() = runTest {
+        coEvery { addWordUseCase.execute(any()) } returns Unit
+
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateText("lernen"))
+        viewModel.onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation("learn"))
+        viewModel.onEvent(AddWordContract.UiEvent.AddTranslation)
+
+        val firstEffect = async { viewModel.sideEffect.first() }
+
+        viewModel.onEvent(AddWordContract.UiEvent.SaveWord)
+        advanceUntilIdle()
+
+        assertEquals(AddWordContract.UiEffect.WordSaved, firstEffect.await())
+
+        val replayCheck = async {
+            withTimeoutOrNull(1) {
+                viewModel.sideEffect.first()
+            }
+        }
+
+        advanceUntilIdle()
+        advanceTimeBy(1)
+        advanceUntilIdle()
+
+        assertEquals(null, replayCheck.await())
     }
 }

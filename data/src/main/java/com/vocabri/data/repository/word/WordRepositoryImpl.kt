@@ -26,8 +26,8 @@ package com.vocabri.data.repository.word
 import com.vocabri.data.datasource.sync.OperationType
 import com.vocabri.data.datasource.sync.PendingOperation
 import com.vocabri.data.datasource.sync.PendingOperationDataSource
+import com.vocabri.data.datasource.word.LocalWordDataSource
 import com.vocabri.data.datasource.word.RemoteWordDataSource
-import com.vocabri.data.datasource.word.WordDataSource
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.toPartOfSpeech
@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.Flow
  * Implementation of [WordRepository] that orchestrates remote and local data sources.
  */
 class WordRepositoryImpl(
-    private val localWordDataSource: WordDataSource,
+    private val localWordDataSource: LocalWordDataSource,
     private val remoteWordDataSource: RemoteWordDataSource,
     private val pendingOperationDataSource: PendingOperationDataSource,
     private val idGenerator: IdGenerator,
@@ -120,10 +120,12 @@ class WordRepositoryImpl(
                             remoteWordDataSource.insertWord(word)
                         } ?: log.w { "INSERT operation missing word data for wordId=${operation.wordId}" }
                     }
+
                     OperationType.DELETE -> {
                         log.i { "Syncing DELETE operation for wordId=${operation.wordId}" }
                         remoteWordDataSource.deleteWord(operation.wordId)
                     }
+
                     OperationType.UPDATE -> {
                         operation.wordData?.let { word ->
                             log.i { "Syncing UPDATE operation for wordId=${operation.wordId}" }

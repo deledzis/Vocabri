@@ -38,12 +38,15 @@ import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.ChipsFlowRow
 import com.vocabri.ui.components.TextFieldWithButton
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun ExampleTextField(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun ExampleTextField(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -53,9 +56,9 @@ fun ExampleTextField(modifier: Modifier = Modifier, state: AddWordState.Editing,
             placeholderResId = R.string.add_example_placeholder,
             buttonContentDescriptionResId = R.string.add_example,
             buttonVisible = state.showAddExampleButton,
-            onFocusChange = { onEvent(AddWordEvent.OnExampleFieldFocusChange(it)) },
-            onValueChange = { onEvent(AddWordEvent.UpdateCurrentExample(it)) },
-            onAddValueClick = { onEvent(AddWordEvent.AddExample) },
+            onFocusChange = { onEvent(AddWordContract.UiEvent.OnExampleFieldFocusChange(it)) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateCurrentExample(it)) },
+            onAddValueClick = { onEvent(AddWordContract.UiEvent.AddExample) },
         )
         if (state.examples.isNotEmpty()) {
             ChipsFlowRow(
@@ -64,7 +67,7 @@ fun ExampleTextField(modifier: Modifier = Modifier, state: AddWordState.Editing,
                 removeButtonContentDescriptionResId = R.string.remove_example,
                 itemPrintableName = { it },
                 isSelected = { true },
-                onClick = { onEvent(AddWordEvent.RemoveExample(it)) },
+                onClick = { onEvent(AddWordContract.UiEvent.RemoveExample(it)) },
             )
         }
     }
@@ -97,7 +100,7 @@ private fun PreviewExampleTextField() {
         ) {
             item {
                 ExampleTextField(
-                    state = AddWordState.Editing(
+                    state = AddWordContract.UiState.Editing(
                         currentExample = "Ich lerne",
                         showAddExampleButton = true,
                         examples = listOf("Ich lerne Deutsch"),

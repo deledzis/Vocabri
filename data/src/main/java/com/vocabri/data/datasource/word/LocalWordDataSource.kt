@@ -21,12 +21,32 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.dictionary.viewmodel
+package com.vocabri.data.datasource.word
 
-sealed interface DictionaryEvent {
-    data object AddWordClicked : DictionaryEvent
+import com.vocabri.domain.model.word.PartOfSpeech
+import com.vocabri.domain.model.word.Word
+import kotlinx.coroutines.flow.Flow
 
-    data object RetryClicked : DictionaryEvent
+/**
+ * Data layer interface for local word data operations.
+ */
+interface LocalWordDataSource {
 
-    data class OnGroupCardClicked(val partOfSpeech: String) : DictionaryEvent
+    /**
+     * Retrieves a list of words filtered by the given part of speech.
+     * If partOfSpeech is null, then all words should be returned.
+     */
+    suspend fun getWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): List<Word>
+
+    fun observeWordsByPartOfSpeech(partOfSpeech: PartOfSpeech): Flow<List<Word>>
+
+    /**
+     * Inserts a new word (and related entities) into the database.
+     */
+    suspend fun insertWord(word: Word)
+
+    /**
+     * Deletes a word by its ID.
+     */
+    suspend fun deleteWord(wordId: String)
 }

@@ -56,7 +56,7 @@ class ObserveWordGroupsUseCase(private val wordRepository: WordRepository) {
                     )
                 }
 
-                log.i { "Observed ${words.size} total words, grouped into ${groups.size} categories" }
+                log.d { "Observed ${words.size} total words, grouped into ${groups.size} categories" }
 
                 WordGroups(
                     allWords = WordGroup(

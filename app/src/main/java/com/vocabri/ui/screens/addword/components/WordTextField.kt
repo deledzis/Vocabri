@@ -38,16 +38,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun WordTextField(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun WordTextField(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     TextField(
         modifier = modifier.fillMaxWidth(),
         value = state.text,
-        onValueChange = { onEvent(AddWordEvent.UpdateText(it)) },
+        onValueChange = { onEvent(AddWordContract.UiEvent.UpdateText(it)) },
         placeholder = {
             Text(
                 text = stringResource(R.string.word_text),
@@ -87,7 +90,7 @@ fun WordTextField(modifier: Modifier = Modifier, state: AddWordState.Editing, on
 private fun PreviewWordField() {
     VocabriTheme {
         WordTextField(
-            state = AddWordState.Editing(
+            state = AddWordContract.UiState.Editing(
                 text = "lernen",
                 translations = listOf("study", "learn"),
                 partOfSpeech = PartOfSpeech.VERB,

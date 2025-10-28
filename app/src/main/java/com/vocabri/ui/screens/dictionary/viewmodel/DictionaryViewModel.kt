@@ -32,7 +32,7 @@ import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -44,13 +44,13 @@ import kotlin.coroutines.cancellation.CancellationException
 open class DictionaryViewModel(
     private val observeWordGroupsUseCase: ObserveWordGroupsUseCase,
     private val resourcesRepository: ResourcesRepository,
-    private val ioScope: CoroutineScope,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val log = logger()
 
-    private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Loading)
-    open val state: StateFlow<DictionaryState> = _state
+    private val _uiState = MutableStateFlow<DictionaryContract.UiState>(DictionaryContract.UiState.Loading)
+    open val uiState: StateFlow<DictionaryContract.UiState> = _uiState
 
     private var observeJob: Job? = null
 
@@ -58,17 +58,23 @@ open class DictionaryViewModel(
         observeWordGroups()
     }
 
-    fun retry() {
-        log.i { "Retry requested from UI" }
+    fun onEvent(event: DictionaryContract.UiEvent) {
+        log.i { "Handling event: $event" }
+        when (event) {
+            DictionaryContract.UiEvent.Retry -> reloadWordGroups()
+        }
+    }
+
+    private fun reloadWordGroups() {
         observeWordGroups()
     }
 
     private fun observeWordGroups() {
         observeJob?.cancel()
-        observeJob = viewModelScope.launch(ioScope.coroutineContext) {
+        observeJob = viewModelScope.launch(ioDispatcher) {
             observeWordGroupsUseCase.execute()
                 .onStart {
-                    _state.value = DictionaryState.Loading
+                    _uiState.value = DictionaryContract.UiState.Loading
                 }
                 .catch { throwable ->
                     when (throwable) {
@@ -78,7 +84,8 @@ open class DictionaryViewModel(
 
                         else -> {
                             log.e(throwable) { "observeWordGroups failed due to exception: $throwable" }
-                            _state.value = DictionaryState.Error("Failed to load data, please try again later.")
+                            _uiState.value =
+                                DictionaryContract.UiState.Error("Failed to load data, please try again later.")
                         }
                     }
                 }
@@ -86,10 +93,10 @@ open class DictionaryViewModel(
                     val allWordsGroupUiModel = wordGroups.allWords.toUiModel()
                     val groupsUiModel = wordGroups.groups.map { it.toUiModel() }
 
-                    _state.value = if (groupsUiModel.isEmpty()) {
-                        DictionaryState.Empty
+                    _uiState.value = if (groupsUiModel.isEmpty()) {
+                        DictionaryContract.UiState.Empty
                     } else {
-                        DictionaryState.GroupsLoaded(
+                        DictionaryContract.UiState.GroupsLoaded(
                             allWords = allWordsGroupUiModel,
                             groups = groupsUiModel,
                         )

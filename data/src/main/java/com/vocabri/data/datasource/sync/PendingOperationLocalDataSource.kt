@@ -92,16 +92,19 @@ class PendingOperationLocalDataSource(private val database: VocabriDatabase) : P
                     "${encodeBase64(word.text)}$PART_SEPARATOR$translations$PART_SEPARATOR" +
                     "$examples$PART_SEPARATOR${word.gender?.name ?: ""}$PART_SEPARATOR" +
                     encodeBase64(word.pluralForm ?: "")
+
             is Word.Verb ->
                 "VERB$PART_SEPARATOR${word.id}$PART_SEPARATOR" +
                     "${encodeBase64(word.text)}$PART_SEPARATOR$translations$PART_SEPARATOR" +
                     "$examples$PART_SEPARATOR${encodeBase64(word.conjugation ?: "")}$PART_SEPARATOR" +
                     encodeBase64(word.management ?: "")
+
             is Word.Adjective ->
                 "ADJECTIVE$PART_SEPARATOR${word.id}$PART_SEPARATOR" +
                     "${encodeBase64(word.text)}$PART_SEPARATOR$translations$PART_SEPARATOR" +
                     "$examples$PART_SEPARATOR${encodeBase64(word.comparative ?: "")}$PART_SEPARATOR" +
                     encodeBase64(word.superlative ?: "")
+
             is Word.Adverb ->
                 "ADVERB$PART_SEPARATOR${word.id}$PART_SEPARATOR" +
                     "${encodeBase64(word.text)}$PART_SEPARATOR$translations$PART_SEPARATOR" +
@@ -156,6 +159,7 @@ class PendingOperationLocalDataSource(private val database: VocabriDatabase) : P
                 },
                 pluralForm = decodeBase64(parts[EXTRA_FIELD_2_INDEX]).ifEmpty { null },
             )
+
             "VERB" -> Word.Verb(
                 id = id,
                 text = text,
@@ -164,6 +168,7 @@ class PendingOperationLocalDataSource(private val database: VocabriDatabase) : P
                 conjugation = decodeBase64(parts[EXTRA_FIELD_1_INDEX]).ifEmpty { null },
                 management = decodeBase64(parts[EXTRA_FIELD_2_INDEX]).ifEmpty { null },
             )
+
             "ADJECTIVE" -> Word.Adjective(
                 id = id,
                 text = text,
@@ -172,6 +177,7 @@ class PendingOperationLocalDataSource(private val database: VocabriDatabase) : P
                 comparative = decodeBase64(parts[EXTRA_FIELD_1_INDEX]).ifEmpty { null },
                 superlative = decodeBase64(parts[EXTRA_FIELD_2_INDEX]).ifEmpty { null },
             )
+
             "ADVERB" -> Word.Adverb(
                 id = id,
                 text = text,
@@ -180,6 +186,7 @@ class PendingOperationLocalDataSource(private val database: VocabriDatabase) : P
                 comparative = decodeBase64(parts[EXTRA_FIELD_1_INDEX]).ifEmpty { null },
                 superlative = decodeBase64(parts[EXTRA_FIELD_2_INDEX]).ifEmpty { null },
             )
+
             else -> throw IllegalArgumentException("Unknown word type: $type")
         }
     }

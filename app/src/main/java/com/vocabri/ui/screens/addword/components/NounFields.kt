@@ -44,26 +44,29 @@ import androidx.compose.ui.unit.dp
 import com.vocabri.R
 import com.vocabri.domain.model.word.WordGender
 import com.vocabri.ui.components.ChipsFlowRow
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun NounFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun NounFields(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         ChipsFlowRow(
             items = WordGender.entries,
             removable = false,
             itemPrintableName = { it.article },
             isSelected = { state.selectedGender == it },
-            onClick = { onEvent(AddWordEvent.UpdateNounGender(it)) },
+            onClick = { onEvent(AddWordContract.UiEvent.UpdateNounGender(it)) },
         )
 
         // Plural form
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = state.pluralForm,
-            onValueChange = { onEvent(AddWordEvent.UpdatePluralForm(it)) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdatePluralForm(it)) },
             placeholder = {
                 Text(
                     text = stringResource(R.string.plural_form_placeholder),
@@ -111,7 +114,7 @@ private fun PreviewNounFields() {
         ) {
             item {
                 NounFields(
-                    state = AddWordState.Editing(
+                    state = AddWordContract.UiState.Editing(
                         selectedGender = WordGender.MASCULINE,
                         pluralForm = "Leute",
                     ),

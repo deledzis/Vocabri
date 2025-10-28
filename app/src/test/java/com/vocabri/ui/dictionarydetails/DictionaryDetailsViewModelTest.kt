@@ -32,8 +32,7 @@ import com.vocabri.domain.usecase.word.DeleteWordUseCase
 import com.vocabri.domain.usecase.word.ObserveWordsUseCase
 import com.vocabri.rules.MainDispatcherRule
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsContract
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import io.mockk.Runs
 import io.mockk.clearAllMocks
@@ -44,7 +43,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -101,10 +99,10 @@ class DictionaryDetailsViewModelTest {
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is DictionaryDetailsState.WordsLoaded)
+        val state = viewModel.uiState.first()
+        assertTrue(state is DictionaryDetailsContract.UiState.WordsLoaded)
 
-        state as DictionaryDetailsState.WordsLoaded
+        state as DictionaryDetailsContract.UiState.WordsLoaded
         assertEquals(1, state.words.size)
         assertEquals("lernen", state.words[0].text)
 
@@ -124,9 +122,9 @@ class DictionaryDetailsViewModelTest {
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
+        val state = viewModel.uiState.first()
         assertEquals(
-            DictionaryDetailsState.Error(
+            DictionaryDetailsContract.UiState.Error(
                 titleId = samplePartOfSpeech.toTitleResId,
                 message = errorMessage,
             ),
@@ -141,9 +139,9 @@ class DictionaryDetailsViewModelTest {
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
+        val state = viewModel.uiState.first()
         assertEquals(
-            DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId),
+            DictionaryDetailsContract.UiState.Empty(titleId = samplePartOfSpeech.toTitleResId),
             state,
         )
         coVerify(exactly = 1) { mockWordRepository.observeWordsByPartOfSpeech(samplePartOfSpeech) }
@@ -156,12 +154,12 @@ class DictionaryDetailsViewModelTest {
         setupViewModel(setupWordRepository = false)
         advanceUntilIdle()
 
-        viewModel.handleEvent(DictionaryDetailsEvent.DeleteWordClicked("1"))
+        viewModel.onEvent(DictionaryDetailsContract.UiEvent.OnDeleteWordClicked("1"))
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
-        assertTrue(state is DictionaryDetailsState.WordsLoaded)
+        val state = viewModel.uiState.first()
+        assertTrue(state is DictionaryDetailsContract.UiState.WordsLoaded)
         coVerify { mockWordRepository.deleteWordById("1") }
         coVerify(exactly = 1) { mockWordRepository.observeWordsByPartOfSpeech(samplePartOfSpeech) }
     }
@@ -172,9 +170,9 @@ class DictionaryDetailsViewModelTest {
         advanceUntilIdle()
 
         // Assert
-        val state = viewModel.state.first()
+        val state = viewModel.uiState.first()
         assertEquals(
-            DictionaryDetailsState.Empty(titleId = samplePartOfSpeech.toTitleResId),
+            DictionaryDetailsContract.UiState.Empty(titleId = samplePartOfSpeech.toTitleResId),
             state,
         )
         coVerify(exactly = 1) { mockWordRepository.observeWordsByPartOfSpeech(samplePartOfSpeech) }
@@ -207,7 +205,7 @@ class DictionaryDetailsViewModelTest {
             partOfSpeech = samplePartOfSpeech,
             observeWordsUseCase = observeWordsUseCase,
             deleteWordUseCase = deleteWordUseCase,
-            ioScope = TestScope(dispatcherRule.testDispatcher),
+            ioDispatcher = dispatcherRule.testDispatcher,
         )
     }
 }

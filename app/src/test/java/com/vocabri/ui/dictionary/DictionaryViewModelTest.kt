@@ -29,7 +29,7 @@ import com.vocabri.domain.repository.ResourcesRepository
 import com.vocabri.domain.repository.WordRepository
 import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.rules.MainDispatcherRule
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryContract
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.After
@@ -57,19 +56,6 @@ class DictionaryViewModelTest {
     private lateinit var wordRepository: WordRepository
     private lateinit var resourcesRepository: ResourcesRepository
 
-    private fun createViewModel(flow: Flow<List<Word>>): DictionaryViewModel {
-        wordRepository = mockk(relaxed = true)
-        resourcesRepository = mockk(relaxed = true)
-        every { wordRepository.observeWordsByPartOfSpeech(PartOfSpeech.ALL) } returns flow
-
-        val useCase = ObserveWordGroupsUseCase(wordRepository)
-        return DictionaryViewModel(
-            observeWordGroupsUseCase = useCase,
-            resourcesRepository = resourcesRepository,
-            ioScope = TestScope(dispatcherRule.testDispatcher),
-        )
-    }
-
     @After
     fun tearDown() {
         clearAllMocks()
@@ -80,8 +66,8 @@ class DictionaryViewModelTest {
         val viewModel = createViewModel(flowOf(emptyList()))
         advanceUntilIdle()
 
-        val state = viewModel.state.first()
-        assertEquals(DictionaryState.Empty, state)
+        val state = viewModel.uiState.first()
+        assertEquals(DictionaryContract.UiState.Empty, state)
     }
 
     @Test
@@ -93,11 +79,11 @@ class DictionaryViewModelTest {
         )
         advanceUntilIdle()
 
-        val state = viewModel.state.first()
-        assertTrue(state is DictionaryState.Error)
+        val state = viewModel.uiState.first()
+        assertTrue(state is DictionaryContract.UiState.Error)
         assertEquals(
             "Failed to load data, please try again later.",
-            (state as DictionaryState.Error).message,
+            (state as DictionaryContract.UiState.Error).message,
         )
     }
 
@@ -118,16 +104,29 @@ class DictionaryViewModelTest {
         val viewModel = DictionaryViewModel(
             observeWordGroupsUseCase = ObserveWordGroupsUseCase(wordRepository),
             resourcesRepository = resourcesRepository,
-            ioScope = TestScope(dispatcherRule.testDispatcher),
+            ioDispatcher = dispatcherRule.testDispatcher,
         )
 
         advanceUntilIdle()
         // Initially error
-        assertTrue(viewModel.state.first() is DictionaryState.Error)
+        assertTrue(viewModel.uiState.first() is DictionaryContract.UiState.Error)
 
         // Retry should switch to Empty
-        viewModel.retry()
+        viewModel.onEvent(DictionaryContract.UiEvent.Retry)
         advanceUntilIdle()
-        assertEquals(DictionaryState.Empty, viewModel.state.first())
+        assertEquals(DictionaryContract.UiState.Empty, viewModel.uiState.first())
+    }
+
+    private fun createViewModel(flow: Flow<List<Word>>): DictionaryViewModel {
+        wordRepository = mockk(relaxed = true)
+        resourcesRepository = mockk(relaxed = true)
+        every { wordRepository.observeWordsByPartOfSpeech(PartOfSpeech.ALL) } returns flow
+
+        val useCase = ObserveWordGroupsUseCase(wordRepository)
+        return DictionaryViewModel(
+            observeWordGroupsUseCase = useCase,
+            resourcesRepository = resourcesRepository,
+            ioDispatcher = dispatcherRule.testDispatcher,
+        )
     }
 }

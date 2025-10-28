@@ -33,7 +33,7 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.fake.TestApplication
 import com.vocabri.ui.screens.dictionarydetails.components.WordListItem
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsContract
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -59,7 +59,7 @@ class WordItemTest {
         )
 
         composeRule.setContent {
-            WordListItem(uiItem = word) {}
+            WordListItem(uiItem = word, onDeleteWord = {}, onWordClick = {})
         }
 
         composeRule.onNodeWithText("lernen").assertExists()
@@ -76,7 +76,7 @@ class WordItemTest {
         )
 
         composeRule.setContent {
-            WordListItem(uiItem = word) {}
+            WordListItem(uiItem = word, onDeleteWord = {}, onWordClick = {})
         }
 
         composeRule.onNodeWithText("learn, study").assertExists()
@@ -91,10 +91,14 @@ class WordItemTest {
             examples = "Ich lerne",
             partOfSpeech = PartOfSpeech.VERB,
         )
-        val events = mutableListOf<DictionaryDetailsEvent>()
+        val events = mutableListOf<DictionaryDetailsContract.UiEvent>()
 
         composeRule.setContent {
-            WordListItem(uiItem = word, onEvent = events::add)
+            WordListItem(
+                uiItem = word,
+                onWordClick = {},
+                onDeleteWord = { events.add(DictionaryDetailsContract.UiEvent.OnDeleteWordClicked(word.id)) },
+            )
         }
 
         composeRule.onNodeWithText("lernen")
@@ -103,7 +107,7 @@ class WordItemTest {
         composeRule.waitForIdle()
 
         assertEquals(
-            listOf(DictionaryDetailsEvent.DeleteWordClicked(word.id)),
+            listOf(DictionaryDetailsContract.UiEvent.OnDeleteWordClicked(word.id)),
             events,
         )
     }
@@ -117,10 +121,14 @@ class WordItemTest {
             examples = "Ich lerne",
             partOfSpeech = PartOfSpeech.VERB,
         )
-        val events = mutableListOf<DictionaryDetailsEvent>()
+        val events = mutableListOf<DictionaryDetailsContract.UiEvent>()
 
         composeRule.setContent {
-            WordListItem(uiItem = word, onEvent = events::add)
+            WordListItem(
+                uiItem = word,
+                onWordClick = {},
+                onDeleteWord = { events.add(DictionaryDetailsContract.UiEvent.OnDeleteWordClicked(word.id)) },
+            )
         }
 
         composeRule.onNodeWithText("lernen")

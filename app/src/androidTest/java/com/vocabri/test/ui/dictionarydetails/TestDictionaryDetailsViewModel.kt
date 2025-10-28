@@ -25,12 +25,10 @@ package com.vocabri.test.ui.dictionarydetails
 
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsContract
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import io.mockk.mockk
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -40,14 +38,14 @@ class TestDictionaryDetailsViewModel(partOfSpeech: PartOfSpeech) :
         partOfSpeech = partOfSpeech,
         observeWordsUseCase = mockk(),
         deleteWordUseCase = mockk(),
-        ioScope = CoroutineScope(Dispatchers.IO + SupervisorJob()),
+        ioDispatcher = Dispatchers.IO,
     ) {
-    private val _state = MutableStateFlow<DictionaryDetailsState>(
-        DictionaryDetailsState.Loading(titleId = R.string.loading),
+    private val _uiState = MutableStateFlow<DictionaryDetailsContract.UiState>(
+        DictionaryDetailsContract.UiState.Loading(titleId = R.string.loading),
     )
-    override val state: StateFlow<DictionaryDetailsState> = _state
+    override val uiState: StateFlow<DictionaryDetailsContract.UiState> = _uiState
 
-    fun setState(newState: DictionaryDetailsState) {
-        _state.update { newState }
+    fun setState(newState: DictionaryDetailsContract.UiState) {
+        _uiState.update { newState }
     }
 }
