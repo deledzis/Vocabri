@@ -21,26 +21,22 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.main.viewmodel
+package com.vocabri.ui.screens.dictionary.viewmodel
 
-import com.vocabri.ui.architecture.UiEffect
+import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 
-/**
- * One-off UI actions emitted by [MainViewModel].
- */
-sealed interface MainEffect : UiEffect {
-    /**
-     * Shows a success message when a word is added successfully.
-     */
-    data object ShowWordAddedSuccess : MainEffect
+object DictionaryContract {
+    sealed interface UiState {
+        data object Loading : UiState
 
-    /**
-     * Shows an error message when word addition fails.
-     */
-    data class ShowError(val message: String) : MainEffect
+        data object Empty : UiState
 
-    /**
-     * Shows a message when a word already exists.
-     */
-    data object ShowWordAlreadyExists : MainEffect
+        data class GroupsLoaded(val allWords: WordGroupUiModel, val groups: List<WordGroupUiModel>) : UiState
+
+        data class Error(val message: String) : UiState
+    }
+
+    sealed interface UiEvent {
+        data object Retry : UiEvent
+    }
 }

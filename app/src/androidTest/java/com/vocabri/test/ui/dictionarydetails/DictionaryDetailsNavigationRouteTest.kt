@@ -34,13 +34,14 @@ import com.vocabri.test.di.testModule
 import com.vocabri.test.rule.KoinTestRule
 import com.vocabri.ui.screens.dictionarydetails.DictionaryDetailsScreen
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsContract
 import com.vocabri.ui.theme.VocabriTheme
 import io.mockk.mockk
 import io.mockk.verify
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import java.util.concurrent.CountDownLatch
 
 @RunWith(AndroidJUnit4::class)
 class DictionaryDetailsNavigationRouteTest {
@@ -65,7 +66,8 @@ class DictionaryDetailsNavigationRouteTest {
             VocabriTheme {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
-                    navController = navController,
+                    onNavigateToAddWord = { },
+                    onNavigateToEditWord = { },
                 )
             }
         }
@@ -75,10 +77,11 @@ class DictionaryDetailsNavigationRouteTest {
 
     @Test
     fun testBackButtonInWordsLoadedState() {
+        CountDownLatch(1)
         val viewModel = TestDictionaryDetailsViewModel(PartOfSpeech.VERB)
 
         viewModel.setState(
-            DictionaryDetailsState.WordsLoaded(
+            DictionaryDetailsContract.UiState.WordsLoaded(
                 titleId = R.string.verbs,
                 words = listOf(
                     WordUiModel(
@@ -96,7 +99,8 @@ class DictionaryDetailsNavigationRouteTest {
             VocabriTheme {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
-                    navController = navController,
+                    onNavigateToAddWord = { },
+                    onNavigateToEditWord = { navController.popBackStack() },
                 )
             }
         }
@@ -111,7 +115,7 @@ class DictionaryDetailsNavigationRouteTest {
         val viewModel = TestDictionaryDetailsViewModel(PartOfSpeech.NOUN)
 
         viewModel.setState(
-            DictionaryDetailsState.WordsLoaded(
+            DictionaryDetailsContract.UiState.WordsLoaded(
                 titleId = R.string.verbs,
                 listOf(
                     WordUiModel(
@@ -129,7 +133,8 @@ class DictionaryDetailsNavigationRouteTest {
             VocabriTheme {
                 DictionaryDetailsScreen(
                     viewModel = viewModel,
-                    navController = navController,
+                    onNavigateToAddWord = { },
+                    onNavigateToEditWord = { },
                 )
             }
         }

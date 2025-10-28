@@ -44,8 +44,7 @@ import androidx.navigation.compose.rememberNavController
 import com.vocabri.di.qualifiers.DictionaryDetailsQualifiers
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
-import com.vocabri.ui.main.viewmodel.MainEffect
-import com.vocabri.ui.main.viewmodel.MainEvent
+import com.vocabri.ui.main.viewmodel.MainContract
 import com.vocabri.ui.main.viewmodel.MainViewModel
 import com.vocabri.ui.navigation.AppNavigation
 import com.vocabri.ui.navigation.MainBottomNavigation
@@ -63,7 +62,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinViewModel()) {
     val log = logger("MainScreen")
-    val state by viewModel.state.collectAsState()
+
+    val uiState by viewModel.uiState.collectAsState()
     val navController = rememberNavController()
     val focusManager = LocalFocusManager.current
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -73,25 +73,19 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinVie
 
     LaunchedEffect(viewModel) {
         log.i { "MainScreen is displayed" }
-        viewModel.effect.collect { effect ->
+        viewModel.sideEffect.collect { effect ->
             log.i { "Effect received: $effect" }
             when (effect) {
-                MainEffect.ShowWordAddedSuccess -> {
-                    snackbarHostState.showSnackbar(
-                        message = "Word added successfully!",
-                    )
+                MainContract.UiEffect.ShowWordAddedSuccess -> {
+                    snackbarHostState.showSnackbar(message = "Word added successfully!")
                 }
 
-                MainEffect.ShowWordAlreadyExists -> {
-                    snackbarHostState.showSnackbar(
-                        message = "Word already exists in your dictionary",
-                    )
+                MainContract.UiEffect.ShowWordAlreadyExists -> {
+                    snackbarHostState.showSnackbar(message = "Word already exists in your dictionary")
                 }
 
-                is MainEffect.ShowError -> {
-                    snackbarHostState.showSnackbar(
-                        message = effect.message,
-                    )
+                is MainContract.UiEffect.ShowError -> {
+                    snackbarHostState.showSnackbar(message = effect.message)
                 }
             }
         }
@@ -118,21 +112,21 @@ fun MainScreen(modifier: Modifier = Modifier, viewModel: MainViewModel = koinVie
                         qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(PartOfSpeech.valueOf(partOfSpeech)),
                         viewModelStoreOwner = navBackStackEntry!!,
                     )
-                    val uiState by dictionaryDetailsViewModel.state.collectAsState()
+                    val uiState by dictionaryDetailsViewModel.uiState.collectAsState()
                     DictionaryDetailsScreenTopAppBar(state = uiState, navController = navController)
                 }
             }
         },
         bottomBar = {
             AnimatedVisibility(
-                visible = currentRoute in state.routes.map { it.route },
+                visible = currentRoute in uiState.routes.map { it.route },
                 enter = fadeIn(),
                 exit = fadeOut(),
             ) {
                 MainBottomNavigation(
                     navController = navController,
-                    navigationRoutes = state.routes,
-                    onPlusButtonLongClick = { viewModel.handleEvent(MainEvent.OnPlusButtonLongClick) },
+                    navigationRoutes = uiState.routes,
+                    onPlusButtonLongClick = { viewModel.onEvent(MainContract.UiEvent.OnPlusButtonLongClick) },
                 ) {
                     if (navController.currentDestination?.route != NavigationRoute.Secondary.AddWord.route) {
                         navController.navigate(NavigationRoute.Secondary.AddWord.route) {

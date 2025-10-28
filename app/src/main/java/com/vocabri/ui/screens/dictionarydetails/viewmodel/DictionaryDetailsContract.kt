@@ -23,24 +23,25 @@
  */
 package com.vocabri.ui.screens.dictionarydetails.viewmodel
 
-import com.vocabri.ui.architecture.UiEffect
+import androidx.annotation.StringRes
+import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
 
-/**
- * One-off actions emitted by [DictionaryDetailsViewModel] and consumed by the UI layer.
- */
-sealed interface DictionaryDetailsEffect : UiEffect {
-    /**
-     * Navigates user back to the previous screen.
-     */
-    data object NavigateBack : DictionaryDetailsEffect
+object DictionaryDetailsContract {
+    sealed interface UiState {
+        val titleId: Int
 
-    /**
-     * Opens the Add Word screen.
-     */
-    data object NavigateToAddWord : DictionaryDetailsEffect
+        data class WordsLoaded(@param:StringRes override val titleId: Int, val words: List<WordUiModel>) : UiState
 
-    /**
-     * Opens the selected word for further actions.
-     */
-    data class NavigateToWord(val wordId: String) : DictionaryDetailsEffect
+        data class Empty(@param:StringRes override val titleId: Int) : UiState
+
+        data class Loading(@param:StringRes override val titleId: Int) : UiState
+
+        data class Error(@param:StringRes override val titleId: Int, val message: String) : UiState
+    }
+
+    sealed interface UiEvent {
+        data object Retry : UiEvent
+
+        data class OnDeleteWordClicked(val id: String) : UiEvent
+    }
 }

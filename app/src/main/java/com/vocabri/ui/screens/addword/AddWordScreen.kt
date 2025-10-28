@@ -44,7 +44,6 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.screens.addword.components.AdjectiveAdverbFields
@@ -55,9 +54,7 @@ import com.vocabri.ui.screens.addword.components.SelectPartOfSpeech
 import com.vocabri.ui.screens.addword.components.TranslationTextField
 import com.vocabri.ui.screens.addword.components.VerbFields
 import com.vocabri.ui.screens.addword.components.WordTextField
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEffect
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
@@ -66,17 +63,17 @@ import org.koin.androidx.compose.koinViewModel
 fun AddWordScreen(
     modifier: Modifier = Modifier,
     viewModel: AddWordViewModel = koinViewModel(),
-    navController: NavController,
     focusManager: FocusManager,
+    onNavigateBack: () -> Unit,
 ) {
-    val state by viewModel.state.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(viewModel) {
-        viewModel.effect.collect { effect ->
+        viewModel.sideEffect.collect { effect ->
             when (effect) {
-                AddWordEffect.WordSaved -> navController.popBackStack()
-                is AddWordEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                AddWordContract.UiEffect.WordSaved -> onNavigateBack()
+                is AddWordContract.UiEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
             }
         }
     }
@@ -87,9 +84,9 @@ fun AddWordScreen(
     ) { padding ->
         AddWordScreenRoot(
             modifier = Modifier.padding(padding),
-            state = state,
+            state = uiState,
             focusManager = focusManager,
-            onEvent = viewModel::handleEvent,
+            onEvent = viewModel::onEvent,
         )
     }
 }
@@ -98,11 +95,11 @@ fun AddWordScreen(
 fun AddWordScreenRoot(
     modifier: Modifier = Modifier,
     focusManager: FocusManager,
-    state: AddWordState,
-    onEvent: (AddWordEvent) -> Unit,
+    state: AddWordContract.UiState,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
 ) {
     when (state) {
-        is AddWordState.Editing -> AddWordScreenContent(modifier, focusManager, state, onEvent)
+        is AddWordContract.UiState.Editing -> AddWordScreenContent(modifier, focusManager, state, onEvent)
     }
 }
 
@@ -110,8 +107,8 @@ fun AddWordScreenRoot(
 private fun AddWordScreenContent(
     modifier: Modifier = Modifier,
     focusManager: FocusManager,
-    state: AddWordState.Editing,
-    onEvent: (AddWordEvent) -> Unit,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
 ) {
     LazyColumn(
         modifier = modifier
@@ -182,7 +179,7 @@ private fun PreviewAddWordScreenEditing() {
     val focusManager = LocalFocusManager.current
     VocabriTheme {
         AddWordScreenRoot(
-            state = AddWordState.Editing(
+            state = AddWordContract.UiState.Editing(
                 text = "lernen",
                 partOfSpeech = PartOfSpeech.VERB,
                 translations = listOf("study", "learn"),
@@ -213,7 +210,7 @@ private fun PreviewAddWordScreenEditingEmpty() {
     val focusManager = LocalFocusManager.current
     VocabriTheme {
         AddWordScreenRoot(
-            state = AddWordState.Editing(),
+            state = AddWordContract.UiState.Editing(),
             focusManager = focusManager,
             onEvent = {},
         )
@@ -235,7 +232,7 @@ private fun PreviewAddWordScreenError() {
     val focusManager = LocalFocusManager.current
     VocabriTheme {
         AddWordScreenRoot(
-            state = AddWordState.Editing(
+            state = AddWordContract.UiState.Editing(
                 partOfSpeech = PartOfSpeech.ADJECTIVE,
                 errorMessageId = R.string.add_word_empty_field,
             ),

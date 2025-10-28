@@ -32,14 +32,10 @@ import com.vocabri.domain.usecase.word.ObserveWordGroupsUseCase
 import com.vocabri.logger.logger
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
 import com.vocabri.ui.screens.dictionary.model.toTitleResId
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
@@ -48,19 +44,13 @@ import kotlin.coroutines.cancellation.CancellationException
 open class DictionaryViewModel(
     private val observeWordGroupsUseCase: ObserveWordGroupsUseCase,
     private val resourcesRepository: ResourcesRepository,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
 
     private val log = logger()
 
-    private val _state = MutableStateFlow<DictionaryState>(DictionaryState.Loading)
-    open val state: StateFlow<DictionaryState> = _state
-
-    private val _effect = MutableSharedFlow<DictionaryEffect>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-    open val effect: SharedFlow<DictionaryEffect> = _effect.asSharedFlow()
+    private val _uiState = MutableStateFlow<DictionaryContract.UiState>(DictionaryContract.UiState.Loading)
+    open val uiState: StateFlow<DictionaryContract.UiState> = _uiState
 
     private var observeJob: Job? = null
 
@@ -68,28 +58,23 @@ open class DictionaryViewModel(
         observeWordGroups()
     }
 
-    fun handleEvent(event: DictionaryEvent) {
+    fun onEvent(event: DictionaryContract.UiEvent) {
         log.i { "Handling event: $event" }
         when (event) {
-            DictionaryEvent.AddWordClicked -> sendEffect(DictionaryEffect.NavigateToAddWord)
-            is DictionaryEvent.OnGroupCardClicked ->
-                sendEffect(DictionaryEffect.NavigateToDictionaryDetails(event.partOfSpeech))
-
-            DictionaryEvent.RetryClicked -> retry()
+            DictionaryContract.UiEvent.Retry -> reloadWordGroups()
         }
     }
 
-    fun retry() {
-        log.i { "Retry requested from UI" }
+    private fun reloadWordGroups() {
         observeWordGroups()
     }
 
     private fun observeWordGroups() {
         observeJob?.cancel()
-        observeJob = viewModelScope.launch(Dispatchers.IO) {
+        observeJob = viewModelScope.launch(ioDispatcher) {
             observeWordGroupsUseCase.execute()
                 .onStart {
-                    _state.value = DictionaryState.Loading
+                    _uiState.value = DictionaryContract.UiState.Loading
                 }
                 .catch { throwable ->
                     when (throwable) {
@@ -99,7 +84,8 @@ open class DictionaryViewModel(
 
                         else -> {
                             log.e(throwable) { "observeWordGroups failed due to exception: $throwable" }
-                            _state.value = DictionaryState.Error("Failed to load data, please try again later.")
+                            _uiState.value =
+                                DictionaryContract.UiState.Error("Failed to load data, please try again later.")
                         }
                     }
                 }
@@ -107,21 +93,15 @@ open class DictionaryViewModel(
                     val allWordsGroupUiModel = wordGroups.allWords.toUiModel()
                     val groupsUiModel = wordGroups.groups.map { it.toUiModel() }
 
-                    _state.value = if (groupsUiModel.isEmpty()) {
-                        DictionaryState.Empty
+                    _uiState.value = if (groupsUiModel.isEmpty()) {
+                        DictionaryContract.UiState.Empty
                     } else {
-                        DictionaryState.GroupsLoaded(
+                        DictionaryContract.UiState.GroupsLoaded(
                             allWords = allWordsGroupUiModel,
                             groups = groupsUiModel,
                         )
                     }
                 }
-        }
-    }
-
-    private fun sendEffect(effect: DictionaryEffect) {
-        viewModelScope.launch {
-            _effect.emit(effect)
         }
     }
 

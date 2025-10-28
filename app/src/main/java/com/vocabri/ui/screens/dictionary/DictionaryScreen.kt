@@ -40,7 +40,6 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -50,19 +49,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.logger.logger
 import com.vocabri.ui.components.Buttons
 import com.vocabri.ui.components.ShimmerEffect
-import com.vocabri.ui.navigation.NavigationRoute
 import com.vocabri.ui.screens.dictionary.components.WordGroupCard
 import com.vocabri.ui.screens.dictionary.components.WordGroupHighlightedCard
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEffect
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryState
+import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryContract
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import com.vocabri.ui.theme.VocabriTheme
 import org.koin.androidx.compose.koinViewModel
@@ -76,54 +71,47 @@ private const val LOADING_SKELETON_SUBTITLE_WIDTH_PERCENT = 0.7f
 fun DictionaryScreen(
     modifier: Modifier = Modifier,
     viewModel: DictionaryViewModel = koinViewModel(),
-    navController: NavController,
+    onNavigateToAddWord: () -> Unit,
+    onNavigateToDictionaryDetails: (String) -> Unit,
 ) {
-    val log = logger("DictionaryScreen")
-    val state by viewModel.state.collectAsState()
-
-    LaunchedEffect(viewModel) {
-        log.i { "DictionaryScreen is displayed" }
-        viewModel.effect.collect { effect ->
-            log.i { "Effect received: $effect" }
-            when (effect) {
-                DictionaryEffect.NavigateToAddWord ->
-                    navController.navigate(NavigationRoute.Secondary.AddWord.route)
-
-                is DictionaryEffect.NavigateToDictionaryDetails ->
-                    navController.navigate(
-                        NavigationRoute.Secondary.DictionaryDetails.fromGroup(effect.partOfSpeech),
-                    )
-            }
-        }
-    }
+    logger("DictionaryScreen")
+    val uiState by viewModel.uiState.collectAsState()
 
     DictionaryScreenRoot(
         modifier = modifier,
-        state = state,
-        onEvent = viewModel::handleEvent,
+        state = uiState,
+        onNavigateToAddWord = onNavigateToAddWord,
+        onNavigateToDictionaryDetails = onNavigateToDictionaryDetails,
+        onEvent = viewModel::onEvent,
     )
 }
 
 @Composable
-fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, onEvent: (DictionaryEvent) -> Unit) {
+fun DictionaryScreenRoot(
+    modifier: Modifier = Modifier,
+    state: DictionaryContract.UiState,
+    onNavigateToAddWord: () -> Unit,
+    onNavigateToDictionaryDetails: (String) -> Unit,
+    onEvent: (DictionaryContract.UiEvent) -> Unit,
+) {
     Box(
         modifier = modifier
             .fillMaxSize(),
     ) {
         when (state) {
-            is DictionaryState.GroupsLoaded -> {
-                WordListScreen(state = state, onEvent = onEvent)
+            is DictionaryContract.UiState.GroupsLoaded -> {
+                WordListScreen(state = state, onNavigateToDictionaryDetails = onNavigateToDictionaryDetails)
             }
 
-            is DictionaryState.Empty -> {
-                EmptyScreen(onEvent = onEvent)
+            is DictionaryContract.UiState.Empty -> {
+                EmptyScreen(onNavigateToAddWord = onNavigateToAddWord)
             }
 
-            is DictionaryState.Loading -> {
+            is DictionaryContract.UiState.Loading -> {
                 LoadingScreen()
             }
 
-            is DictionaryState.Error -> {
+            is DictionaryContract.UiState.Error -> {
                 ErrorScreen(state = state, onEvent = onEvent)
             }
         }
@@ -134,7 +122,7 @@ fun DictionaryScreenRoot(modifier: Modifier = Modifier, state: DictionaryState, 
  * Displays a message when the dictionary is empty.
  */
 @Composable
-internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEvent) -> Unit) {
+internal fun EmptyScreen(modifier: Modifier = Modifier, onNavigateToAddWord: () -> Unit) {
     Box(
         modifier = modifier
             .fillMaxSize(),
@@ -154,7 +142,8 @@ internal fun EmptyScreen(modifier: Modifier = Modifier, onEvent: (DictionaryEven
                 text = stringResource(R.string.add_word),
                 icon = Icons.Default.Create,
                 contentDescriptionResId = R.string.add_word,
-            ) { onEvent(DictionaryEvent.AddWordClicked) }
+                onClick = onNavigateToAddWord,
+            )
         }
     }
 }
@@ -206,8 +195,8 @@ internal fun LoadingScreen(modifier: Modifier = Modifier) {
 @Composable
 internal fun WordListScreen(
     modifier: Modifier = Modifier,
-    state: DictionaryState.GroupsLoaded,
-    onEvent: (DictionaryEvent) -> Unit,
+    state: DictionaryContract.UiState.GroupsLoaded,
+    onNavigateToDictionaryDetails: (String) -> Unit,
 ) {
     val log = logger("DictionaryScreenGrid")
 
@@ -217,6 +206,7 @@ internal fun WordListScreen(
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
+        // TODO: fix warning
         val configuration = LocalConfiguration.current
         val screenWidth = configuration.screenWidthDp
         val screenHeight = configuration.screenHeightDp
@@ -237,16 +227,25 @@ internal fun WordListScreen(
                     // considering "All words" group too
                     items(state.groups.size + 1) { groupIndex ->
                         if (groupIndex == 0) {
-                            WordGroupHighlightedCard(uiItem = state.allWords, onEvent = onEvent)
+                            WordGroupHighlightedCard(
+                                uiItem = state.allWords,
+                                onNavigateToDictionaryDetails = onNavigateToDictionaryDetails,
+                            )
                         } else {
-                            WordGroupCard(uiItem = state.groups[groupIndex - 1], onEvent = onEvent)
+                            WordGroupCard(
+                                uiItem = state.groups[groupIndex - 1],
+                                onNavigateToDictionaryDetails = onNavigateToDictionaryDetails,
+                            )
                         }
                     }
                 }
             }
 
             false -> {
-                WordGroupHighlightedCard(uiItem = state.allWords, onEvent = onEvent)
+                WordGroupHighlightedCard(
+                    uiItem = state.allWords,
+                    onNavigateToDictionaryDetails = onNavigateToDictionaryDetails,
+                )
                 val groupsColumns = state.groups.chunked(columnCount)
                 groupsColumns.forEach { column ->
                     Row(
@@ -258,7 +257,7 @@ internal fun WordListScreen(
                             WordGroupCard(
                                 modifier = Modifier.weight(1f),
                                 uiItem = group,
-                                onEvent = onEvent,
+                                onNavigateToDictionaryDetails = onNavigateToDictionaryDetails,
                             )
                         }
                     }
@@ -274,8 +273,8 @@ internal fun WordListScreen(
 @Composable
 internal fun ErrorScreen(
     modifier: Modifier = Modifier,
-    state: DictionaryState.Error,
-    onEvent: (DictionaryEvent) -> Unit,
+    state: DictionaryContract.UiState.Error,
+    onEvent: (DictionaryContract.UiEvent) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -293,7 +292,7 @@ internal fun ErrorScreen(
         Buttons.Filled(
             text = stringResource(R.string.retry),
             contentDescriptionResId = R.string.retry,
-        ) { onEvent(DictionaryEvent.RetryClicked) }
+        ) { onEvent(DictionaryContract.UiEvent.Retry) }
     }
 }
 
@@ -334,7 +333,14 @@ private fun PreviewWordListScreen() {
         ),
     )
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.GroupsLoaded(allWords = allWords, groups = sampleWordGroups)) {}
+        DictionaryScreenRoot(
+            state = DictionaryContract.UiState.GroupsLoaded(
+                allWords = allWords,
+                groups = sampleWordGroups,
+            ),
+            onNavigateToAddWord = {},
+            onNavigateToDictionaryDetails = {},
+        ) {}
     }
 }
 
@@ -352,7 +358,9 @@ private fun PreviewWordListScreen() {
 private fun PreviewEmptyDictionaryScreen() {
     VocabriTheme {
         DictionaryScreenRoot(
-            state = DictionaryState.Empty,
+            state = DictionaryContract.UiState.Empty,
+            onNavigateToAddWord = {},
+            onNavigateToDictionaryDetails = {},
         ) {}
     }
 }
@@ -370,7 +378,11 @@ private fun PreviewEmptyDictionaryScreen() {
 @Composable
 private fun PreviewLoadingScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Loading) {}
+        DictionaryScreenRoot(
+            state = DictionaryContract.UiState.Loading,
+            onNavigateToAddWord = {},
+            onNavigateToDictionaryDetails = {},
+        ) {}
     }
 }
 
@@ -388,6 +400,10 @@ private fun PreviewLoadingScreen() {
 @Composable
 private fun PreviewErrorScreen() {
     VocabriTheme {
-        DictionaryScreenRoot(state = DictionaryState.Error(message = "Network error")) {}
+        DictionaryScreenRoot(
+            state = DictionaryContract.UiState.Error(message = "Network error"),
+            onNavigateToAddWord = {},
+            onNavigateToDictionaryDetails = {},
+        ) {}
     }
 }

@@ -26,6 +26,7 @@ package com.vocabri
 import android.app.Application
 import com.vocabri.data.di.dataModule
 import com.vocabri.di.appModule
+import com.vocabri.di.coroutineModule
 import com.vocabri.domain.di.domainModule
 import com.vocabri.logger.logger
 import kotlinx.coroutines.CoroutineName
@@ -57,9 +58,10 @@ class VocabriApplication : Application() {
             androidLogger()
             androidContext(this@VocabriApplication)
             modules(
+                coroutineModule(appDataScope),
                 dataModule,
                 domainModule,
-                appModule(appDataScope),
+                appModule,
             )
         }
         log.i { "Koin initialization completed" }

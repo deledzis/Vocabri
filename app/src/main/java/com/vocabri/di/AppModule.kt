@@ -32,17 +32,13 @@ import com.vocabri.ui.screens.addword.viewmodel.AddWordViewModel
 import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryViewModel
 import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsViewModel
 import com.vocabri.utils.AndroidResourcesRepository
-import kotlinx.coroutines.CoroutineScope
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
-import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 @ExcludeFromCoverage
-fun appModule(appDataScope: CoroutineScope) = module {
-    single<CoroutineScope>(named("AppScope")) { appDataScope }
-
+val appModule = module {
     single<ResourcesRepository> { AndroidResourcesRepository(context = androidContext()) }
 
     viewModelOf(::MainViewModel)
@@ -56,6 +52,7 @@ fun appModule(appDataScope: CoroutineScope) = module {
                 partOfSpeech = partOfSpeech,
                 observeWordsUseCase = get(),
                 deleteWordUseCase = get(),
+                get(),
             )
         }
     }

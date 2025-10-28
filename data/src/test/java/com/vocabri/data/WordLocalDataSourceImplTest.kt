@@ -31,6 +31,8 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
+import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
@@ -46,10 +48,16 @@ class WordLocalDataSourceImplTest {
     private val database = VocabriDatabase(driver)
 
     private lateinit var dataSource: WordLocalDataSourceImpl
+    private val ioDispatcher = UnconfinedTestDispatcher()
+    private val coroutineScope = TestScope(ioDispatcher)
 
     @Before
     fun setup() {
-        dataSource = WordLocalDataSourceImpl(database = database)
+        dataSource = WordLocalDataSourceImpl(
+            database = database,
+            ioDispatcher = ioDispatcher,
+            coroutineScope = coroutineScope,
+        )
     }
 
     @After

@@ -66,6 +66,7 @@ val dataModule = module {
     single<LocalWordDataSource> {
         WordLocalDataSourceImpl(
             database = get(),
+            ioDispatcher = get(),
             coroutineScope = get(named("AppScope")),
         )
     }

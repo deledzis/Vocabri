@@ -38,12 +38,15 @@ import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.ChipsFlowRow
 import com.vocabri.ui.components.TextFieldWithButton
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun TranslationTextField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) -> Unit, state: AddWordState.Editing) {
+fun TranslationTextField(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -53,9 +56,9 @@ fun TranslationTextField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) 
             placeholderResId = R.string.add_translation_placeholder,
             buttonContentDescriptionResId = R.string.add_translation,
             buttonVisible = state.showAddTranslationButton,
-            onFocusChange = { onEvent(AddWordEvent.OnTranslationFieldFocusChange(it)) },
-            onValueChange = { onEvent(AddWordEvent.UpdateCurrentTranslation(it)) },
-            onAddValueClick = { onEvent(AddWordEvent.AddTranslation) },
+            onFocusChange = { onEvent(AddWordContract.UiEvent.OnTranslationFieldFocusChange(it)) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateCurrentTranslation(it)) },
+            onAddValueClick = { onEvent(AddWordContract.UiEvent.AddTranslation) },
         )
 
         if (state.translations.isNotEmpty()) {
@@ -65,7 +68,7 @@ fun TranslationTextField(modifier: Modifier = Modifier, onEvent: (AddWordEvent) 
                 removeButtonContentDescriptionResId = R.string.remove_translation,
                 itemPrintableName = { it },
                 isSelected = { true },
-                onClick = { onEvent(AddWordEvent.RemoveTranslation(it)) },
+                onClick = { onEvent(AddWordContract.UiEvent.RemoveTranslation(it)) },
             )
         }
     }
@@ -99,7 +102,7 @@ private fun PreviewTranslationTextField() {
         ) {
             item {
                 TranslationTextField(
-                    state = AddWordState.Editing(
+                    state = AddWordContract.UiState.Editing(
                         currentTranslation = "to do",
                         showAddTranslationButton = true,
                         translations = listOf("study", "learn"),

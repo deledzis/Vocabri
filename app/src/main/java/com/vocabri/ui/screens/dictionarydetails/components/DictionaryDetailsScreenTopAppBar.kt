@@ -38,13 +38,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.vocabri.R
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsState
+import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsContract
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DictionaryDetailsScreenTopAppBar(
     modifier: Modifier = Modifier,
-    state: DictionaryDetailsState,
+    state: DictionaryDetailsContract.UiState,
     navController: NavController,
 ) {
     TopAppBar(

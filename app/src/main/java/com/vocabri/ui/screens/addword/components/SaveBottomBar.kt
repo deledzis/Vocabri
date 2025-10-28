@@ -39,16 +39,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.vocabri.R
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.Buttons
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
 fun SaveBottomBar(
     modifier: Modifier = Modifier,
     focusManager: FocusManager,
-    state: AddWordState.Editing,
-    onEvent: (AddWordEvent) -> Unit,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -70,8 +69,8 @@ fun SaveBottomBar(
 private fun SaveButton(
     modifier: Modifier = Modifier,
     focusManager: FocusManager,
-    state: AddWordState.Editing,
-    onEvent: (AddWordEvent) -> Unit,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
 ) {
     Buttons.Filled(
         modifier = modifier
@@ -81,7 +80,7 @@ private fun SaveButton(
         text = stringResource(R.string.save),
     ) {
         focusManager.clearFocus()
-        onEvent(AddWordEvent.SaveWord)
+        onEvent(AddWordContract.UiEvent.SaveWord)
     }
 }
 
@@ -107,7 +106,7 @@ private fun PreviewSaveBottomBar() {
     val focusManager = LocalFocusManager.current
     VocabriTheme {
         SaveBottomBar(
-            state = AddWordState.Editing(
+            state = AddWordContract.UiState.Editing(
                 text = "lernen",
                 translations = listOf("study", "learn"),
                 partOfSpeech = PartOfSpeech.VERB,

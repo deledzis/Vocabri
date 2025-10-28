@@ -37,21 +37,24 @@ import androidx.compose.ui.unit.dp
 import com.vocabri.R
 import com.vocabri.ui.components.ChipsFlowRow
 import com.vocabri.ui.components.TextFieldWithButton
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun VerbFields(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     Column(modifier = modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(16.dp)) {
         TextFieldWithButton(
             value = state.currentConjugation,
             placeholderResId = R.string.add_conjugation_placeholder,
             buttonContentDescriptionResId = R.string.add_conjugation,
             buttonVisible = state.showAddConjugationButton,
-            onValueChange = { onEvent(AddWordEvent.UpdateCurrentConjugation(it)) },
-            onFocusChange = { onEvent(AddWordEvent.OnConjugationFieldFocusChange(it)) },
-            onAddValueClick = { onEvent(AddWordEvent.AddConjugation) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateCurrentConjugation(it)) },
+            onFocusChange = { onEvent(AddWordContract.UiEvent.OnConjugationFieldFocusChange(it)) },
+            onAddValueClick = { onEvent(AddWordContract.UiEvent.AddConjugation) },
         )
         if (state.conjugations.isNotEmpty()) {
             ChipsFlowRow(
@@ -60,7 +63,7 @@ fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEve
                 removeButtonContentDescriptionResId = R.string.remove_conjugation,
                 itemPrintableName = { it },
                 isSelected = { true },
-                onClick = { onEvent(AddWordEvent.RemoveConjugation(it)) },
+                onClick = { onEvent(AddWordContract.UiEvent.RemoveConjugation(it)) },
             )
         }
 
@@ -69,9 +72,9 @@ fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEve
             placeholderResId = R.string.add_management_placeholder,
             buttonContentDescriptionResId = R.string.add_management,
             buttonVisible = state.showAddManagementButton,
-            onValueChange = { onEvent(AddWordEvent.UpdateCurrentManagement(it)) },
-            onFocusChange = { onEvent(AddWordEvent.OnManagementFieldFocusChange(it)) },
-            onAddValueClick = { onEvent(AddWordEvent.AddManagement) },
+            onValueChange = { onEvent(AddWordContract.UiEvent.UpdateCurrentManagement(it)) },
+            onFocusChange = { onEvent(AddWordContract.UiEvent.OnManagementFieldFocusChange(it)) },
+            onAddValueClick = { onEvent(AddWordContract.UiEvent.AddManagement) },
         )
         if (state.managements.isNotEmpty()) {
             ChipsFlowRow(
@@ -80,7 +83,7 @@ fun VerbFields(modifier: Modifier = Modifier, state: AddWordState.Editing, onEve
                 removeButtonContentDescriptionResId = R.string.remove_management,
                 itemPrintableName = { it },
                 isSelected = { true },
-                onClick = { onEvent(AddWordEvent.RemoveManagement(it)) },
+                onClick = { onEvent(AddWordContract.UiEvent.RemoveManagement(it)) },
             )
         }
     }
@@ -114,7 +117,7 @@ private fun PreviewVerbFields() {
         ) {
             item {
                 VerbFields(
-                    state = AddWordState.Editing(
+                    state = AddWordContract.UiState.Editing(
                         conjugations = listOf("lerne", "lernst"),
                         managements = listOf("auf + D"),
                         currentConjugation = "test",

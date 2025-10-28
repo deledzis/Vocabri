@@ -30,20 +30,23 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.ChipsFlowRow
-import com.vocabri.ui.screens.addword.viewmodel.AddWordEvent
-import com.vocabri.ui.screens.addword.viewmodel.AddWordState
+import com.vocabri.ui.screens.addword.viewmodel.AddWordContract
 import com.vocabri.ui.screens.dictionary.model.toLabelResId
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun SelectPartOfSpeech(modifier: Modifier = Modifier, state: AddWordState.Editing, onEvent: (AddWordEvent) -> Unit) {
+fun SelectPartOfSpeech(
+    modifier: Modifier = Modifier,
+    state: AddWordContract.UiState.Editing,
+    onEvent: (AddWordContract.UiEvent) -> Unit,
+) {
     ChipsFlowRow(
         modifier = modifier,
         items = PartOfSpeech.noAll,
         removable = false,
         itemPrintableName = { stringResource(it.toLabelResId) },
         isSelected = { state.partOfSpeech == it },
-        onClick = { onEvent(AddWordEvent.UpdatePartOfSpeech(it)) },
+        onClick = { onEvent(AddWordContract.UiEvent.UpdatePartOfSpeech(it)) },
     )
 }
 
@@ -68,7 +71,7 @@ fun SelectPartOfSpeech(modifier: Modifier = Modifier, state: AddWordState.Editin
 private fun PreviewSelectPartOfSpeech() {
     VocabriTheme {
         SelectPartOfSpeech(
-            state = AddWordState.Editing(
+            state = AddWordContract.UiState.Editing(
                 text = "lernen",
                 translations = listOf("study", "learn"),
                 partOfSpeech = PartOfSpeech.VERB,

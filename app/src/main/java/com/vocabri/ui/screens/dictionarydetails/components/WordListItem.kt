@@ -65,13 +65,17 @@ import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.DeleteBackground
 import com.vocabri.ui.screens.dictionary.model.toSmallCircleColor
 import com.vocabri.ui.screens.dictionarydetails.model.WordUiModel
-import com.vocabri.ui.screens.dictionarydetails.viewmodel.DictionaryDetailsEvent
 import com.vocabri.ui.theme.VocabriTheme
 
 private const val THRESHOLD = 0.5f
 
 @Composable
-fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryDetailsEvent) -> Unit) {
+fun WordListItem(
+    modifier: Modifier = Modifier,
+    uiItem: WordUiModel,
+    onDeleteWord: (wordId: String) -> Unit,
+    onWordClick: (wordId: String) -> Unit,
+) {
     var isDismissEnabled by remember(uiItem.id) { mutableStateOf(true) }
 
     val dismissState = rememberSwipeToDismissBoxState(
@@ -79,7 +83,7 @@ fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (D
         positionalThreshold = { it * THRESHOLD },
     )
 
-    val currentOnEvent by rememberUpdatedState(newValue = onEvent)
+    val currentOnDeleteWord by rememberUpdatedState(newValue = onDeleteWord)
     val currentWordId by rememberUpdatedState(newValue = uiItem.id)
 
     LaunchedEffect(dismissState.currentValue) {
@@ -87,7 +91,7 @@ fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (D
             SwipeToDismissBoxValue.EndToStart -> {
                 if (isDismissEnabled) {
                     isDismissEnabled = false
-                    currentOnEvent(DictionaryDetailsEvent.DeleteWordClicked(currentWordId))
+                    currentOnDeleteWord(currentWordId)
                     dismissState.snapTo(SwipeToDismissBoxValue.Settled)
                 }
             }
@@ -109,7 +113,7 @@ fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (D
         enableDismissFromEndToStart = isDismissEnabled,
         backgroundContent = { DeleteBackground() },
     ) {
-        WordListItemContent(uiItem = uiItem, onEvent = onEvent)
+        WordListItemContent(uiItem = uiItem, onWordClick = onWordClick)
     }
 }
 
@@ -117,7 +121,7 @@ fun WordListItem(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (D
  * Composable for a single word item in the list.
  */
 @Composable
-fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel, onEvent: (DictionaryDetailsEvent) -> Unit) {
+fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel, onWordClick: (wordId: String) -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }
     Row(
         modifier = modifier
@@ -126,7 +130,7 @@ fun WordListItemContent(modifier: Modifier = Modifier, uiItem: WordUiModel, onEv
             .clickable(
                 interactionSource = interactionSource,
                 indication = ripple(color = Color.Gray),
-            ) { onEvent(DictionaryDetailsEvent.OnWordClicked(uiItem.id)) }
+            ) { onWordClick(uiItem.id) }
             .padding(
                 vertical = 8.dp,
                 horizontal = 16.dp,
@@ -190,6 +194,6 @@ private fun PreviewWordListItem() {
         partOfSpeech = PartOfSpeech.VERB,
     )
     VocabriTheme {
-        WordListItem(uiItem = sampleWord) {}
+        WordListItem(uiItem = sampleWord, onDeleteWord = {}, onWordClick = {})
     }
 }

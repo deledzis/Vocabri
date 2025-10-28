@@ -21,21 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.vocabri.ui.screens.addword.viewmodel
+package com.vocabri.di
 
-import com.vocabri.ui.architecture.UiEffect
+import com.vocabri.domain.model.kover.ExcludeFromCoverage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import org.koin.core.qualifier.named
+import org.koin.dsl.module
 
-/**
- * Transient events emitted by [AddWordViewModel] and consumed by the screen.
- */
-sealed interface AddWordEffect : UiEffect {
-    /**
-     * Indicates that a word was successfully saved and the screen can be closed.
-     */
-    data object WordSaved : AddWordEffect
-
-    /**
-     * Requests the UI to surface a non-blocking error message.
-     */
-    data class ShowError(val message: String) : AddWordEffect
+@ExcludeFromCoverage
+fun coroutineModule(appDataScope: CoroutineScope) = module {
+    single<CoroutineScope>(named("AppScope")) { appDataScope }
+    single { Dispatchers.IO }
 }

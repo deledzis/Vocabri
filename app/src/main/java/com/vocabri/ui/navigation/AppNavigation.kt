@@ -58,7 +58,12 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to DictionaryScreen" }
             }
-            DictionaryScreen(navController = navController)
+            DictionaryScreen(
+                onNavigateToAddWord = { navController.navigate(NavigationRoute.Secondary.AddWord.route) },
+                onNavigateToDictionaryDetails = { partOfSpeech ->
+                    navController.navigate(NavigationRoute.Secondary.DictionaryDetails.fromGroup(partOfSpeech))
+                },
+            )
         }
         composable(NavigationRoute.Start.Training.route) {
             LaunchedEffect(navController.currentDestination) {
@@ -91,13 +96,22 @@ fun AppNavigation(modifier: Modifier = Modifier, navController: NavHostControlle
                 qualifier = DictionaryDetailsQualifiers.fromPartOfSpeech(PartOfSpeech.valueOf(partOfSpeech)),
                 viewModelStoreOwner = backStackEntry,
             )
-            DictionaryDetailsScreen(navController = navController, viewModel = viewModel)
+            DictionaryDetailsScreen(
+                viewModel = viewModel,
+                onNavigateToAddWord = {
+                    navController.navigate(NavigationRoute.Secondary.AddWord.route)
+                },
+                onNavigateToEditWord = { wordId ->
+                    // TODO: navigate to Edit word screen when it's ready
+                    navController.popBackStack()
+                },
+            )
         }
         composable(NavigationRoute.Secondary.AddWord.route) {
             LaunchedEffect(navController.currentDestination) {
                 log.i { "Navigating to AddWordScreen" }
             }
-            AddWordScreen(navController = navController, focusManager = focusManager)
+            AddWordScreen(focusManager = focusManager, onNavigateBack = { navController.popBackStack() })
         }
     }
 }

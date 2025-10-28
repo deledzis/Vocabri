@@ -31,35 +31,31 @@ import com.vocabri.domain.usecase.debug.GenerateRandomWordUseCase
 import com.vocabri.domain.usecase.word.AddWordUseCase
 import com.vocabri.logger.logger
 import com.vocabri.ui.navigation.NavigationRoute
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 class MainViewModel(
     private val generateRandomWordUseCase: GenerateRandomWordUseCase,
     private val addWordsUseCase: AddWordUseCase,
+    private val ioDispatcher: CoroutineDispatcher,
 ) : ViewModel() {
     private val log = logger()
 
-    private val _state = MutableStateFlow(MainState(routes = bottomNavigationScreens))
-    val state: StateFlow<MainState> = _state
+    private val _uiState = MutableStateFlow(MainContract.UiState(routes = bottomNavigationScreens))
+    val uiState: StateFlow<MainContract.UiState> = _uiState
 
-    private val _effect = MutableSharedFlow<MainEffect>(
-        replay = 0,
-        extraBufferCapacity = 1,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST,
-    )
-    val effect: SharedFlow<MainEffect> = _effect.asSharedFlow()
+    private val _sideEffect = Channel<MainContract.UiEffect>()
+    val sideEffect: Flow<MainContract.UiEffect> = _sideEffect.receiveAsFlow()
 
-    fun handleEvent(event: MainEvent) {
+    fun onEvent(event: MainContract.UiEvent) {
         log.i { "Handling event: $event" }
         when (event) {
-            is MainEvent.OnPlusButtonLongClick -> onPlusButtonLongClick()
+            is MainContract.UiEvent.OnPlusButtonLongClick -> onPlusButtonLongClick()
         }
     }
 
@@ -74,27 +70,22 @@ class MainViewModel(
 
         val word = generateRandomWordUseCase.execute()
         log.d { "Word to save: $word" }
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             try {
                 addWordsUseCase.execute(word)
                 log.i { "Word saved successfully" }
-                sendEffect(MainEffect.ShowWordAddedSuccess)
+                _sideEffect.send(MainContract.UiEffect.ShowWordAddedSuccess)
             } catch (e: IllegalStateException) {
                 log.e(e) { "Word already exists, ignore and leave: $e" }
-                sendEffect(MainEffect.ShowWordAlreadyExists)
+                _sideEffect.send(MainContract.UiEffect.ShowWordAlreadyExists)
             } catch (e: Exception) {
                 log.e(e) { "Failed to save the word: $e" }
-                sendEffect(MainEffect.ShowError("Failed to save the word"))
+                _sideEffect.send(MainContract.UiEffect.ShowError("Failed to save the word"))
             }
         }
     }
 
-    private fun sendEffect(effect: MainEffect) {
-        viewModelScope.launch {
-            _effect.emit(effect)
-        }
-    }
-
+    // TODO move out
     private fun isEmulator(): Boolean = (
         Build.FINGERPRINT.startsWith("generic") ||
             Build.FINGERPRINT.startsWith("unknown") ||

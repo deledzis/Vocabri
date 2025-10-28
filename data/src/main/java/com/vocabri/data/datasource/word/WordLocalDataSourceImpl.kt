@@ -32,8 +32,8 @@ import com.vocabri.domain.model.word.Translation
 import com.vocabri.domain.model.word.Word
 import com.vocabri.domain.model.word.WordGender
 import com.vocabri.logger.logger
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -44,8 +44,11 @@ import kotlinx.coroutines.flow.shareIn
  * Implementation of the WordDataSource interface using SQLDelight for local storage.
  * All queries for the different parts of speech are located in database.wordQueries.
  */
-class WordLocalDataSourceImpl(private val database: VocabriDatabase, coroutineScope: CoroutineScope) :
-    LocalWordDataSource {
+class WordLocalDataSourceImpl(
+    private val database: VocabriDatabase,
+    ioDispatcher: CoroutineDispatcher,
+    coroutineScope: CoroutineScope,
+) : LocalWordDataSource {
 
     private val log = logger()
 
@@ -53,9 +56,9 @@ class WordLocalDataSourceImpl(private val database: VocabriDatabase, coroutineSc
     private val allWordsFlow = database.wordQueries
         .selectAllWords()
         .asFlow()
-        .mapToList(context = Dispatchers.IO)
+        .mapToList(context = ioDispatcher)
         .shareIn(
-            scope = coroutineScope, // or inject a proper scope
+            scope = coroutineScope,
             started = SharingStarted.WhileSubscribed(5000),
             replay = 1,
         )

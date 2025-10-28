@@ -42,18 +42,21 @@ import androidx.compose.ui.unit.dp
 import com.vocabri.domain.model.word.PartOfSpeech
 import com.vocabri.ui.components.Cards
 import com.vocabri.ui.screens.dictionary.model.WordGroupUiModel
-import com.vocabri.ui.screens.dictionary.viewmodel.DictionaryEvent
 import com.vocabri.ui.theme.VocabriTheme
 
 @Composable
-fun WordGroupCard(modifier: Modifier = Modifier, uiItem: WordGroupUiModel, onEvent: (DictionaryEvent) -> Unit) {
+fun WordGroupCard(
+    modifier: Modifier = Modifier,
+    uiItem: WordGroupUiModel,
+    onNavigateToDictionaryDetails: (String) -> Unit,
+) {
     Cards.Solid(
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
         color = MaterialTheme.colorScheme.surfaceContainer,
         onClick = {
-            onEvent(DictionaryEvent.OnGroupCardClicked(partOfSpeech = uiItem.partOfSpeech.toString()))
+            onNavigateToDictionaryDetails(uiItem.partOfSpeech.toString())
         },
     ) {
         WordGroupCardContent(
@@ -68,7 +71,7 @@ fun WordGroupCard(modifier: Modifier = Modifier, uiItem: WordGroupUiModel, onEve
 fun WordGroupHighlightedCard(
     modifier: Modifier = Modifier,
     uiItem: WordGroupUiModel,
-    onEvent: (DictionaryEvent) -> Unit,
+    onNavigateToDictionaryDetails: (String) -> Unit,
 ) {
     Cards.Solid(
         modifier = modifier
@@ -76,7 +79,7 @@ fun WordGroupHighlightedCard(
             .wrapContentHeight(),
         color = MaterialTheme.colorScheme.tertiary,
         onClick = {
-            onEvent(DictionaryEvent.OnGroupCardClicked(partOfSpeech = uiItem.partOfSpeech.toString()))
+            onNavigateToDictionaryDetails(uiItem.partOfSpeech.toString())
         },
     ) {
         WordGroupCardContent(
