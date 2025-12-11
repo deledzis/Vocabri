@@ -9,7 +9,7 @@ kotlin-coroutines = "1.10.2"
 coreKtx = "1.17.0"
 android-tools = "31.13.0"
 
-android-gradle-plugin = "8.13.0"
+android-gradle-plugin = "8.13.2"
 kover = "0.9.3"
 spotless = "8.0.0"
 detekt = "1.23.8"
