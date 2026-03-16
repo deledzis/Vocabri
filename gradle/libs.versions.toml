@@ -16,7 +16,7 @@ detekt = "1.23.8"
 compose-rules = "0.4.27"
 
 koin = "4.1.1"
-sqldelight = "2.1.0"
+sqldelight = "2.3.2"
 kermit = "2.0.8"
 crashlytics = "3.0.6"
 ktor = "3.3.1"
